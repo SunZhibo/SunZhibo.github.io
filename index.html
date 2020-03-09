@@ -70,6 +70,76 @@
     
     
     
+    <article id="post-CF-626-Div1" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/03/08/CF-626-Div1/"
+    >CF#626 Div1</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/03/08/CF-626-Div1/" class="article-date">
+  <time datetime="2020-03-08T14:52:35.000Z" itemprop="datePublished">2020-03-08</time>
+</a>
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="流水账"><a href="#流水账" class="headerlink" title="流水账"></a>流水账</h2><p>用一个不快不慢的速度过掉了$A$题，看了一会$B$题，大概卡了我15分钟才发现这题直接暴力搞上去就过了。然后我的噩梦就开始了，这个$C$题我看了半个多小时，也发现了要找一个结论，但是猜了几个都没有证明出来，感觉差了一些经验。赛后有去好好想$D$题，但是也没有结果，确实是不错的dp题，都是很经典的trick。</p>
+<h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2>
+      
+      <a class="article-more-link" href="/2020/03/08/CF-626-Div1/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%AD%E7%BB%83/" rel="tag">训练</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-跟3b1b学线性代数" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -112,13 +182,10 @@
 
       
       <h2 id="跟3b1b学线性代数"><a href="#跟3b1b学线性代数" class="headerlink" title="跟3b1b学线性代数"></a>跟3b1b学线性代数</h2><p>在家颓废又不想学习，遂打开b站开始刷视频，偶然翻到了3b1b的线性代数视频，周哥之前有跟我推荐过，说他看完了之后大彻大悟，记录一下重新学习线性代数的过程。</p>
-<h3 id="几何空间"><a href="#几何空间" class="headerlink" title="几何空间"></a>几何空间</h3><p>这个假期解除了深度学习，在尝试理解人工智能是怎么做到分类任务的时候，微软项目作者从线性分类问题开始举例，在线性分类问题中，对于一个$x$个输入的足够多的隐藏层训练网络，训练的结果相当于在一个至多$x$维的平面中做线性切分，剖一个$x$维曲面定义分类的区域，而非线性中激活函数则是由对空间进行一些非线性变换。</p>
-<p>虽然我在大一学过了线性代数，绩点4.8也算还可以，但是仍然有许多不甚理解的地方，后面学习了常微分方程，里面有很多设计矩阵特征值，行列式的部分，我觉得自己一直没能理解矩阵的特征值，行列式，再拓展到向量的叉积背后的含义，简单的常见的应用都没问题，但是一旦拓展到新领域便要花好长时间重新理解。趁着这个机会我记录一下3b1b的线性代数视频能带给我怎样的思考。</p>
-<h3 id="线性空间"><a href="#线性空间" class="headerlink" title="线性空间"></a>线性空间</h3><p>考虑一个二维空间内的一组基$u,v$组成的向量$au+bv$，当$a$的值不变时，改变$b$的值，得到的向量的终点落在一条直线上，隐隐约约有一将单位向量替换为基中的一个向量后便得到了转换坐标轴下的一条水平/竖直的直线。</p>
-<p>考虑一个二维空间内的线性变换，往往对应着一种平面的旋转拉伸操作，我们回到换基的这个视角，在一般的表示方法下，终点落在$(x,y)$的向量$\vec u$可以表示为$[x,y]^{T}$，或者写成$\vec u = x \vec i + y \vec j$。考虑对$\vec u$做一个线性变换后会得到什么向量呢？我们不妨设$\vec i(1,0)$经过变换后会变成$\vec {i’}(a,b)$，$\vec j$变成$\vec{j’}(c,d)$，那么有$\vec{u’}=(ax+cy, bx+dy)$，这个形式恰恰等与与变换矩阵$\begin{bmatrix} a &amp; c \ b &amp; d\end{bmatrix}$相乘的结果。</p>
-<p>看一下这个矩阵乘法的式子<br>$$<br>\begin{bmatrix}a &amp; c \ b &amp; d  \end{bmatrix}<br>\begin{bmatrix} x \ y \end{bmatrix}<br>=<br>\begin{bmatrix} ax+cy \ bx+dy \end{bmatrix}<br>$$</p>
-<p>那么按照3b1b视频中所说的我们可以把</p>
-
+<h3 id="几何空间"><a href="#几何空间" class="headerlink" title="几何空间"></a>几何空间</h3>
+      
+      <a class="article-more-link" href="/2020/02/22/%E8%B7%9F3b1b%E5%AD%A6%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/">阅读更多...</a>
+      
       
       <!-- reward -->
       
