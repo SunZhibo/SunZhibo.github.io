@@ -21,23 +21,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":true,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo Blog">
-<meta property="og:url" content="https://sunzhibo.github.io/archives/2022/index.html">
+    <meta name="description" content="2022年9月 9月第一周 9.1 贺sr学长和苑zq学长参与到了现在的HardwareEVM项目，老板给开了组会，确定了我们小组接下来短期的任务方向，先做一个硬件的模型出来，不用特意考虑太多的东西，先大概感受一下硬件解决方案的实际性能。 接下来要做的两件主要的事情：  与学长同步我那糟糕的毕业设计，分析一下硬件设计并改进一下 完成PCIE通信模块，实现一个硬件加速卡  9.2 今天读了《精通以太">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日报">
+<meta property="og:url" content="https://sunzhibo.github.io/2022/09/02/%E6%97%A5%E6%8A%A5/index.html">
 <meta property="og:site_name" content="Hexo Blog">
+<meta property="og:description" content="2022年9月 9月第一周 9.1 贺sr学长和苑zq学长参与到了现在的HardwareEVM项目，老板给开了组会，确定了我们小组接下来短期的任务方向，先做一个硬件的模型出来，不用特意考虑太多的东西，先大概感受一下硬件解决方案的实际性能。 接下来要做的两件主要的事情：  与学长同步我那糟糕的毕业设计，分析一下硬件设计并改进一下 完成PCIE通信模块，实现一个硬件加速卡  9.2 今天读了《精通以太">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-02T14:15:06.000Z">
+<meta property="article:modified_time" content="2022-09-02T14:28:56.234Z">
 <meta property="article:author" content="SunZhibo">
+<meta property="article:tag" content="record">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/archives/2022/">
+<link rel="canonical" href="https://sunzhibo.github.io/2022/09/02/%E6%97%A5%E6%8A%A5/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"archives/2022/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/09/02/%E6%97%A5%E6%8A%A5/","path":"2022/09/02/日报/","title":"日报"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>归档 | Hexo Blog</title>
+<title>日报 | Hexo Blog</title>
   
 
 
@@ -67,7 +72,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Hexo Blog</h1>
+      <p class="site-title">Hexo Blog</p>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">record</p>
@@ -127,7 +132,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -140,6 +145,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B49%E6%9C%88"><span class="nav-number">1.</span> <span class="nav-text">2022年9月</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%B8%80%E5%91%A8"><span class="nav-number">1.1.</span> <span class="nav-text">9月第一周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section"><span class="nav-number">1.1.1.</span> <span class="nav-text">9.1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-1"><span class="nav-number">1.1.2.</span> <span class="nav-text">9.2</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -185,89 +191,103 @@
 </noscript>
 
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
-  
-  
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 3 篇日志。 继续努力。</span>
-      </div>
 
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/09/02/%E6%97%A5%E6%8A%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="SunZhibo">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="日报 | Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          日报
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
       
-    <div class="collection-year">
-      <span class="collection-header">2022</span>
+
+      <time title="创建时间：2022-09-02 22:15:06 / 修改时间：22:28:56" itemprop="dateCreated datePublished" datetime="2022-09-02T22:15:06+08:00">2022-09-02</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="年9月">2022年9月</h2>
+<h3 id="月第一周">9月第一周</h3>
+<h4 id="section">9.1</h4>
+<p>贺sr学长和苑zq学长参与到了现在的HardwareEVM项目，老板给开了组会，确定了我们小组接下来短期的任务方向，先做一个硬件的模型出来，不用特意考虑太多的东西，先大概感受一下硬件解决方案的实际性能。</p>
+<p>接下来要做的两件主要的事情：</p>
+<ol type="1">
+<li>与学长同步我那糟糕的毕业设计，分析一下硬件设计并改进一下</li>
+<li>完成PCIE通信模块，实现一个硬件加速卡</li>
+</ol>
+<h4 id="section-1">9.2</h4>
+<p>今天读了《精通以太坊》的钱包章节，详细地看了一下密钥的派生原理，接下来有时间会整理到博客上，然后终于跑完了以太坊历史数据的同步，硬生生地扩了两次wsl的虚拟硬盘大小，给我1T的Sanmsung
+EVO 980差点没塞满了。</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-09-02T22:15:06+08:00"
-              content="2022-09-02">
-          09-02
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/09/02/%E6%97%A5%E6%8A%A5/" itemprop="url">
-            <span itemprop="name">日报</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/record/" rel="tag"># record</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/" rel="prev" title="Keccak-256算法详解">
+                  <i class="fa fa-chevron-left"></i> Keccak-256算法详解
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-08-31T14:37:01+08:00"
-              content="2022-08-31">
-          08-31
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/" itemprop="url">
-            <span itemprop="name">Keccak-256算法详解</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2022-08-31T14:37:01+08:00"
-              content="2022-08-31">
-          08-31
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8E%E5%AE%89%E5%85%A8/" itemprop="url">
-            <span itemprop="name">以太坊与安全</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
+</div>
 
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
 
 </div>
   </main>

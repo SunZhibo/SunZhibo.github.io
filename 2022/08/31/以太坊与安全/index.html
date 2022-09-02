@@ -23,29 +23,27 @@
 
     <meta name="description" content="私钥，公钥与地址 私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更依赖于密码学安全的伪随机数生成器（如CSPRNG），在以太坊中私钥可以是\([1, n-1]\)中的任何数字，其中\(n\)代表了以太坊使用的椭圆曲线的阶，为\(1.158 * 10^{77}\)。 以太坊使用椭圆曲线保证非对称密码的安全性，采用secp256k1的标准">
 <meta property="og:type" content="article">
-<meta property="og:title" content="以太坊与Keccak-256">
-<meta property="og:url" content="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/index.html">
+<meta property="og:title" content="以太坊与安全">
+<meta property="og:url" content="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8E%E5%AE%89%E5%85%A8/index.html">
 <meta property="og:site_name" content="Hexo Blog">
 <meta property="og:description" content="私钥，公钥与地址 私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更依赖于密码学安全的伪随机数生成器（如CSPRNG），在以太坊中私钥可以是\([1, n-1]\)中的任何数字，其中\(n\)代表了以太坊使用的椭圆曲线的阶，为\(1.158 * 10^{77}\)。 以太坊使用椭圆曲线保证非对称密码的安全性，采用secp256k1的标准">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/keccak.png">
 <meta property="article:published_time" content="2022-08-31T06:37:01.000Z">
-<meta property="article:modified_time" content="2022-08-31T09:30:18.896Z">
+<meta property="article:modified_time" content="2022-09-02T13:39:05.934Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Ethereum">
-<meta property="article:tag" content="Keccak-256">
+<meta property="article:tag" content="Security">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/keccak.png">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/">
+<link rel="canonical" href="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8E%E5%AE%89%E5%85%A8/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/","path":"2022/08/31/以太坊与Keccak-256/","title":"以太坊与Keccak-256"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8E%E5%AE%89%E5%85%A8/","path":"2022/08/31/以太坊与安全/","title":"以太坊与安全"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>以太坊与Keccak-256 | Hexo Blog</title>
+<title>以太坊与安全 | Hexo Blog</title>
   
 
 
@@ -148,7 +146,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%81%E9%92%A5%E5%85%AC%E9%92%A5%E4%B8%8E%E5%9C%B0%E5%9D%80"><span class="nav-number">1.</span> <span class="nav-text">私钥，公钥与地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keccak-256"><span class="nav-number">2.</span> <span class="nav-text">keccak-256</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keccak-256%E7%AE%97%E6%B3%95%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">keccak-256算法的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%81%E9%92%A5%E5%85%AC%E9%92%A5%E4%B8%8E%E5%9C%B0%E5%9D%80"><span class="nav-number">1.</span> <span class="nav-text">私钥，公钥与地址</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -161,12 +159,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -205,7 +203,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8E%E5%AE%89%E5%85%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -218,12 +216,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="以太坊与Keccak-256 | Hexo Blog">
+      <meta itemprop="name" content="以太坊与安全 | Hexo Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          以太坊与Keccak-256
+          以太坊与安全
         </h1>
 
         <div class="post-meta-container">
@@ -233,9 +231,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-08-31 14:37:01 / 修改时间：17:30:18" itemprop="dateCreated datePublished" datetime="2022-08-31T14:37:01+08:00">2022-08-31</time>
+      <time title="创建时间：2022-08-31 14:37:01" itemprop="dateCreated datePublished" datetime="2022-08-31T14:37:01+08:00">2022-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-09-02 21:39:05" itemprop="dateModified" datetime="2022-09-02T21:39:05+08:00">2022-09-02</time>
     </span>
 
   
@@ -310,63 +314,6 @@ class="math inline">\(y\)</span>压缩点</td>
 class="math inline">\(keccak(K)\)</span>我们可以得到256位结果，选出大端序中的末20字节(160位)作为账户的地址</p>
 <p>为了避免转账时可能发生的地址输入错误，社区提出了<code>EIP-55</code>提案，对十六进制编码的地址进行大写检验。对于十六进制小写编码的地址<span
 class="math inline">\(addr\)</span>进行哈希运算，得到大端序下的高20字节逐位检验，如果十六进制编码的哈希结果大于等于8，那么则把对应的十六进制编码的地址修改为大写（如果为字母的话）。采用大小写混合的地址后，一旦发生了地址输入错误情况，则可以通过哈希值反向对地址的合法性进行核验，由于哈希函数对于输入的变化极为敏感，即使发生了一位的错误也会使哈希结果发生巨大的变化，<code>EIP-55</code>可以有效地防止可能发生的地址输入错误。</p>
-<h2 id="keccak-256">keccak-256</h2>
-<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
-<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
-<ul>
-<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
-<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
-</ul>
-<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
-class="math inline">\(b=25*2^{l}\)</span>，其中<code>l \in [0, 6]</code>）</p>
-<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
-class="math inline">\(P =
-M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
-<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
-<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
-<img src="/2022/08/31/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E4%B8%8EKeccak-256/keccak.png" class="" title="keccak work process">
-<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
-class="math inline">\(x, y \in [0, 5), z \in
-2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
-<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
-<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
-\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
-\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环右移一位。</p>
-<p><span class="math inline">\(\rho: a[x][y][z] =
-a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
-[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
-class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
-\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
-x \\ y \end{pmatrix}\)</span>，特殊地当<span
-class="math inline">\(x=y=0\)</span>时，令<span
-class="math inline">\(t=-1\)</span>。<span
-class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
-<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
-\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
-&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
-y&#39;\end{pmatrix}\)</span>。 <span
-class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
-<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
-1)a[x+2]\)</span>。<span
-class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
-<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
-class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
-<p>在实际实现中，可以通过预先计算好的常数对<span
-class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
-<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
-<h2 id="参考链接">参考链接</h2>
-<ol type="1">
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
-Keccak-256 on Youtube</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
-website</a></li>
-</ol>
 
     </div>
 
@@ -377,11 +324,20 @@ website</a></li>
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Ethereum/" rel="tag"># Ethereum</a>
-              <a href="/tags/Keccak-256/" rel="tag"># Keccak-256</a>
+              <a href="/tags/Security/" rel="tag"># Security</a>
           </div>
 
         
 
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/" rel="next" title="Keccak-256算法详解">
+                  Keccak-256算法详解 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
     </footer>
   </article>
 </div>
