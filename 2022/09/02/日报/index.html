@@ -29,7 +29,7 @@
 <meta property="og:description" content="2022年9月 9月第一周 9.1 贺sr学长和苑zq学长参与到了现在的HardwareEVM项目，老板给开了组会，确定了我们小组接下来短期的任务方向，先做一个硬件的模型出来，不用特意考虑太多的东西，先大概感受一下硬件解决方案的实际性能。 接下来要做的两件主要的事情：  与学长同步我那糟糕的毕业设计，分析一下硬件设计并改进一下 完成PCIE通信模块，实现一个硬件加速卡  9.2 今天读了《精通以太">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-09-02T14:15:06.000Z">
-<meta property="article:modified_time" content="2022-09-17T11:38:04.462Z">
+<meta property="article:modified_time" content="2022-09-23T08:43:58.584Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="record">
 <meta name="twitter:card" content="summary">
@@ -145,7 +145,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B49%E6%9C%88"><span class="nav-number">1.</span> <span class="nav-text">2022年9月</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%B8%80%E5%91%A8"><span class="nav-number">1.1.</span> <span class="nav-text">9月第一周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section"><span class="nav-number">1.1.1.</span> <span class="nav-text">9.1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-1"><span class="nav-number">1.1.2.</span> <span class="nav-text">9.2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-2"><span class="nav-number">1.1.3.</span> <span class="nav-text">9.3 - 9.4</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%BA%8C%E5%91%A8"><span class="nav-number">1.2.</span> <span class="nav-text">9月第二周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section-3"><span class="nav-number">1.2.1.</span> <span class="nav-text">9.5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-4"><span class="nav-number">1.2.2.</span> <span class="nav-text">9.6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-5"><span class="nav-number">1.2.3.</span> <span class="nav-text">9.7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-6"><span class="nav-number">1.2.4.</span> <span class="nav-text">9.8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-7"><span class="nav-number">1.2.5.</span> <span class="nav-text">9.9 - 9.11</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%B8%89%E5%91%A8"><span class="nav-number">1.3.</span> <span class="nav-text">9月第三周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section-8"><span class="nav-number">1.3.1.</span> <span class="nav-text">9.12</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-9"><span class="nav-number">1.3.2.</span> <span class="nav-text">9.13</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-10"><span class="nav-number">1.3.3.</span> <span class="nav-text">9.14</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-11"><span class="nav-number">1.3.4.</span> <span class="nav-text">9.15</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-12"><span class="nav-number">1.3.5.</span> <span class="nav-text">9.16</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-13"><span class="nav-number">1.3.6.</span> <span class="nav-text">9.17</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B49%E6%9C%88"><span class="nav-number">1.</span> <span class="nav-text">2022年9月</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%B8%80%E5%91%A8"><span class="nav-number">1.1.</span> <span class="nav-text">9月第一周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section"><span class="nav-number">1.1.1.</span> <span class="nav-text">9.1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-1"><span class="nav-number">1.1.2.</span> <span class="nav-text">9.2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-2"><span class="nav-number">1.1.3.</span> <span class="nav-text">9.3 - 9.4</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%BA%8C%E5%91%A8"><span class="nav-number">1.2.</span> <span class="nav-text">9月第二周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section-3"><span class="nav-number">1.2.1.</span> <span class="nav-text">9.5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-4"><span class="nav-number">1.2.2.</span> <span class="nav-text">9.6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-5"><span class="nav-number">1.2.3.</span> <span class="nav-text">9.7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-6"><span class="nav-number">1.2.4.</span> <span class="nav-text">9.8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-7"><span class="nav-number">1.2.5.</span> <span class="nav-text">9.9 - 9.11</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E4%B8%89%E5%91%A8"><span class="nav-number">1.3.</span> <span class="nav-text">9月第三周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section-8"><span class="nav-number">1.3.1.</span> <span class="nav-text">9.12</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-9"><span class="nav-number">1.3.2.</span> <span class="nav-text">9.13</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-10"><span class="nav-number">1.3.3.</span> <span class="nav-text">9.14</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-11"><span class="nav-number">1.3.4.</span> <span class="nav-text">9.15</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-12"><span class="nav-number">1.3.5.</span> <span class="nav-text">9.16</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-13"><span class="nav-number">1.3.6.</span> <span class="nav-text">9.17</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-14"><span class="nav-number">1.3.7.</span> <span class="nav-text">9.18</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AC%AC%E5%9B%9B%E5%91%A8"><span class="nav-number">1.4.</span> <span class="nav-text">9月第四周</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#section-15"><span class="nav-number">1.4.1.</span> <span class="nav-text">9.19</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-16"><span class="nav-number">1.4.2.</span> <span class="nav-text">9.20</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-17"><span class="nav-number">1.4.3.</span> <span class="nav-text">9.21</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section-18"><span class="nav-number">1.4.4.</span> <span class="nav-text">9.22</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -238,7 +238,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-09-17 19:38:04" itemprop="dateModified" datetime="2022-09-17T19:38:04+08:00">2022-09-17</time>
+      <time title="修改时间：2022-09-23 16:43:58" itemprop="dateModified" datetime="2022-09-23T16:43:58+08:00">2022-09-23</time>
     </span>
 
   
@@ -300,6 +300,21 @@ EVO 980差点没塞满了。</p>
 <p>重写了STK模块，打了一场Education CF。</p>
 <h4 id="section-13">9.17</h4>
 <p>开了一下午会，整理一下CF的东西。</p>
+<h4 id="section-14">9.18</h4>
+<p>下午来上班，突然想到了能不能把WB
+stage直接删除掉，越想越觉得可行。</p>
+<p>晚上去健身了。</p>
+<h3 id="月第四周">9月第四周</h3>
+<h4 id="section-15">9.19</h4>
+<p>开始重写后端的逻辑。</p>
+<h4 id="section-16">9.20</h4>
+<p>上课，晚上讲了密码学都是我会的内容。</p>
+<p>重装了Surface的系统，发现这玩意竟然要独立的镜像，而且微软官方也不给打patch了。</p>
+<h4 id="section-17">9.21</h4>
+<p>重写了一下STK模块，支持了forwarding的操作。</p>
+<p>今天开了组会，到项目跑起来还是有很长的距离，还需努力。</p>
+<h4 id="section-18">9.22</h4>
+<p>跑了一上午材料，办理户口迁移，下午上课。</p>
 
     </div>
 
@@ -316,8 +331,8 @@ EVO 980差点没塞满了。</p>
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="prev" title="《Mastering Ethereum》读书笔记">
-                  <i class="fa fa-chevron-left"></i> 《Mastering Ethereum》读书笔记
+                <a href="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/" rel="prev" title="Keccak-256算法详解">
+                  <i class="fa fa-chevron-left"></i> Keccak-256算法详解
                 </a>
             </div>
             <div class="post-nav-item">
