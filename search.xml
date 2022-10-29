@@ -1,6 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CF Round#802 Div2</title>
+    <url>/2022/09/17/CF-Round-802/</url>
+    <content><![CDATA[<p><a href="https://codeforces.com/contest/1700">Codeforces Round#802
+Div2</a></p>
+<h2 id="a.-optimal-path">A. Optimal Path</h2>
+<p><code>题意</code>：给一个<span
+class="math inline">\(n*m\)</span>的矩阵，<span
+class="math inline">\(a(i, j) = (i - 1)m + j\)</span>，求一条从<span
+class="math inline">\((1, 1)\)</span>到<span class="math inline">\((n,
+m)\)</span>的最小权值路径。</p>
+<p><code>题解</code>：总步数是确定的，横向移动和竖向移动分别会为后面的每一步增添一个额外的代价，贪心做一下。</p>
+<h2 id="b.-palindromic-numbers">B. Palindromic Numbers</h2>
+<p><code>题意</code>：给定一个大整数，求另一个与之长度相同的数，使得二者之和为回文数。</p>
+<p><code>题解</code>：构造，如果首位是9，那么一定可以满足回文数为全1，否则构造全9的回文数。</p>
+<h2 id="c.-helping-the-nature">C. Helping the Nature</h2>
+<p><code>题意</code>： 给定数组<span
+class="math inline">\(a\)</span>，可以使一个前缀或一个后缀都减一，可以使数组整体加一，求最少次数使得数组元素变为完全相同。</p>
+<p><code>题解</code>：
+转换为对差分数组操作，就变成了单点加一和减一，和不修改，前两种是唯一可以改变差分数组的操作，要让差分数组变为全0，再考虑整体需要加或者减几次。</p>
+<h2 id="d.-river-locks">D. River Locks</h2>
+<p><code>题意</code>：
+有若干水闸，前面的水满了会溢到后面去，每个闸有自己的容量，多次询问若要求<span
+class="math inline">\(t\)</span>时间内将所有水闸放满，至少需要打开几个闸门的入水口。</p>
+<p><code>题解</code>：
+注意到前面的水可以留到后面，后面不能去前面，所以一定是打开最前面若干个闸门的入水口，因此不断对前缀做判断即可。这里注意要规避掉某个极大的闸门在前面，放满它的时间是整体时间的平静。</p>
+<h2 id="e.-serega-the-pirate">E. Serega the Pirate</h2>
+<p><code>题意</code>： 有一个<span
+class="math inline">\(n*m\)</span>的矩阵，里面填有<span
+class="math inline">\(1\)</span>到<span
+class="math inline">\(n*m\)</span>，从<span
+class="math inline">\(1\)</span>开始走，可以走重复的格，但是要严格按照升序<span
+class="math inline">\(1, 2, 3
+...\)</span>走，求是否有解，如果没有的话求有几种方案可以交换两个数的位置使得存在解。</p>
+<p><code>题解</code>：
+做题的时候想到的是并查集来判断解存不存在，但是很脑筋急转弯的是只要每个点都存在一个相邻的更小的值，那么就一定存在解，可以归纳证明。</p>
+<p>基于此考虑没解的情况下怎么求方案数，交换两个点只会影响交换的两个点周围的点以及本身，那么找一个周围都更大的点<span
+class="math inline">\(x\)</span>，可能的方案只可能是一个点在<span
+class="math inline">\(x\)</span>及周围，另一个在<span
+class="math inline">\(x+1\)</span>附近，因此暴力枚举方案，依次做暴力验证即可，注意这里可能会有重复的方案。</p>
+<h2 id="f.-puzzle">F. Puzzle</h2>
+<p><code>题意</code>： 给出两个<span
+class="math inline">\(2*n\)</span>的01矩阵，可以交换两个相邻位置的数，求最少次数使得矩阵1变为矩阵2。</p>
+<p><code>题解</code>：
+乍一看像是dp，但是不太好描述状态。考虑一个退化的情况，如果只有一行，那么直接按顺序分配即可，那么扩展到两行。不妨假定把竖向的操作提到最前面，已经完成了竖向的操作，那么两行内就直接按顺序分配即可。</p>
+<p>这道题有个很新颖的想法就是换一种计算一行内情况的方式，正好是01数组，两个数组的前缀和做差，再求绝对值的和就是需要的操作次数。</p>
+<p>那么在这个基础上考虑，纵向的移动相当于把一行的前缀和的后缀减一，另外一行的前缀和的后缀加一，考虑怎么让这个和最小。</p>
+<p>考虑从左到右扫描，在某一列遇到了1，记第一行前缀和差为<span
+class="math inline">\(f_{1}\)</span>，第二行前缀和差为<span
+class="math inline">\(f_{2}\)</span>，如果<span
+class="math inline">\(f_{1}\)</span>和<span
+class="math inline">\(f_{2}\)</span>异号，不妨假设<span
+class="math inline">\(f_{1} \gt 0, f_{2} \lt
+0\)</span>，那么说明第一行前面有多余的1，第二行缺少了1，这是把第一行的1移动下来一定是最优的。</p>
+<p>证明如下，考虑一个情况如下矩阵，那么在右上角及其右侧的第一行对于1的需求由矩阵中任何的1移动而来需要的代价是相同的，左下角及其左侧也是一样的。</p>
+<p><span class="math display">\[\begin{pmatrix}
+1&amp;0\\
+0&amp;1\\
+\end{pmatrix}\]</span></p>
+<p>其他的情况可以手玩一下，可以得出类似的证明，而且当<span
+class="math inline">\(f_{1}\)</span>和<span
+class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，即绝对值为1，因此这种情况下把多余的1纵向交换到另一行一定是最优解，贪心从左到右扫描即可。</p>
+]]></content>
+      <tags>
+        <tag>Codeforces</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Keccak-256算法详解</title>
     <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
@@ -67,73 +134,6 @@ website</a></li>
       <tags>
         <tag>Ethereum</tag>
         <tag>Keccak-256</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CF Round#802 Div2</title>
-    <url>/2022/09/17/CF-Round-802/</url>
-    <content><![CDATA[<p><a href="https://codeforces.com/contest/1700">Codeforces Round#802
-Div2</a></p>
-<h2 id="a.-optimal-path">A. Optimal Path</h2>
-<p><code>题意</code>：给一个<span
-class="math inline">\(n*m\)</span>的矩阵，<span
-class="math inline">\(a(i, j) = (i - 1)m + j\)</span>，求一条从<span
-class="math inline">\((1, 1)\)</span>到<span class="math inline">\((n,
-m)\)</span>的最小权值路径。</p>
-<p><code>题解</code>：总步数是确定的，横向移动和竖向移动分别会为后面的每一步增添一个额外的代价，贪心做一下。</p>
-<h2 id="b.-palindromic-numbers">B. Palindromic Numbers</h2>
-<p><code>题意</code>：给定一个大整数，求另一个与之长度相同的数，使得二者之和为回文数。</p>
-<p><code>题解</code>：构造，如果首位是9，那么一定可以满足回文数为全1，否则构造全9的回文数。</p>
-<h2 id="c.-helping-the-nature">C. Helping the Nature</h2>
-<p><code>题意</code>： 给定数组<span
-class="math inline">\(a\)</span>，可以使一个前缀或一个后缀都减一，可以使数组整体加一，求最少次数使得数组元素变为完全相同。</p>
-<p><code>题解</code>：
-转换为对差分数组操作，就变成了单点加一和减一，和不修改，前两种是唯一可以改变差分数组的操作，要让差分数组变为全0，再考虑整体需要加或者减几次。</p>
-<h2 id="d.-river-locks">D. River Locks</h2>
-<p><code>题意</code>：
-有若干水闸，前面的水满了会溢到后面去，每个闸有自己的容量，多次询问若要求<span
-class="math inline">\(t\)</span>时间内将所有水闸放满，至少需要打开几个闸门的入水口。</p>
-<p><code>题解</code>：
-注意到前面的水可以留到后面，后面不能去前面，所以一定是打开最前面若干个闸门的入水口，因此不断对前缀做判断即可。这里注意要规避掉某个极大的闸门在前面，放满它的时间是整体时间的平静。</p>
-<h2 id="e.-serega-the-pirate">E. Serega the Pirate</h2>
-<p><code>题意</code>： 有一个<span
-class="math inline">\(n*m\)</span>的矩阵，里面填有<span
-class="math inline">\(1\)</span>到<span
-class="math inline">\(n*m\)</span>，从<span
-class="math inline">\(1\)</span>开始走，可以走重复的格，但是要严格按照升序<span
-class="math inline">\(1, 2, 3
-...\)</span>走，求是否有解，如果没有的话求有几种方案可以交换两个数的位置使得存在解。</p>
-<p><code>题解</code>：
-做题的时候想到的是并查集来判断解存不存在，但是很脑筋急转弯的是只要每个点都存在一个相邻的更小的值，那么就一定存在解，可以归纳证明。</p>
-<p>基于此考虑没解的情况下怎么求方案数，交换两个点只会影响交换的两个点周围的点以及本身，那么找一个周围都更大的点<span
-class="math inline">\(x\)</span>，可能的方案只可能是一个点在<span
-class="math inline">\(x\)</span>及周围，另一个在<span
-class="math inline">\(x+1\)</span>附近，因此暴力枚举方案，依次做暴力验证即可，注意这里可能会有重复的方案。</p>
-<h2 id="f.-puzzle">F. Puzzle</h2>
-<p><code>题意</code>： 给出两个<span
-class="math inline">\(2*n\)</span>的01矩阵，可以交换两个相邻位置的数，求最少次数使得矩阵1变为矩阵2。</p>
-<p><code>题解</code>：
-乍一看像是dp，但是不太好描述状态。考虑一个退化的情况，如果只有一行，那么直接按顺序分配即可，那么扩展到两行。不妨假定把竖向的操作提到最前面，已经完成了竖向的操作，那么两行内就直接按顺序分配即可。</p>
-<p>这道题有个很新颖的想法就是换一种计算一行内情况的方式，正好是01数组，两个数组的前缀和做差，再求绝对值的和就是需要的操作次数。</p>
-<p>那么在这个基础上考虑，纵向的移动相当于把一行的前缀和的后缀减一，另外一行的前缀和的后缀加一，考虑怎么让这个和最小。</p>
-<p>考虑从左到右扫描，在某一列遇到了1，记第一行前缀和差为<span
-class="math inline">\(f_{1}\)</span>，第二行前缀和差为<span
-class="math inline">\(f_{2}\)</span>，如果<span
-class="math inline">\(f_{1}\)</span>和<span
-class="math inline">\(f_{2}\)</span>异号，不妨假设<span
-class="math inline">\(f_{1} \gt 0, f_{2} \lt
-0\)</span>，那么说明第一行前面有多余的1，第二行缺少了1，这是把第一行的1移动下来一定是最优的。</p>
-<p>证明如下，考虑一个情况如下矩阵，那么在右上角及其右侧的第一行对于1的需求由矩阵中任何的1移动而来需要的代价是相同的，左下角及其左侧也是一样的。</p>
-<p><span class="math display">\[\begin{pmatrix}
-1&amp;0\\
-0&amp;1\\
-\end{pmatrix}\]</span></p>
-<p>其他的情况可以手玩一下，可以得出类似的证明，而且当<span
-class="math inline">\(f_{1}\)</span>和<span
-class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，即绝对值为1，因此这种情况下把多余的1纵向交换到另一行一定是最优解，贪心从左到右扫描即可。</p>
-]]></content>
-      <tags>
-        <tag>Codeforces</tag>
       </tags>
   </entry>
   <entry>
@@ -270,87 +270,9 @@ class="math inline">\(K=r^{-1}(sQ - Keccak(m) * G)\)</span>。</p>
       </tags>
   </entry>
   <entry>
-    <title>日报</title>
-    <url>/2022/09/02/%E6%97%A5%E6%8A%A5/</url>
-    <content><![CDATA[<h2 id="年9月">2022年9月</h2>
-<h3 id="月第一周">9月第一周</h3>
-<h4 id="section">9.1</h4>
-<p>贺sr学长和苑zq学长参与到了现在的HardwareEVM项目，老板给开了组会，确定了我们小组接下来短期的任务方向，先做一个硬件的模型出来，不用特意考虑太多的东西，先大概感受一下硬件解决方案的实际性能。</p>
-<p>接下来要做的两件主要的事情：</p>
-<ol type="1">
-<li>与学长同步我那糟糕的毕业设计，分析一下硬件设计并改进一下</li>
-<li>完成PCIE通信模块，实现一个硬件加速卡</li>
-</ol>
-<h4 id="section-1">9.2</h4>
-<p>今天读了《精通以太坊》的钱包章节，详细地看了一下密钥的派生原理，接下来有时间会整理到博客上，然后终于跑完了以太坊历史数据的同步，硬生生地扩了两次wsl的虚拟硬盘大小，给我1T的Sanmsung
-EVO 980差点没塞满了。</p>
-<h4 id="section-2">9.3 - 9.4</h4>
-<p>摸鱼</p>
-<h3 id="月第二周">9月第二周</h3>
-<h4 id="section-3">9.5</h4>
-<p>向贺sr学长请教了一下HardwareEVM的设计，给了我两点指导：</p>
-<ol type="1">
-<li>数据的位宽并不一定直接影响时序，关键是该数据参与了何种的操作</li>
-<li>硬件设计不能想当然的去分析优化，还是要根据实际跑出来的结果有针对的进行改进</li>
-</ol>
-<p>在我之前设计的基础上又提出了以下几点：</p>
-<ol type="1">
-<li>乘除运算采用IP核加速，并且可以简化设计</li>
-<li>对Memory进行切分，按照最小操作单位MSTORE8来做</li>
-<li>如果指令过长可以考虑对取指进行流水化</li>
-</ol>
-<p>接下来的主要工作就是把我原来写的代码成功地在FPGA上run起来，现在先通读一遍我之前的设计，把学长提出的改进也加进去。</p>
-<h4 id="section-4">9.6</h4>
-<p>整理了钱包相关的内容到了博客上，把密钥的派生与攻击过程模拟了一遍，剩下的时间在HardwareEVM项目上，跟贺sr学长一起开始看这一坨屎山。</p>
-<h4 id="section-5">9.7</h4>
-<p>今天有点事情，摸了。</p>
-<h4 id="section-6">9.8</h4>
-<p>周四的组会，没什么新的任务和内容，继续尝试硬件加速的效果。重写了前端的代码Buffer。</p>
-<h4 id="section-7">9.9 - 9.11</h4>
-<p>中秋放假，摸了。</p>
-<h3 id="月第三周">9月第三周</h3>
-<h4 id="section-8">9.12</h4>
-<p>读了《精通以太坊》第六章交易相关的内容，重点看了数字签名的原理，公钥的恢复，整理到了博客上。</p>
-<h4 id="section-9">9.13</h4>
-<p>上课，摸。</p>
-<h4 id="section-10">9.14</h4>
-<p>听说要来台风了，所以没去公司，在寝室里重写了MEM模块。</p>
-<h4 id="section-11">9.15</h4>
-<p>摸！</p>
-<h4 id="section-12">9.16</h4>
-<p>重写了STK模块，打了一场Education CF。</p>
-<h4 id="section-13">9.17</h4>
-<p>开了一下午会，整理一下CF的东西。</p>
-<h4 id="section-14">9.18</h4>
-<p>下午来上班，突然想到了能不能把WB
-stage直接删除掉，越想越觉得可行。</p>
-<p>晚上去健身了。</p>
-<h3 id="月第四周">9月第四周</h3>
-<h4 id="section-15">9.19</h4>
-<p>开始重写后端的逻辑。</p>
-<h4 id="section-16">9.20</h4>
-<p>上课，晚上讲了密码学都是我会的内容。</p>
-<p>重装了Surface的系统，发现这玩意竟然要独立的镜像，而且微软官方也不给打patch了。</p>
-<h4 id="section-17">9.21</h4>
-<p>重写了一下STK模块，支持了forwarding的操作。</p>
-<p>今天开了组会，到项目跑起来还是有很长的距离，还需努力。</p>
-<h4 id="section-18">9.22</h4>
-<p>跑了一上午材料，办理户口迁移，下午上课。</p>
-<h4 id="section-19">9.23</h4>
-<p>体检，下午去公司上工，开始改后端，准备开始写SHA3模块</p>
-<h4 id="section-20">9.24</h4>
-<p>写SHA3模块</p>
-<h4 id="section-21">9.25</h4>
-<p>摸了一天，跑了一趟医院</p>
-<h4 id="section-22">9.26</h4>
-<p>写SHA3模块</p>
-<h4 id="section-23">9.27</h4>
-<p>上午晚上都有课，摸了</p>
-<h4 id="section-24">9.28</h4>
-<p>完成了大部分的SHA3模块，对STK做了最基本的测试</p>
+    <title>《Vivado数字设计》读书笔记</title>
+    <url>/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[
 ]]></content>
-      <tags>
-        <tag>record</tag>
-      </tags>
   </entry>
 </search>
