@@ -226,6 +226,13 @@
 
       <time title="创建时间：2022-10-15 10:08:44" itemprop="dateCreated datePublished" datetime="2022-10-15T10:08:44+08:00">2022-10-15</time>
     </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-15 15:04:32" itemprop="dateModified" datetime="2022-11-15T15:04:32+08:00">2022-11-15</time>
+    </span>
 
   
 </div>
@@ -237,7 +244,28 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <h2 id="数字逻辑基础">数字逻辑基础</h2>
+<h3 id="数字电路与晶体管">数字电路与晶体管</h3>
+<p>数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高/低电平，数字电路状态"0,
+1"定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。</p>
+<p>为了对电路进行控制，需要引入数字电路的<strong>开关</strong>，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（Metal
+Oxide Semiconductor Field Effect Transistor,
+MOSFET），它是三端口器件，称为源极，漏极和栅极。其制作工艺为在半导体硅的源极和漏极区域中植入带电离子，在二者中间创建一个绝缘层并生长另一个导体形成栅极，根据植入离子的电性不同，分为植入负电粒子的nFET和植入正电粒子的pFET。</p>
+<p>以nFET为例进行说明，在逻辑电路中nFET源极接GND，当栅极接VCC时，源极和栅极间形成了电压差，会吸引硅中的负电荷进入中间的沟道（半导体中正负电荷粒子可以移动），形成了连续的负电荷通路，nFET处于强导通状态；当栅极接GND时会吸引正电荷聚集在沟道，与两侧扩散区中的负电荷形成PN结，阻止任何一个方向的电流流过。如果源极接VCC的话，栅极接地形成电压差，也不能吸引负电荷移动到栅极绝缘层下，无法形成负电荷通路。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg" class="" title="nFET">
+</div>
+<p>因此nFET源极通常接地，当栅极为VCC时导通，pFET源极通常接VCC，当栅极为GND时导通。可以总结出使用FET构建逻辑电路的基本规则：
+1. pFET源极必须连接到VCC，nFET源极必须连接到GND 2.
+电路输出必须通过一个pFET连接到VCC，电路输出必须通过一个nFET连接到GND 3.
+逻辑电路的输出不能同时连接到VCC和GND 4. 逻辑电路使用数量最少的FET</p>
+<p>由于pFET和nFET的特性，称为互补金属氧化物半导体电路，即CMOS电路，常见的逻辑门需要的晶体管数量为：INV，需要两个晶体管，NOR，NAND，需要四个晶体管。CMOS电路的功耗与逻辑门的输出信号频率成正比，与供电电压的平方成正比。</p>
+<h3 id="逻辑代数">逻辑代数</h3>
+<p>提到了格雷码，卡诺图，以及表示方法Sum Of Product，Product Of
+Sum。</p>
+<p>参考资料： 1. <a
+target="_blank" rel="noopener" href="https://learn.digilentinc.com/Documents/312">Transistors as
+Switches</a></p>
 
       
     </div>
@@ -434,7 +462,7 @@ class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，�
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-09-12 15:47:55" itemprop="dateModified" datetime="2022-09-12T15:47:55+08:00">2022-09-12</time>
+      <time title="修改时间：2022-11-15 13:23:40" itemprop="dateModified" datetime="2022-11-15T13:23:40+08:00">2022-11-15</time>
     </span>
 
   
@@ -472,7 +500,7 @@ class="math inline">\(x, y \in [0, 5), z \in
 <p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
 \sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
 \sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环右移一位。</p>
+class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
 <p><span class="math inline">\(\rho: a[x][y][z] =
 a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
 [0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
