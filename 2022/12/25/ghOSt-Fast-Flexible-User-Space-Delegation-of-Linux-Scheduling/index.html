@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="AOS课程选题。 背景 定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。 以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：  操作系统默认采取CFS（Complete Fair Schedule）算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ghOSt Fast &amp; Flexible User-Space Delegation of Linux Scheduling">
+<meta property="og:url" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/index.html">
+<meta property="og:site_name" content="Hexo Blog">
+<meta property="og:description" content="AOS课程选题。 背景 定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。 以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：  操作系统默认采取CFS（Complete Fair Schedule）算法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/architecture.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/time.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/latency.png">
+<meta property="article:published_time" content="2022-12-25T05:01:07.000Z">
+<meta property="article:modified_time" content="2023-03-25T11:27:26.663Z">
+<meta property="article:author" content="SunZhibo">
+<meta property="article:tag" content="Paper">
+<meta property="article:tag" content="Note">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png">
+
+
+<link rel="canonical" href="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/","path":"2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/","title":"ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling | Hexo Blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">record</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%A1%E7%8C%AE"><span class="nav-number">2.</span> <span class="nav-text">贡献</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%80%81%E5%90%91%E7%94%A8%E6%88%B7%E6%80%81%E9%80%9A%E4%BF%A1"><span class="nav-number">3.1.</span> <span class="nav-text">内核态向用户态通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E5%90%91%E5%86%85%E6%A0%B8%E6%80%81%E9%80%9A%E4%BF%A1"><span class="nav-number">3.2.</span> <span class="nav-text">用户态向内核态通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%AE%B9%E5%BF%8D%E6%8A%80%E6%9C%AF"><span class="nav-number">4.1.</span> <span class="nav-text">错误容忍技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E5%BF%83%E5%8C%96%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.2.</span> <span class="nav-text">中心化模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">5.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E4%B8%8E%E6%95%88%E7%8E%87"><span class="nav-number">5.1.</span> <span class="nav-text">性能与效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%9C%BA%E6%99%AF%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">实际场景应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">SunZhibo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="SunZhibo">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling | Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-12-25 13:01:07" itemprop="dateCreated datePublished" datetime="2022-12-25T13:01:07+08:00">2022-12-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-25 19:27:26" itemprop="dateModified" datetime="2023-03-25T19:27:26+08:00">2023-03-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>AOS课程选题。</p>
+<h2 id="背景">背景</h2>
+<p>定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。</p>
+<p>以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：</p>
+<ol type="1">
+<li><p>操作系统默认采取CFS（Complete Fair
+Schedule）算法进行线程的调度，内核中的调度模块允许用户通过设定线程的nice值来对调度策略提出建议，但是这存在着不足。首先，用户只能在一定程度上提供建议，调度模块并不保证完全按照用户的建议进行调度。另外，用户无法突破CFS调度算法的框架，无法采用一些复杂的动态调度算法，如监测关键请求发生。因此Linux操作系统目前还不能支持用户执行自定义的调度策略。</p></li>
+<li><p>如果由用户重写内核调度模块的话，一方面用户需要掌握大量的汇编、C语言、内核知识，需要进行大量的开发工作，另一方面内核模块的bug会直接导致操作系统的崩溃，考虑在用户自定义策略需求旺盛的云端，一段时间的机器崩溃和修复往往是厂商或用户不可承受的巨大成本。</p></li>
+<li><p>目前用户可以通过eBPF（Extended Berkeley Packet
+Filter）的方式在内核态中执行经过审查的安全代码，即可以用这种方式实现用户自定义的调度策略。但是eBPF的速度较慢，可执行指令数具有上限，可访问的内核数据有限，不符合调度线程的需求。</p></li>
+</ol>
+<p>因此出现了对于可自定义调度策略调度框架的需求。ghOSt框架基于上述实现用户自定义调度策略的问题，在设计时便列出了以下目标：</p>
+<ul>
+<li><p>调度策略应易于实现和测试，减轻用户的开发使用难度</p></li>
+<li><p>调度框架应注重于性能和效率，实现微妙级别的调度并保持调度策略的效率</p></li>
+<li><p>调度框架应支持现代的调度模型，支持细粒度的调度单位，适应现代的计算集群</p></li>
+<li><p>调度框架应该支持多种调度策略并行互不干扰</p></li>
+<li><p>调度框架应该提供策略部署、升级、回滚甚至崩溃的支持</p></li>
+</ul>
+<h2 id="贡献">贡献</h2>
+<p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程卷国家，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png" class="" title="Centralized Model">
+</div>
+<h2 id="原理">原理</h2>
+<p>ghOSt由内核态和用户态两部分组成，内核态利用权限向用户态提供内核中的线程信息，而用户态则接受内核态的信息，执行用户编程的调度策略，将调度结果发还给内核态予以执行。由此ghOSt便支持了用户自定义调度策略的部署和执行，基本满足了框架的设计目标。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/architecture.png" class="" title="ghOSt architecture">
+</div>
+<h3 id="内核态向用户态通信">内核态向用户态通信</h3>
+<p>内核态负责向用户态提供必要的调度信息，将线程信息如task_struct发给用户态辅助调度策略执行。因此用户态可以使用任何语言实现，只需要接受给定的信息，生成相应格式的调度结果即可，这便减轻了用户的开发负担，不必深入汇编，内核等相对底层的实现。</p>
+<p>内核态通过消息队列的方式向发送信息，其中包括了像线程创建，线程唤醒等信息，以支持用户态编写较为复杂的实时动态调度算法，以服务器场景为例，用户自定义调度策略可以监测关键请求的来临，通过针对分配资源的方式降低服务的尾延迟。</p>
+<p>在用户态收到了内核信息后，执行用户编写的调度策略，得到调度结果后发送中断以切换到待执行的线程。ghOSt框架也为用户态提供了相应的syscall
+API来支持消息队列的操作，在多CPU模型中，可以通过这些接口实现CPU间线程的迁移和管理。</p>
+<h3 id="用户态向内核态通信">用户态向内核态通信</h3>
+<p>用户态对应着一个或多个的处理器，用户态中包含用户所编写的调度策略，在收到内核态发送的线程信息后执行用户调度策略，将生成的结果回发至内核态，并通过syscall引发中断，调度到待执行的线程。</p>
+<p>在调度开始后，调度器作为一个线程就让渡了自身的执行权，这时用户态是处于等待执行的状态，如果此时内核态更新了线程的状态信息，例如一个被策略标记为关键的线程开始执行了，此时就应该改变调度策略。为了支持复杂的动态的调度策略，ghOSt框架借鉴了分布式系统的设计，在消息中加入了时间戳。内核态向用户态发送的信息具有自增的序列号，而用户态回复的调度结果也需要带有此信息号，只有内核态收到的事务序列号等同于发出的消息序列号时才会视为一次交互，否则会返回错误令用户态重新生成调度策略。这样就为调度策略的设计提供了较为灵活的动态性，可以根据情况灵活地调整。</p>
+<h2 id="实现">实现</h2>
+<h3 id="错误容忍技术">错误容忍技术</h3>
+<p>飞地（Enclave）是指一个隔离的线程运行环境，是由硬件支撑的隔离技术。ghOSt框架使用了飞地技术，每个用户端与他们所负责调度的程序运行在同一个飞地当中。由此，ghOSt框架就可以大幅降低用户开发，部署，测试的难度，即使用户编写了错误的调度算法也不会影响到其他飞地以及内核的正常运行，即使发生了崩溃也只是导致这一飞地中的线程组出现调度问题。另外，多个互不干扰的飞地可以让ghOSt框架支持多种调度策略并行，不同的线程组使用不同的调度策略。</p>
+<p>从设计的角度说，ghOSt也为调度崩溃留有冗余机制，ghOSt的调度类实现为了系统调度的低优先级调度类，当ghOSt行为发生异常后将会自动转交给默认的调度器进行调度，实现了较强的错误容忍机制。ghOSt也实现了更新机制，当用户端的策略需要进行调整时，会拉起一个新的用户端，直至新的用户端完成交互后，旧的客户端将结束。</p>
+<h3 id="中心化模型">中心化模型</h3>
+<p>为了满足中心化模型下多处理器调度场景，ghOSt框架需要管理本地或远程的多计算集群，由一个全局的用户态调度多个计算集群或CPU执行任务，控制各计算群调度策略以及计算群间的任务调度。在这种场景下就要仔细地考虑每个计算群的执行状态，因此ghOSt借鉴了数据库的概念，采用了transaction(事务)的方式来确认用户态发给内核态的信息，用户态产生的调度结果通过事务发送给内核态，在事务提交后才视为一次有效的调度，如果远程计算集群无法立即回应调度，那么事务不会被确认提交，内核态调度程序发现这一情况可以进行处理，重新发送调度要求或者转交由其他处理器执行。考虑到调度框架的性能要求，事务模型采用共享内存的方式实现以加快速度。</p>
+<p>在中心化模型中，ghOSt框架会维护一个全局的用户态程序，全局的用户态程序会接受多个调度请求，然后将涉及的中断打包发给处理器，以减少信息传递的代价，这里利用了处理器硬件支持的batch
+interrupt功能。在涉及到计算集群间的任务迁移时，全局的用户态程序会发送IPI（Inter
+Processer Interrupt），触发迁移目的地集群中断实现。</p>
+<h2 id="实验">实验</h2>
+<p>ghOSt是一个用户自定义调度策略执行框架，因此本文的实验评估基于以下三个方面开展：</p>
+<ol type="1">
+<li>ghOSt框架带来的额外开销有多大？</li>
+<li>ghOSt框架执行自定义策略调度效果如何？</li>
+<li>ghOSt框架是否具有实用性？</li>
+</ol>
+<h3 id="性能与效率">性能与效率</h3>
+<p>经过测试，ghOSt框架的调度开销是微秒级别，相比于内核原生的调度器并没有添加过于沉重的开销。在中心化模型下，较大的开销是在remote
+schedule上，对多个处理器进行调度并通过处理器间中断（IPI）的方式进行调度。</p>
+<p>同时作者也比较了使用ghOSt执行调度策略和定制的调度器之间的差距，实验表明ghOSt几乎可以达到定制调度器的调度效果，但是当然在性能上有所不足，这也是灵活性与性能的取舍。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/time.png" class="" title="time consumption">
+</div>
+<h3 id="实际场景应用">实际场景应用</h3>
+<p>作者选取了Google Snap 和 Google
+Search任务来模拟真实的云端使用场景，以说明ghOSt框架的可用性。这里以Google
+Search测试为例，使用ghOSt执行用户自定义的调度策略，可以看到整体的吞吐量相矫CFS没有明显变化，但是自定义策略在AB两个案例中可以显著的降低尾延迟。这说明了ghOSt框架在真实场景下是可用的，可以大幅度提升处理效率。这里的实验C作者分析是由于定制策略还有待改进，使得提升效果不明显。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/latency.png" class="" title="latency">
+</div>
+<h2 id="总结">总结</h2>
+<p>ghOSt框架实现对了用户自定义策略的支持，将调度任务又内核态委托给了用户态执行，简化了用户开发、测试、部署的流程，在几乎不增加调度性能开销的基础上实现了功能强大的调度框架支持，为多调度策略，中心化模型提供了良好的支持。</p>
+<p>通过ghOSt框架的实验测试，在云端等场景下存在着巨量的通过改进调度策略而提升执行效率的空间，这也为调度方向后续的研究提供了参考。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Paper/" rel="tag"># Paper</a>
+              <a href="/tags/Note/" rel="tag"># Note</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/" rel="prev" title="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code">
+                  <i class="fa fa-chevron-left"></i> OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/" rel="next" title="Scalable Memory Protection in the PENGLAI Enclave">
+                  Scalable Memory Protection in the PENGLAI Enclave <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SunZhibo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"all","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

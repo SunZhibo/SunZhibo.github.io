@@ -20,31 +20,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（">
+    <meta name="description" content="最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。 Introduction 以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的CPU敏感型指令进行了系统性的分析测试。 Desig">
 <meta property="og:type" content="article">
-<meta property="og:title" content="《Vivado数字设计》读书笔记">
-<meta property="og:url" content="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code">
+<meta property="og:url" content="https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/index.html">
 <meta property="og:site_name" content="Hexo Blog">
-<meta property="og:description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（">
+<meta property="og:description" content="最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。 Introduction 以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的CPU敏感型指令进行了系统性的分析测试。 Desig">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg">
-<meta property="article:published_time" content="2022-10-15T02:08:44.000Z">
-<meta property="article:modified_time" content="2023-03-25T11:20:00.614Z">
+<meta property="article:published_time" content="2022-12-22T02:36:53.000Z">
+<meta property="article:modified_time" content="2023-03-25T11:27:30.003Z">
 <meta property="article:author" content="SunZhibo">
+<meta property="article:tag" content="Paper">
 <meta property="article:tag" content="Note">
-<meta property="article:tag" content="Book">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+<link rel="canonical" href="https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/","path":"2022/10/15/《Vivado数字设计》读书笔记/","title":"《Vivado数字设计》读书笔记"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/","path":"2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/","title":"OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>《Vivado数字设计》读书笔记 | Hexo Blog</title>
+<title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code | Hexo Blog</title>
   
 
 
@@ -113,7 +111,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">数字逻辑基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF%E4%B8%8E%E6%99%B6%E4%BD%93%E7%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">数字电路与晶体管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E4%BB%A3%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">逻辑代数</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#design-of-opbench-system"><span class="nav-number">2.</span> <span class="nav-text">Design of OpBench System</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#result"><span class="nav-number">3.</span> <span class="nav-text">Result</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -170,7 +168,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -183,12 +181,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="《Vivado数字设计》读书笔记 | Hexo Blog">
+      <meta itemprop="name" content="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code | Hexo Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          《Vivado数字设计》读书笔记
+          OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code
         </h1>
 
         <div class="post-meta-container">
@@ -199,14 +197,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-10-15 10:08:44" itemprop="dateCreated datePublished" datetime="2022-10-15T10:08:44+08:00">2022-10-15</time>
+      <time title="创建时间：2022-12-22 10:36:53" itemprop="dateCreated datePublished" datetime="2022-12-22T10:36:53+08:00">2022-12-22</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-03-25 19:20:00" itemprop="dateModified" datetime="2023-03-25T19:20:00+08:00">2023-03-25</time>
+      <time title="修改时间：2023-03-25 19:27:30" itemprop="dateModified" datetime="2023-03-25T19:27:30+08:00">2023-03-25</time>
     </span>
 
   
@@ -219,28 +217,36 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="数字逻辑基础">数字逻辑基础</h2>
-<h3 id="数字电路与晶体管">数字电路与晶体管</h3>
-<p>数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高/低电平，数字电路状态"0,
-1"定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。</p>
-<p>为了对电路进行控制，需要引入数字电路的<strong>开关</strong>，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（Metal
-Oxide Semiconductor Field Effect Transistor,
-MOSFET），它是三端口器件，称为源极，漏极和栅极。其制作工艺为在半导体硅的源极和漏极区域中植入带电离子，在二者中间创建一个绝缘层并生长另一个导体形成栅极，根据植入离子的电性不同，分为植入负电粒子的nFET和植入正电粒子的pFET。</p>
-<p>以nFET为例进行说明，在逻辑电路中nFET源极接GND，当栅极接VCC时，源极和栅极间形成了电压差，会吸引硅中的负电荷进入中间的沟道（半导体中正负电荷粒子可以移动），形成了连续的负电荷通路，nFET处于强导通状态；当栅极接GND时会吸引正电荷聚集在沟道，与两侧扩散区中的负电荷形成PN结，阻止任何一个方向的电流流过。如果源极接VCC的话，栅极接地形成电压差，也不能吸引负电荷移动到栅极绝缘层下，无法形成负电荷通路。</p>
-<div style="width:70%;margin:auto">
-<img src="/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg" class="" title="nFET">
-</div>
-<p>因此nFET源极通常接地，当栅极为VCC时导通，pFET源极通常接VCC，当栅极为GND时导通。可以总结出使用FET构建逻辑电路的基本规则：
-1. pFET源极必须连接到VCC，nFET源极必须连接到GND 2.
-电路输出必须通过一个pFET连接到VCC，电路输出必须通过一个nFET连接到GND 3.
-逻辑电路的输出不能同时连接到VCC和GND 4. 逻辑电路使用数量最少的FET</p>
-<p>由于pFET和nFET的特性，称为互补金属氧化物半导体电路，即CMOS电路，常见的逻辑门需要的晶体管数量为：INV，需要两个晶体管，NOR，NAND，需要四个晶体管。CMOS电路的功耗与逻辑门的输出信号频率成正比，与供电电压的平方成正比。</p>
-<h3 id="逻辑代数">逻辑代数</h3>
-<p>提到了格雷码，卡诺图，以及表示方法Sum Of Product，Product Of
-Sum。</p>
-<p>参考资料： 1. <a
-target="_blank" rel="noopener" href="https://learn.digilentinc.com/Documents/312">Transistors as
-Switches</a></p>
+        <p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
+<h2 id="introduction">Introduction</h2>
+<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
+<h2 id="design-of-opbench-system">Design of OpBench System</h2>
+<p>OpBench的使用分为四个阶段：</p>
+<ol type="1">
+<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
+<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
+128, 256位的情况分别生成测试。</p></li>
+<li><p>将合约部署在测试链上并执行。</p></li>
+<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
+</ol>
+<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
+<ol type="1">
+<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
+<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
+<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
+<li><p>CALLDATACOPY &amp;
+CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
+<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
+</ol>
+<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
+<h2 id="result">Result</h2>
+<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+<ul>
+<li><p>go客户端的性能更好。</p></li>
+<li><p>客户端和系统共同影响着性能。</p></li>
+<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
+<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+</ul>
 
     </div>
 
@@ -250,21 +256,21 @@ Switches</a></p>
 
     <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/Paper/" rel="tag"># Paper</a>
               <a href="/tags/Note/" rel="tag"># Note</a>
-              <a href="/tags/Book/" rel="tag"># Book</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/09/17/CF-Round-802/" rel="prev" title="CF Round#802 Div2">
-                  <i class="fa fa-chevron-left"></i> CF Round#802 Div2
+                <a href="/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="prev" title="《Vivado数字设计》读书笔记">
+                  <i class="fa fa-chevron-left"></i> 《Vivado数字设计》读书笔记
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/" rel="next" title="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code">
-                  OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code <i class="fa fa-chevron-right"></i>
+                <a href="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/" rel="next" title="ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling">
+                  ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
