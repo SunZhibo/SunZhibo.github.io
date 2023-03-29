@@ -68,75 +68,6 @@ class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，�
       </tags>
   </entry>
   <entry>
-    <title>Keccak-256算法详解</title>
-    <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
-<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
-<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
-<ul>
-<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
-<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
-</ul>
-<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
-class="math inline">\(b=25*2^{l}\)</span>，其中<span
-class="math inline">\(l \in [0, 6]\)</span>）</p>
-<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
-class="math inline">\(P =
-M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
-<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
-<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
-<div style="width:70%;margin:auto">
-<img src="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
-</div>
-<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
-class="math inline">\(x, y \in [0, 5), z \in
-2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
-<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
-<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
-\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
-\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
-<p><span class="math inline">\(\rho: a[x][y][z] =
-a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
-[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
-class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
-\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
-x \\ y \end{pmatrix}\)</span>，特殊地当<span
-class="math inline">\(x=y=0\)</span>时，令<span
-class="math inline">\(t=-1\)</span>。<span
-class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
-<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
-\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
-&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
-y&#39;\end{pmatrix}\)</span>。 <span
-class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
-<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
-1)a[x+2]\)</span>。<span
-class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
-<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
-class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
-<p>在实际实现中，可以通过预先计算好的常数对<span
-class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
-<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
-<h2 id="参考链接">参考链接</h2>
-<ol type="1">
-<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
-Keccak-256 on Youtube</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
-<li><a
-href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
-website</a></li>
-</ol>
-]]></content>
-      <tags>
-        <tag>Ethereum</tag>
-        <tag>Keccak-256</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
     <url>/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</url>
     <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
@@ -241,10 +172,123 @@ page，而在安全世界中则不受限制，可以对两个世界的内存进�
 <p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p>
 <p><strong>但是在本节中作者并未提及这样的情况：一个非安全世界的页在被使用后，又被回收作为安全世界的映射，此时该地址关系存在于HPT段中，可以用于非安全世界访问敏感内容。也许后文会提及内存的回收管理机制。</strong></p>
 <p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>
+<h3 id="scalable-memory-integrity-protection">Scalable Memory Integrity
+Protection</h3>
+<p>为了保护安全世界的内存完整性，过去方案采用了Merkle
+Tree的方式对连续内存进行哈希，形成树形结构并通过根节点的哈希值保护整棵树的完整性。这些方案普遍存在一些问题，如保护的是一段连续的特定地址内存，树节点存储代价很大，更新哈希值开销较大等。</p>
+<p>蓬莱提出了硬件上的Mountable Merkle
+Tree对安全世界的内存进行完整性保护。MMT最基本的单位是SubTree，不同层级的Merkle
+Tree共同通过哈希对整片内存进行完整性保护，最下层的叶子节点对应4个1MB的页。根据每一级子节点数量的设计，MMT最多可以对512GB内存进行完整性验证。</p>
+<p>为了防止Merkle
+Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可信的SoC出发，将树的根节点地址存于SoC中的<code>Root-root</code>寄存器中，保证根不受篡改，依据根节点的哈希值递归保证子节点的哈希值不受篡改。</p>
+<div style="width:80%;margin:auto">
+<img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
+</div>
+<p>这里使用的哈希树是Counter-based Integrity
+Tree，通过计数器对数据完整性进行保护，与传统的Merkle
+Tree还有所不同，具体的方法暂时没有查到，后面有需要的话再阅读相关的论文补充。</p>
+<div style="width:80%;margin:auto">
+<img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
+</div>
+<p>上图为完整性信任链的建立，<code>Root-root</code>存储在SoC中，认为是可信任的，所有子节点的地址信息和计数器信息都存储在一块称为MMT
+meta-zone的区域中，完整性由root保护。这片区域的信息又保护了counter指向的Subtree
+Node区域，存储了所需的数据信息，通过哈希值对Secure
+Mem区域进行完整性的保护。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
+Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
+<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。</p>
+<p>在系统启动时，MMT
+meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
+<p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
+region的概念，这是一个可配置的连续区域，由寄存器<code>reg_hole_va_start</code>和<code>reg_hole_va_size</code>配置。在hole区域中，执行相反的完整性验证，即当<code>reg_ms=ENCL_MODE</code>时不对hole区域做完整性校验，提供二者共享的内存。这需要在MMT中做出支持，不对代表hole区域的子树进行完整性校验。</p>
+<h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
+Initialization with Shadow Fork</h3>
+<p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
+<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，基于此进行进一步的保护即可。</p>
+<h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
+<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较为关键的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
+<h2 id="implementation">Implementation</h2>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>介绍了一下上文提及的软硬件实现，蓬莱的形式化验证正在进行中。</p>
+<h2 id="evaluation">Evaluation</h2>
 ]]></content>
       <tags>
         <tag>Paper</tag>
         <tag>TEE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Keccak-256算法详解</title>
+    <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
+<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
+<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
+<ul>
+<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
+<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
+</ul>
+<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
+class="math inline">\(b=25*2^{l}\)</span>，其中<span
+class="math inline">\(l \in [0, 6]\)</span>）</p>
+<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
+class="math inline">\(P =
+M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
+<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
+<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
+</div>
+<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
+class="math inline">\(x, y \in [0, 5), z \in
+2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
+<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
+<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
+\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
+\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
+class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
+<p><span class="math inline">\(\rho: a[x][y][z] =
+a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
+[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
+class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
+\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
+x \\ y \end{pmatrix}\)</span>，特殊地当<span
+class="math inline">\(x=y=0\)</span>时，令<span
+class="math inline">\(t=-1\)</span>。<span
+class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
+<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
+\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
+&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
+y&#39;\end{pmatrix}\)</span>。 <span
+class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
+<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
+1)a[x+2]\)</span>。<span
+class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
+<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
+class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
+<p>在实际实现中，可以通过预先计算好的常数对<span
+class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
+<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
+<h2 id="参考链接">参考链接</h2>
+<ol type="1">
+<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
+Keccak-256 on Youtube</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
+<li><a
+href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
+website</a></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Ethereum</tag>
+        <tag>Keccak-256</tag>
       </tags>
   </entry>
   <entry>
