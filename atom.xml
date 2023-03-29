@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Hexo Blog</title>
+  
+  <subtitle>record</subtitle>
+  <link href="https://sunzhibo.github.io/atom.xml" rel="self"/>
+  
+  <link href="https://sunzhibo.github.io/"/>
+  <updated>2023-03-25T16:32:00.275Z</updated>
+  <id>https://sunzhibo.github.io/</id>
+  
+  <author>
+    <name>SunZhibo</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Scalable Memory Protection in the PENGLAI Enclave</title>
+    <link href="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/"/>
+    <id>https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/</id>
+    <published>2023-03-25T08:23:54.000Z</published>
+    <updated>2023-03-25T16:32:00.275Z</updated>
+    
+    <content type="html"><![CDATA[<p>蓬莱是上交研究的RISC-V架构下的可信执行环境方案。</p><h2 id="introduction">Introduction</h2><p>目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARMTrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存保护机制：</p><ol type="1"><li>不可扩展的内存划分/隔离：大多数设计使用了硬件中单独为飞地存在的内存，具有硬件上的大小和数量限制</li><li>不可扩展的内存完整性保护：使用传统的Merkel HashTree方案校验完整性是难以扩展的，只能对固定大小的内存核验完整性</li><li>不可扩展的内存安全初始化：初始化一片飞地的内存往往需要数秒，但是服务本身的运行时间通常很短（&lt;1s）</li></ol><p>因此本篇文章提出的蓬莱设计就是要解决上述问题，在安全内存的大小和粒度、飞地的数量、启动飞地的延迟方面提供支持。</p><h2 id="motivation">Motivation</h2><p>目前的解决方案都存在着各自的缺陷，在可创建的飞地数量，可用的内存大小，启动飞地的速度，内存完整性保护的粒度，保护的额外开销，可信启动的证明能力等方面上表现出不同层级的限制。</p><div style="width:80%;margin:auto"></div><p>蓬莱的目标就是解决上述已知的缺陷，提供可扩展的内存管理，支持不限量的飞地同时运行，以及可扩展的内存大小，在不添加过大开销的基础上，提供应对更高权限软件攻击，片外硬件攻击，基于缓存的侧信道攻击的安全支持。</p><h2 id="system-overview">System Overview</h2><h3 id="architecture">Architecture</h3><p>蓬莱是一个软硬件协同的方案，软件实现了SecureMonitor用于管理并监视安全世界，硬件补充了下图中红色的新单元，以实现预期的功能目标。类似于TrustZone的想法，蓬莱也将系统状态划分为安全世界和不安全世界，分别运行不同的操作系统和软件，其中SecureMonitor运行于最高权限级。</p><div style="width:80%;margin:auto"></div><h3 id="thread-model">Thread Model</h3><p>蓬莱的可信基为CPU和Monitor软件正确性，Monitor通过安全启动的方式由ROM中加载，在加载完成后会通过RISC-V自身的内存安全机制（PMP）保护自身。</p><p>在蓬莱方案中，威胁模型有以下三个攻击面：</p><ol type="1"><li>权限级软件攻击：攻击者可以完全地控制非安全世界的OS和软件</li><li>物理硬件攻击：攻击者可以截获并分析CPU与其他硬件（如内存）的通信信息</li><li>侧信道攻击：考虑控制信道攻击和基于缓存的侧信道攻击</li></ol><p>这里补充一下侧信道攻击，以SGX技术为例，CPU通过指令切换状态，分别对应飞地内的程序和飞地外的世界，在这个过程中两个世界会共享许多硬件资源，这就导致了信息泄露的可行性。控制信道攻击一般指对页表信息的泄露利用，SGX方案中非安全世界试图访问安全世界内存时会发生PageFault，因此可以以页为单位对安全世界进行探查，更进一步还可以利用页表的信息位，观察安全世界的逻辑行为信息。除此以外，流水线，分支预测器，缓存都可以通过侧信道攻击的方式泄露出安全世界的信息。</p><p>在本篇文章中不考虑其他的侧信道攻击，与本方案关注的内存安全无关，也不考虑Dos攻击。</p><h2 id="design">Design</h2><h3 id="fine-grained-flexible-memory-isolation">Fine-grained FlexibleMemory Isolation</h3><p>为了实现细粒度的内存隔离，蓬莱像许多方案一样维护了表明物理页表所属世界的bitmap，以页表为粒度进行内存隔离。传统的方案往往基于此，在进行虚拟地址转换时，进行两次查找，先查询bitmap确认所查页表是否属于安全世界，再进行二次读取，这导致了25.2%的额外开销。</p><p>而蓬莱方案则关注在<strong>页表的管理</strong>，观察到mapping的操作远小于访问内存的次数，蓬莱在硬件中添加了GuardedPageTable模块对页表进行管理，并尝试通过页表的管理避免二次读取，以降低额外的性能开销。</p><p>在GuardedPT模块中，引入了两个新的寄存器<code>reg_hptarea_start</code>和<code>reg_hptarea_size</code>，HPT表示HostPageTable即不信任的主机的页表区域，通过这两个寄存器将主机可以使用的页表全部限制在一段连续的物理空间内。</p><p>当主机试图更改页表区域时，会触发trap交由securemonitor进行检查，通过securepage的bitmap对映射区域的属性进行检查，在非安全世界中只能映射到non-securepage，而在安全世界中则不受限制，可以对两个世界的内存进行操作。</p><div style="width:80%;margin:auto"><img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png" class="" title="Guarded Page Table"></div><p>回顾TEE的目标，我们需要禁止非安全世界访问安全世界，结合下图所示的MMU扩展，在虚拟地址转换的每一步过程中都将得到的下一级页表地址进行检查，是否处于<code>hptarea</code>寄存器规定的范围中。</p><p>通过MMU，我们限定了非安全世界访问的页表范围只能处于<code>hptarea</code>中，而在这一范围内页表的所有改动都将触发trap，由monitor进行bitmap核验后写入，因此限制了非安全世界对安全世界的访问。</p><div style="width:80%;margin:auto"><img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png" class="" title="MMU"></div><p><strong>因此，总结来看这一方案创新性地将安全检查的代价由访问内存时转移到了创建映射时，基于映射次数较少的观察，该方案可以显著地降低访问开销。</strong></p><p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p><p><strong>但是在本节中作者并未提及这样的情况：一个非安全世界的页在被使用后，又被回收作为安全世界的映射，此时该地址关系存在于HPT段中，可以用于非安全世界访问敏感内容。也许后文会提及内存的回收管理机制。</strong></p><p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;蓬莱是上交研究的RISC-V架构下的可信执行环境方案。&lt;/p&gt;
+&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM
+TrustZone，以及一些学术界的研究工作，</summary>
+      
+    
+    
+    
+    
+    <category term="Paper" scheme="https://sunzhibo.github.io/tags/Paper/"/>
+    
+    <category term="TEE" scheme="https://sunzhibo.github.io/tags/TEE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ghOSt Fast &amp; Flexible User-Space Delegation of Linux Scheduling</title>
+    <link href="https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/"/>
+    <id>https://sunzhibo.github.io/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/</id>
+    <published>2022-12-25T05:01:07.000Z</published>
+    <updated>2023-03-25T11:27:26.663Z</updated>
+    
+    <content type="html"><![CDATA[<p>AOS课程选题。</p><h2 id="背景">背景</h2><p>定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。</p><p>以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：</p><ol type="1"><li><p>操作系统默认采取CFS（Complete FairSchedule）算法进行线程的调度，内核中的调度模块允许用户通过设定线程的nice值来对调度策略提出建议，但是这存在着不足。首先，用户只能在一定程度上提供建议，调度模块并不保证完全按照用户的建议进行调度。另外，用户无法突破CFS调度算法的框架，无法采用一些复杂的动态调度算法，如监测关键请求发生。因此Linux操作系统目前还不能支持用户执行自定义的调度策略。</p></li><li><p>如果由用户重写内核调度模块的话，一方面用户需要掌握大量的汇编、C语言、内核知识，需要进行大量的开发工作，另一方面内核模块的bug会直接导致操作系统的崩溃，考虑在用户自定义策略需求旺盛的云端，一段时间的机器崩溃和修复往往是厂商或用户不可承受的巨大成本。</p></li><li><p>目前用户可以通过eBPF（Extended Berkeley PacketFilter）的方式在内核态中执行经过审查的安全代码，即可以用这种方式实现用户自定义的调度策略。但是eBPF的速度较慢，可执行指令数具有上限，可访问的内核数据有限，不符合调度线程的需求。</p></li></ol><p>因此出现了对于可自定义调度策略调度框架的需求。ghOSt框架基于上述实现用户自定义调度策略的问题，在设计时便列出了以下目标：</p><ul><li><p>调度策略应易于实现和测试，减轻用户的开发使用难度</p></li><li><p>调度框架应注重于性能和效率，实现微妙级别的调度并保持调度策略的效率</p></li><li><p>调度框架应支持现代的调度模型，支持细粒度的调度单位，适应现代的计算集群</p></li><li><p>调度框架应该支持多种调度策略并行互不干扰</p></li><li><p>调度框架应该提供策略部署、升级、回滚甚至崩溃的支持</p></li></ul><h2 id="贡献">贡献</h2><p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程卷国家，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p><div style="width:70%;margin:auto"><img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png" class="" title="Centralized Model"></div><h2 id="原理">原理</h2><p>ghOSt由内核态和用户态两部分组成，内核态利用权限向用户态提供内核中的线程信息，而用户态则接受内核态的信息，执行用户编程的调度策略，将调度结果发还给内核态予以执行。由此ghOSt便支持了用户自定义调度策略的部署和执行，基本满足了框架的设计目标。</p><div style="width:70%;margin:auto"><img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/architecture.png" class="" title="ghOSt architecture"></div><h3 id="内核态向用户态通信">内核态向用户态通信</h3><p>内核态负责向用户态提供必要的调度信息，将线程信息如task_struct发给用户态辅助调度策略执行。因此用户态可以使用任何语言实现，只需要接受给定的信息，生成相应格式的调度结果即可，这便减轻了用户的开发负担，不必深入汇编，内核等相对底层的实现。</p><p>内核态通过消息队列的方式向发送信息，其中包括了像线程创建，线程唤醒等信息，以支持用户态编写较为复杂的实时动态调度算法，以服务器场景为例，用户自定义调度策略可以监测关键请求的来临，通过针对分配资源的方式降低服务的尾延迟。</p><p>在用户态收到了内核信息后，执行用户编写的调度策略，得到调度结果后发送中断以切换到待执行的线程。ghOSt框架也为用户态提供了相应的syscallAPI来支持消息队列的操作，在多CPU模型中，可以通过这些接口实现CPU间线程的迁移和管理。</p><h3 id="用户态向内核态通信">用户态向内核态通信</h3><p>用户态对应着一个或多个的处理器，用户态中包含用户所编写的调度策略，在收到内核态发送的线程信息后执行用户调度策略，将生成的结果回发至内核态，并通过syscall引发中断，调度到待执行的线程。</p><p>在调度开始后，调度器作为一个线程就让渡了自身的执行权，这时用户态是处于等待执行的状态，如果此时内核态更新了线程的状态信息，例如一个被策略标记为关键的线程开始执行了，此时就应该改变调度策略。为了支持复杂的动态的调度策略，ghOSt框架借鉴了分布式系统的设计，在消息中加入了时间戳。内核态向用户态发送的信息具有自增的序列号，而用户态回复的调度结果也需要带有此信息号，只有内核态收到的事务序列号等同于发出的消息序列号时才会视为一次交互，否则会返回错误令用户态重新生成调度策略。这样就为调度策略的设计提供了较为灵活的动态性，可以根据情况灵活地调整。</p><h2 id="实现">实现</h2><h3 id="错误容忍技术">错误容忍技术</h3><p>飞地（Enclave）是指一个隔离的线程运行环境，是由硬件支撑的隔离技术。ghOSt框架使用了飞地技术，每个用户端与他们所负责调度的程序运行在同一个飞地当中。由此，ghOSt框架就可以大幅降低用户开发，部署，测试的难度，即使用户编写了错误的调度算法也不会影响到其他飞地以及内核的正常运行，即使发生了崩溃也只是导致这一飞地中的线程组出现调度问题。另外，多个互不干扰的飞地可以让ghOSt框架支持多种调度策略并行，不同的线程组使用不同的调度策略。</p><p>从设计的角度说，ghOSt也为调度崩溃留有冗余机制，ghOSt的调度类实现为了系统调度的低优先级调度类，当ghOSt行为发生异常后将会自动转交给默认的调度器进行调度，实现了较强的错误容忍机制。ghOSt也实现了更新机制，当用户端的策略需要进行调整时，会拉起一个新的用户端，直至新的用户端完成交互后，旧的客户端将结束。</p><h3 id="中心化模型">中心化模型</h3><p>为了满足中心化模型下多处理器调度场景，ghOSt框架需要管理本地或远程的多计算集群，由一个全局的用户态调度多个计算集群或CPU执行任务，控制各计算群调度策略以及计算群间的任务调度。在这种场景下就要仔细地考虑每个计算群的执行状态，因此ghOSt借鉴了数据库的概念，采用了transaction(事务)的方式来确认用户态发给内核态的信息，用户态产生的调度结果通过事务发送给内核态，在事务提交后才视为一次有效的调度，如果远程计算集群无法立即回应调度，那么事务不会被确认提交，内核态调度程序发现这一情况可以进行处理，重新发送调度要求或者转交由其他处理器执行。考虑到调度框架的性能要求，事务模型采用共享内存的方式实现以加快速度。</p><p>在中心化模型中，ghOSt框架会维护一个全局的用户态程序，全局的用户态程序会接受多个调度请求，然后将涉及的中断打包发给处理器，以减少信息传递的代价，这里利用了处理器硬件支持的batchinterrupt功能。在涉及到计算集群间的任务迁移时，全局的用户态程序会发送IPI（InterProcesser Interrupt），触发迁移目的地集群中断实现。</p><h2 id="实验">实验</h2><p>ghOSt是一个用户自定义调度策略执行框架，因此本文的实验评估基于以下三个方面开展：</p><ol type="1"><li>ghOSt框架带来的额外开销有多大？</li><li>ghOSt框架执行自定义策略调度效果如何？</li><li>ghOSt框架是否具有实用性？</li></ol><h3 id="性能与效率">性能与效率</h3><p>经过测试，ghOSt框架的调度开销是微秒级别，相比于内核原生的调度器并没有添加过于沉重的开销。在中心化模型下，较大的开销是在remoteschedule上，对多个处理器进行调度并通过处理器间中断（IPI）的方式进行调度。</p><p>同时作者也比较了使用ghOSt执行调度策略和定制的调度器之间的差距，实验表明ghOSt几乎可以达到定制调度器的调度效果，但是当然在性能上有所不足，这也是灵活性与性能的取舍。</p><div style="width:70%;margin:auto"><img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/time.png" class="" title="time consumption"></div><h3 id="实际场景应用">实际场景应用</h3><p>作者选取了Google Snap 和 GoogleSearch任务来模拟真实的云端使用场景，以说明ghOSt框架的可用性。这里以GoogleSearch测试为例，使用ghOSt执行用户自定义的调度策略，可以看到整体的吞吐量相矫CFS没有明显变化，但是自定义策略在AB两个案例中可以显著的降低尾延迟。这说明了ghOSt框架在真实场景下是可用的，可以大幅度提升处理效率。这里的实验C作者分析是由于定制策略还有待改进，使得提升效果不明显。</p><div style="width:70%;margin:auto"><img src="/2022/12/25/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/latency.png" class="" title="latency"></div><h2 id="总结">总结</h2><p>ghOSt框架实现对了用户自定义策略的支持，将调度任务又内核态委托给了用户态执行，简化了用户开发、测试、部署的流程，在几乎不增加调度性能开销的基础上实现了功能强大的调度框架支持，为多调度策略，中心化模型提供了良好的支持。</p><p>通过ghOSt框架的实验测试，在云端等场景下存在着巨量的通过改进调度策略而提升执行效率的空间，这也为调度方向后续的研究提供了参考。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;AOS课程选题。&lt;/p&gt;
+&lt;h2 id=&quot;背景&quot;&gt;背景&lt;/h2&gt;
+&lt;p&gt;定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对</summary>
+      
+    
+    
+    
+    
+    <category term="Paper" scheme="https://sunzhibo.github.io/tags/Paper/"/>
+    
+    <category term="Note" scheme="https://sunzhibo.github.io/tags/Note/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
+    <link href="https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/"/>
+    <id>https://sunzhibo.github.io/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</id>
+    <published>2022-12-22T02:36:53.000Z</published>
+    <updated>2023-03-25T11:27:30.003Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p><h2 id="introduction">Introduction</h2><p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p><h2 id="design-of-opbench-system">Design of OpBench System</h2><p>OpBench的使用分为四个阶段：</p><ol type="1"><li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li><li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,128, 256位的情况分别生成测试。</p></li><li><p>将合约部署在测试链上并执行。</p></li><li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li></ol><p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p><ol type="1"><li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li><li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li><li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li><li><p>CALLDATACOPY &amp;CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li><li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li></ol><p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p><h2 id="result">Result</h2><p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p><ul><li><p>go客户端的性能更好。</p></li><li><p>客户端和系统共同影响着性能。</p></li><li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li><li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。&lt;/p&gt;
+&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很</summary>
+      
+    
+    
+    
+    
+    <category term="Paper" scheme="https://sunzhibo.github.io/tags/Paper/"/>
+    
+    <category term="Note" scheme="https://sunzhibo.github.io/tags/Note/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《Vivado数字设计》读书笔记</title>
+    <link href="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <id>https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</id>
+    <published>2022-10-15T02:08:44.000Z</published>
+    <updated>2023-03-25T11:20:00.614Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="数字逻辑基础">数字逻辑基础</h2><h3 id="数字电路与晶体管">数字电路与晶体管</h3><p>数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高/低电平，数字电路状态"0,1"定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。</p><p>为了对电路进行控制，需要引入数字电路的<strong>开关</strong>，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（MetalOxide Semiconductor Field Effect Transistor,MOSFET），它是三端口器件，称为源极，漏极和栅极。其制作工艺为在半导体硅的源极和漏极区域中植入带电离子，在二者中间创建一个绝缘层并生长另一个导体形成栅极，根据植入离子的电性不同，分为植入负电粒子的nFET和植入正电粒子的pFET。</p><p>以nFET为例进行说明，在逻辑电路中nFET源极接GND，当栅极接VCC时，源极和栅极间形成了电压差，会吸引硅中的负电荷进入中间的沟道（半导体中正负电荷粒子可以移动），形成了连续的负电荷通路，nFET处于强导通状态；当栅极接GND时会吸引正电荷聚集在沟道，与两侧扩散区中的负电荷形成PN结，阻止任何一个方向的电流流过。如果源极接VCC的话，栅极接地形成电压差，也不能吸引负电荷移动到栅极绝缘层下，无法形成负电荷通路。</p><div style="width:70%;margin:auto"><img src="/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg" class="" title="nFET"></div><p>因此nFET源极通常接地，当栅极为VCC时导通，pFET源极通常接VCC，当栅极为GND时导通。可以总结出使用FET构建逻辑电路的基本规则：1. pFET源极必须连接到VCC，nFET源极必须连接到GND 2.电路输出必须通过一个pFET连接到VCC，电路输出必须通过一个nFET连接到GND 3.逻辑电路的输出不能同时连接到VCC和GND 4. 逻辑电路使用数量最少的FET</p><p>由于pFET和nFET的特性，称为互补金属氧化物半导体电路，即CMOS电路，常见的逻辑门需要的晶体管数量为：INV，需要两个晶体管，NOR，NAND，需要四个晶体管。CMOS电路的功耗与逻辑门的输出信号频率成正比，与供电电压的平方成正比。</p><h3 id="逻辑代数">逻辑代数</h3><p>提到了格雷码，卡诺图，以及表示方法Sum Of Product，Product OfSum。</p><p>参考资料： 1. <ahref="https://learn.digilentinc.com/Documents/312">Transistors asSwitches</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;数字逻辑基础&quot;&gt;数字逻辑基础&lt;/h2&gt;
+&lt;h3 id=&quot;数字电路与晶体管&quot;&gt;数字电路与晶体管&lt;/h3&gt;
+&lt;p&gt;数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高/低电平，数字电路状态&quot;0,
+1&quot;定义了两个宽范围电压区域，在区域内电</summary>
+      
+    
+    
+    
+    
+    <category term="Note" scheme="https://sunzhibo.github.io/tags/Note/"/>
+    
+    <category term="Book" scheme="https://sunzhibo.github.io/tags/Book/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CF Round#802 Div2</title>
+    <link href="https://sunzhibo.github.io/2022/09/17/CF-Round-802/"/>
+    <id>https://sunzhibo.github.io/2022/09/17/CF-Round-802/</id>
+    <published>2022-09-17T13:54:46.000Z</published>
+    <updated>2022-09-18T02:40:10.446Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://codeforces.com/contest/1700">Codeforces Round#802Div2</a></p><h2 id="a.-optimal-path">A. Optimal Path</h2><p><code>题意</code>：给一个<spanclass="math inline">\(n*m\)</span>的矩阵，<spanclass="math inline">\(a(i, j) = (i - 1)m + j\)</span>，求一条从<spanclass="math inline">\((1, 1)\)</span>到<span class="math inline">\((n,m)\)</span>的最小权值路径。</p><p><code>题解</code>：总步数是确定的，横向移动和竖向移动分别会为后面的每一步增添一个额外的代价，贪心做一下。</p><h2 id="b.-palindromic-numbers">B. Palindromic Numbers</h2><p><code>题意</code>：给定一个大整数，求另一个与之长度相同的数，使得二者之和为回文数。</p><p><code>题解</code>：构造，如果首位是9，那么一定可以满足回文数为全1，否则构造全9的回文数。</p><h2 id="c.-helping-the-nature">C. Helping the Nature</h2><p><code>题意</code>： 给定数组<spanclass="math inline">\(a\)</span>，可以使一个前缀或一个后缀都减一，可以使数组整体加一，求最少次数使得数组元素变为完全相同。</p><p><code>题解</code>：转换为对差分数组操作，就变成了单点加一和减一，和不修改，前两种是唯一可以改变差分数组的操作，要让差分数组变为全0，再考虑整体需要加或者减几次。</p><h2 id="d.-river-locks">D. River Locks</h2><p><code>题意</code>：有若干水闸，前面的水满了会溢到后面去，每个闸有自己的容量，多次询问若要求<spanclass="math inline">\(t\)</span>时间内将所有水闸放满，至少需要打开几个闸门的入水口。</p><p><code>题解</code>：注意到前面的水可以留到后面，后面不能去前面，所以一定是打开最前面若干个闸门的入水口，因此不断对前缀做判断即可。这里注意要规避掉某个极大的闸门在前面，放满它的时间是整体时间的平静。</p><h2 id="e.-serega-the-pirate">E. Serega the Pirate</h2><p><code>题意</code>： 有一个<spanclass="math inline">\(n*m\)</span>的矩阵，里面填有<spanclass="math inline">\(1\)</span>到<spanclass="math inline">\(n*m\)</span>，从<spanclass="math inline">\(1\)</span>开始走，可以走重复的格，但是要严格按照升序<spanclass="math inline">\(1, 2, 3...\)</span>走，求是否有解，如果没有的话求有几种方案可以交换两个数的位置使得存在解。</p><p><code>题解</code>：做题的时候想到的是并查集来判断解存不存在，但是很脑筋急转弯的是只要每个点都存在一个相邻的更小的值，那么就一定存在解，可以归纳证明。</p><p>基于此考虑没解的情况下怎么求方案数，交换两个点只会影响交换的两个点周围的点以及本身，那么找一个周围都更大的点<spanclass="math inline">\(x\)</span>，可能的方案只可能是一个点在<spanclass="math inline">\(x\)</span>及周围，另一个在<spanclass="math inline">\(x+1\)</span>附近，因此暴力枚举方案，依次做暴力验证即可，注意这里可能会有重复的方案。</p><h2 id="f.-puzzle">F. Puzzle</h2><p><code>题意</code>： 给出两个<spanclass="math inline">\(2*n\)</span>的01矩阵，可以交换两个相邻位置的数，求最少次数使得矩阵1变为矩阵2。</p><p><code>题解</code>：乍一看像是dp，但是不太好描述状态。考虑一个退化的情况，如果只有一行，那么直接按顺序分配即可，那么扩展到两行。不妨假定把竖向的操作提到最前面，已经完成了竖向的操作，那么两行内就直接按顺序分配即可。</p><p>这道题有个很新颖的想法就是换一种计算一行内情况的方式，正好是01数组，两个数组的前缀和做差，再求绝对值的和就是需要的操作次数。</p><p>那么在这个基础上考虑，纵向的移动相当于把一行的前缀和的后缀减一，另外一行的前缀和的后缀加一，考虑怎么让这个和最小。</p><p>考虑从左到右扫描，在某一列遇到了1，记第一行前缀和差为<spanclass="math inline">\(f_{1}\)</span>，第二行前缀和差为<spanclass="math inline">\(f_{2}\)</span>，如果<spanclass="math inline">\(f_{1}\)</span>和<spanclass="math inline">\(f_{2}\)</span>异号，不妨假设<spanclass="math inline">\(f_{1} \gt 0, f_{2} \lt0\)</span>，那么说明第一行前面有多余的1，第二行缺少了1，这是把第一行的1移动下来一定是最优的。</p><p>证明如下，考虑一个情况如下矩阵，那么在右上角及其右侧的第一行对于1的需求由矩阵中任何的1移动而来需要的代价是相同的，左下角及其左侧也是一样的。</p><p><span class="math display">\[\begin{pmatrix}1&amp;0\\0&amp;1\\\end{pmatrix}\]</span></p><p>其他的情况可以手玩一下，可以得出类似的证明，而且当<spanclass="math inline">\(f_{1}\)</span>和<spanclass="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，即绝对值为1，因此这种情况下把多余的1纵向交换到另一行一定是最优解，贪心从左到右扫描即可。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://codeforces.com/contest/1700&quot;&gt;Codeforces Round#802
+Div2&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;a.-optimal-path&quot;&gt;A. Optimal Path&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;题意</summary>
+      
+    
+    
+    
+    
+    <category term="Codeforces" scheme="https://sunzhibo.github.io/tags/Codeforces/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Keccak-256算法详解</title>
+    <link href="https://sunzhibo.github.io/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://sunzhibo.github.io/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</id>
+    <published>2022-08-31T06:37:01.000Z</published>
+    <updated>2022-11-15T05:23:40.830Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="keccak-256">keccak-256</h2><p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p><p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p><ul><li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li><li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li></ul><p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<spanclass="math inline">\(b=25*2^{l}\)</span>，其中<spanclass="math inline">\(l \in [0, 6]\)</span>）</p><p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<spanclass="math inline">\(P =M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p><p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p><p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p><div style="width:70%;margin:auto"><img src="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process"></div><p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<spanclass="math inline">\(x, y \in [0, 5), z \in2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p><p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p><p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<spanclass="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p><p><span class="math inline">\(\rho: a[x][y][z] =a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<spanclass="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}x \\ y \end{pmatrix}\)</span>，特殊地当<spanclass="math inline">\(x=y=0\)</span>时，令<spanclass="math inline">\(t=-1\)</span>。<spanclass="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p><p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\y&#39;\end{pmatrix}\)</span>。 <spanclass="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p><p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +1)a[x+2]\)</span>。<spanclass="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p><p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<spanclass="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p><p>在实际实现中，可以通过预先计算好的常数对<spanclass="math inline">\(\rho, \pi\)</span>操作优化加速。</p><h2 id="keccak-256算法的实现">keccak-256算法的实现</h2><h2 id="参考链接">参考链接</h2><ol type="1"><li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">LearnKeccak-256 on Youtube</a></li><li><ahref="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li><li><ahref="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li><li><ahref="https://keccak.team/keccak_specs_summary.html">Keccak-Officialwebsite</a></li></ol>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;keccak-256&quot;&gt;keccak-256&lt;/h2&gt;
+&lt;p&gt;keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在&lt;code&gt;padding&lt;/code&gt;方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak</summary>
+      
+    
+    
+    
+    
+    <category term="Ethereum" scheme="https://sunzhibo.github.io/tags/Ethereum/"/>
+    
+    <category term="Keccak-256" scheme="https://sunzhibo.github.io/tags/Keccak-256/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《Mastering Ethereum》读书笔记</title>
+    <link href="https://sunzhibo.github.io/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <id>https://sunzhibo.github.io/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</id>
+    <published>2022-08-31T06:37:01.000Z</published>
+    <updated>2023-03-25T11:20:00.614Z</updated>
+    
+    <content type="html"><![CDATA[<p>根据领域的需求买了一本《精通以太坊》，看的过程中顺便整理一下之前不知道的知识。</p><h2 id="以太坊背后的密码学">以太坊背后的密码学</h2><p>私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更依赖于密码学安全的伪随机数生成器（如CSPRNG），在以太坊中私钥可以是<spanclass="math inline">\([1, n-1]\)</span>中的任何数字，其中<spanclass="math inline">\(n\)</span>代表了以太坊使用的椭圆曲线的阶，为<spanclass="math inline">\(1.158 * 10^{77}\)</span>。</p><p>以太坊使用椭圆曲线保证非对称密码的安全性，采用<code>secp256k1</code>的标准，对应椭圆曲线为<spanclass="math inline">\(y^{2} \equiv (x^{3} + 7) \ mod \p\)</span>，其中<span class="math inline">\(p=2^{256} - 2^{32} - 2^{9} -2^{8} - 2^{7} - 2^{6} - 2^{4} -1\)</span>是一个大素数。椭圆曲线上的两点<span class="math inline">\(p1,p2\)</span>，定义<spanclass="math inline">\(p1+p2=p3\)</span>，其中<spanclass="math inline">\(p3\)</span>为点<span class="math inline">\(p1,p2\)</span>连线与椭圆曲线的唯一交点，特别地若<spanclass="math inline">\(p1=p2\)</span>，那么<spanclass="math inline">\(p3\)</span>则为过点<spanclass="math inline">\(p1\)</span>的切线与椭圆曲线的唯一交点。根据加法在椭圆曲线上的定义，定义正整数乘法<spanclass="math inline">\(k *p=p+p+....+p\)</span>，得到的仍然是椭圆曲线上的唯一点。</p><p>公钥则是由私钥计算产生的椭圆曲线上的一个点，记私钥为<spanclass="math inline">\(k\)</span>，公钥为<spanclass="math inline">\(K\)</span>，那么则有<span class="math inline">\(K= k * G\)</span>，其中<spanclass="math inline">\(G\)</span>是一个椭圆曲线上的常量点。由于椭圆曲线的定义，椭圆曲线上的乘法是难以进行逆运算的，因此保证了私钥的安全性。根据SECG发布的一种序列化编码方式，用四种可能的前缀来表示椭圆曲线上的点位，如下表所示，以太坊使用未压缩点编码公钥，即<code>0x04 + x + y</code>的方式编码。</p><table><thead><tr class="header"><th style="text-align: center;">前缀</th><th style="text-align: center;">含义</th><th style="text-align: center;">长度（字节）</th></tr></thead><tbody><tr class="odd"><td style="text-align: center;">0x00</td><td style="text-align: center;">无穷远点(0,0)</td><td style="text-align: center;">1</td></tr><tr class="even"><td style="text-align: center;">0x04</td><td style="text-align: center;">未压缩点，保存<spanclass="math inline">\(x, y\)</span>坐标</td><td style="text-align: center;">65</td></tr><tr class="odd"><td style="text-align: center;">0x01</td><td style="text-align: center;">偶数<spanclass="math inline">\(y\)</span>压缩点</td><td style="text-align: center;">33</td></tr><tr class="even"><td style="text-align: center;">0x03</td><td style="text-align: center;">奇数<spanclass="math inline">\(y\)</span>压缩点</td><td style="text-align: center;">33</td></tr></tbody></table><p>以太坊的地址则使用哈希算法对公钥进行加密（特别注意此处的公钥应带有<code>04</code>前缀），以太坊中使用的哈希加密算法为<code>keccak-256</code>算法，具体的细节在另一篇博文中讨论。通过<spanclass="math inline">\(keccak(K)\)</span>我们可以得到256位结果，选出大端序中的末20字节(160位)作为账户的地址</p><p>为了避免转账时可能发生的地址输入错误，社区提出了<code>EIP-55</code>提案，对十六进制编码的地址进行大写检验。对于十六进制小写编码的地址<spanclass="math inline">\(addr\)</span>进行哈希运算，得到大端序下的高20字节逐位检验，如果十六进制编码的哈希结果大于等于8，那么则把对应的十六进制编码的地址修改为大写（如果为字母的话）。采用大小写混合的地址后，一旦发生了地址输入错误情况，则可以通过哈希值反向对地址的合法性进行核验，由于哈希函数对于输入的变化极为敏感，即使发生了一位的错误也会使哈希结果发生巨大的变化，<code>EIP-55</code>可以有效地防止可能发生的地址输入错误。</p><h2 id="钱包">钱包</h2><p>如果用户只采用同一个地址进行转账交易的话，很容易通过地址进行交易的追踪，为了实现在去中心化网络上的匿名性，用户可以通过钱包技术管理多个派生出的账户，从而避免通过地址进行的追踪。目前的钱包大多采用了确定性钱包，即通过一个种子密钥派生出多个可用的子钥，并利用多个可用的子地址进行交易。</p><p>简要介绍一下助记词标准（BIP-39）。在用户创建钱包时，钱包会生成一个密码学安全意义上的随机数，记为<spanclass="math inline">\(S\)</span>（长度一般为128位或者256位），取出<spanclass="math inline">\(SHA-256(S)\)</span>的前<spanclass="math inline">\(S/32\)</span>比特作为校验值附加在<spanclass="math inline">\(S\)</span>的末尾，按照11比特一组分为<spanclass="math inline">\(3S/32\)</span>组，在预先选取出的2048个简单英文单词中进行映射，形成助记词组。若用户忘记了钱包的密码，可以通过助记词可以恢复出钱包生成的随机数。分层确定性钱包（HD）由一个512比特的种子密钥开始生成，使用助记词组作为第一个参数，可选的盐（默认为"mnemonic"，可以在后附加用户指定的密码）作为第二个参数，使用密钥扩展算法PBKDF2进行2048轮HMAC-SHA512哈希运算得到。<strong>需要特别注意的是</strong>此处的密码与设立钱包时要求用户填写的密码不同，若设立时的密码丢失，可以通过助记词进行恢复，这也说明了这个密码仅作钱包的登录使用，并不参与到后续种子密钥的生成过程。</p><p>有了钱包的种子密钥后就可以根据曾几时确定性钱包标准（BIP-32）进行密钥的派生了，其中种子的左256位为根私钥，右256位为根链码，扩展派生出的密钥形成树形结构，根据扩展时使用的索引进行编码，不同的层级间用<code>/</code>隔开，如下图所示。</p><div style="width:70%;margin:auto"><img src="/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/BIP-32.png" class="" title="BIP-32 Standard"></div><p>比较直观的派生过程如下图所示，将父公钥，父链码和索引作为哈希函数的输入，得到的512位哈希输出分为左右两部分，分别记为<code>l, r</code>，<code>l</code>与父私钥<code>p</code>相加得到子私钥<code>c=l+p</code>，<code>r</code>作为子链码用于下一级密钥的派生。为了方便钱包间的导入导出，将密钥与对应的链码结合起来称为扩展密钥，使用Base58Check进行编码，其中扩展私钥以<code>xpriv</code>开头，扩展公钥以<code>xpub</code>开头。</p><div style="width:70%;margin:auto"><img src="/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Private.png" class="" title="Parent Private Key"></div><p>为了在不可信赖环境下进行部署，利用椭圆曲线运算上的结合律，可以不经过父私钥，只通过父扩展公钥生成子公钥。因为生成方法为<code>c=l+p</code>，根据公钥生成方式有<code>C=G*c, P=G*p</code>，因此有<code>C=G*(l+p)=G(l)+P</code>，将生成点与哈希结果的左半部分相乘，再加上父公钥即可得到派生出的子公钥，这样就避免了私钥的部署。</p><div style="width:70%;margin:auto"><img src="/2022/08/31/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Public.png" class="" title="Parent Public Key"></div><p>考虑如果某一个子私钥发生了泄露，在父扩展公钥暴露的情况下，可以对索引进行暴力破解，从而根据<code>c=l+p</code>的逆运算得到父私钥，使得由该父节点派生的所有密钥发生泄漏。为此引入了增强派生算法，由父私钥，父链码和索引生成子一级的私钥和链码，由于私钥不会被部署也就隔断了子一级向上推断的可能，当然缺点是私钥无法像公钥一样部署在服务器上，因此通常在最根一级使用增强派生算法，或在需要隔绝父子间推导关系的场景使用，以增强钱包的安全性。</p><p>为了区别两种派生方法，规定索引最高位为0代表普通派生方法，为1代表增强派生算法，特别地在表示时，<code>m/x/y</code>为密钥<code>m</code>派生的第<code>x</code>个子密钥的第<code>y</code>个子密钥，<code>m/x'/y</code>表示密钥<code>m</code>派生的第<code>x+0x80000000</code>个增强密钥的第<code>y</code>个子密钥。</p><p>根据BIP-44标准，定义树型层级的含义为<code>m / purpose' / coin_type' / account' / change / address_index</code>。其中<code>purpose'</code>总是设为<code>44'</code>，<code>coin-type'</code>用以区分不同的币种，以太坊是<code>60'</code>，<code>account'</code>用以区分不同的逻辑账户，<code>change</code>用以区分区块链的找零地址，<code>address_index</code>则是同一个逻辑账户下的不同地址。</p><p>参考链接：</p><ol type="1"><li><ahref="https://medium.com/@robbiehanson15/the-math-behind-bip-32-child-key-derivation-7d85f61a6681">Themath behind BIP-32 child key derivation</a></li><li><a href="https://zhuanlan.zhihu.com/p/33070394">比特币区块链（六） |钱包的技术细节之从种子创建HD钱包</a></li></ol><h2 id="交易">交易</h2><p>交易是唯一能够触发以太坊区块链状态发生改变的行为（矿工挖矿除外），交易包含以下内容：</p><ul><li><code>nonce</code>：序列编号，表示该次交易是发起者账户的第几次交易，用于抵御重放攻击</li><li><code>gas price</code>：交易发起方愿意支付的gas价格，通常来说越高的价格对应着越快被矿工打包进区块</li><li><code>gas limit</code>：交易发起方愿意支付的gas上限</li><li><code>recipient</code>：目标以太坊地址</li><li><code>value</code>：交易发送给的以太币数量</li><li><code>data</code>：交易中附加的可变长数据</li><li><code>v, r, s</code>：交易附加的数字签名部分，用于验证交易安全性</li></ul><p>交易在以太坊中采用RLP（递归长度前缀）标准编码，打包为大端的，8比特倍数长度的二进制数据。</p><p><code>nonce</code>满足了用户按序执行交易的需求，假设用户发出多笔交易，希望可以按照顺序依次执行，但按序发出的交易数据在区块链网络中被确认的顺序只取决于它们沿着P2P网络到达确认节点的顺序，因此通过<code>nonce</code>可以保证用户的交易按序执行。如果节点收到了不符合历史<code>nonce</code>的交易，则会放入待确认交易列表，直至空缺的<code>nonce</code>都有对应的交易被确认后再做执行。同时<code>nonce</code>也作为计数器抵御了重放攻击，避免同一笔交易被恶意多次广播。但是<code>nonce</code>的这一设计也为并行化构造交易带来了难题，目前只能采用串行的方法进行多笔交易的生成。</p><p>交易的目标地址可以是外部账户或者合约账户，可以通过<code>data</code>段对合约账户的函数进行调用，调用时按32字节对齐，以目标函数原型定义（例如<code>withdraw(uint256)</code>）的Keccak-256哈希值的前4个字节开头，表示调用的函数，以参数作为结尾。特殊地，向<code>0x0</code>地址发送交易会将<code>data</code>段中的数据创建为一个合约，向<code>0x00...00dEaD</code>发送以太币是销毁以太币的含义，当然发送到一个任意地址也可能是在销毁以太币。</p><p>为了确保交易的安全性，以太坊采用了椭圆曲线数字签名算法（ECDSA）给交易附加上了数字签名，数字签名提供了身份验证，不可否认和数据完整性的支持。基于数据签名算法的性能考虑，数字签名一般只作用于待发送消息的哈希结果，即<code>Sig=F_&#123;sig&#125;(Keccak(message), k)</code>，其中<code>k</code>是用于签名的私钥，<code>message</code>则是经过打包的数据。</p><p>为了保证用户使用私钥对多笔交易进行签名不会导致安全性的降低，在每次签名时，除了用户本身的私钥<code>k</code>，还会采用一个随机生成的私钥<code>q</code>共同加密，得到<spanclass="math inline">\(s \equiv q^{-1}(Keccak(m) + r*k) \ mod\  p\)</span>，其中<code>p</code>是椭圆曲线上的素数阶，<code>r</code>是私钥<code>q</code>对应的公钥<code>Q</code>的横坐标，生成的签名<code>Sig=(r, s)</code>。</p><p>在验证数字签名时可以通过<code>r</code>对信息进行核验，如果签名有效则有<spanclass="math inline">\(q \equiv s(Keccak(m) +rk)\)</span>，私钥不可能公开，于是同乘生成点<code>G</code>得到<spanclass="math inline">\(Q = Keccak(m)*sG +rK\)</span>，即可通过<code>Q</code>对<code>r</code>进行验证数字签名的有效性，保证是从公钥<code>K</code>对应账户中发出的交易。</p><p>但是注意到交易中并没有附加<code>from</code>项，我们需要从签名中先恢复出交易发起方的公钥并确定其账户，这也是数字签名设计的比较巧妙的地方：<strong>引入了随机生成的密钥对，并与账户持有的密钥对建立了对应的联系</strong>。加密时的<spanclass="math inline">\(q^{-1}\)</span>等价于两侧都乘上一个私钥，这样在不泄露私钥的前提下，同乘上生成点<code>G</code>就可以转换为公钥间的联系，即<spanclass="math inline">\(sQ = rK +Keccak(m)*G\)</span>，即可算出交易发起的账户公钥为<spanclass="math inline">\(K=r^{-1}(sQ - Keccak(m) * G)\)</span>。</p><p>不过基于椭圆曲线关于x轴对称的性质，从横坐标<code>r</code>恢复公钥<code>Q</code>时会对应两个点，可以通过<code>s</code>反过来选择公钥<code>K</code>。为了提高效率，在数字签名中使用<code>(v, r, s)</code>，约定<code>v</code>使用<code>0, 1</code>表示究竟采用曲线上的哪个点，在较老的链上使用的是27或28（27是比特币采用的随机数），经过<code>SpuriousDragon</code>分叉后采用35或是36。</p><p>EIP-155提案又为交易增加了<code>chainID, r(=0), s(=0)</code>的结构成员，其中<code>chainID</code>是为了抵御不同以太坊网络间的重放攻击。</p><p>目前以太坊没有原生的多签名交易支持，需要智能合约进行实现。交易的隐秘性通过P2P的传播来保护，任何一个消息的传递都可能来自发起者或是网络中的传播节点，攻击者需要掌握大多数节点才能确认交易发起者的网络地址。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;根据领域的需求买了一本《精通以太坊》，看的过程中顺便整理一下之前不知道的知识。&lt;/p&gt;
+&lt;h2 id=&quot;以太坊背后的密码学&quot;&gt;以太坊背后的密码学&lt;/h2&gt;
+&lt;p&gt;私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更</summary>
+      
+    
+    
+    
+    
+    <category term="Note" scheme="https://sunzhibo.github.io/tags/Note/"/>
+    
+    <category term="Book" scheme="https://sunzhibo.github.io/tags/Book/"/>
+    
+  </entry>
+  
+</feed>

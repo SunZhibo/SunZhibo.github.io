@@ -68,45 +68,6 @@ class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，�
       </tags>
   </entry>
   <entry>
-    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
-    <url>/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</url>
-    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
-<h2 id="introduction">Introduction</h2>
-<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
-<h2 id="design-of-opbench-system">Design of OpBench System</h2>
-<p>OpBench的使用分为四个阶段：</p>
-<ol type="1">
-<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
-<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
-128, 256位的情况分别生成测试。</p></li>
-<li><p>将合约部署在测试链上并执行。</p></li>
-<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
-</ol>
-<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
-<ol type="1">
-<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
-<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
-<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
-<li><p>CALLDATACOPY &amp;
-CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
-<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
-</ol>
-<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
-<h2 id="result">Result</h2>
-<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
-<ul>
-<li><p>go客户端的性能更好。</p></li>
-<li><p>客户端和系统共同影响着性能。</p></li>
-<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
-<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Paper</tag>
-        <tag>Note</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Keccak-256算法详解</title>
     <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
@@ -173,6 +134,45 @@ website</a></li>
       <tags>
         <tag>Ethereum</tag>
         <tag>Keccak-256</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
+    <url>/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</url>
+    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
+<h2 id="introduction">Introduction</h2>
+<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
+<h2 id="design-of-opbench-system">Design of OpBench System</h2>
+<p>OpBench的使用分为四个阶段：</p>
+<ol type="1">
+<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
+<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
+128, 256位的情况分别生成测试。</p></li>
+<li><p>将合约部署在测试链上并执行。</p></li>
+<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
+</ol>
+<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
+<ol type="1">
+<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
+<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
+<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
+<li><p>CALLDATACOPY &amp;
+CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
+<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
+</ol>
+<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
+<h2 id="result">Result</h2>
+<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+<ul>
+<li><p>go客户端的性能更好。</p></li>
+<li><p>客户端和系统共同影响着性能。</p></li>
+<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
+<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Paper</tag>
+        <tag>Note</tag>
       </tags>
   </entry>
   <entry>
