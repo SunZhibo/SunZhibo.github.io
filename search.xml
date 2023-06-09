@@ -1,75 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Keccak-256算法详解</title>
-    <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
-<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
-<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
-<ul>
-<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
-<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
-</ul>
-<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
-class="math inline">\(b=25*2^{l}\)</span>，其中<span
-class="math inline">\(l \in [0, 6]\)</span>）</p>
-<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
-class="math inline">\(P =
-M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
-<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
-<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
-<div style="width:70%;margin:auto">
-<img src="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
-</div>
-<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
-class="math inline">\(x, y \in [0, 5), z \in
-2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
-<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
-<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
-\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
-\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
-<p><span class="math inline">\(\rho: a[x][y][z] =
-a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
-[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
-class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
-\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
-x \\ y \end{pmatrix}\)</span>，特殊地当<span
-class="math inline">\(x=y=0\)</span>时，令<span
-class="math inline">\(t=-1\)</span>。<span
-class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
-<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
-\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
-&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
-y&#39;\end{pmatrix}\)</span>。 <span
-class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
-<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
-1)a[x+2]\)</span>。<span
-class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
-<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
-class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
-<p>在实际实现中，可以通过预先计算好的常数对<span
-class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
-<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
-<h2 id="参考链接">参考链接</h2>
-<ol type="1">
-<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
-Keccak-256 on Youtube</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
-<li><a
-href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
-website</a></li>
-</ol>
-]]></content>
-      <tags>
-        <tag>Ethereum</tag>
-        <tag>Keccak-256</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CF Round#802 Div2</title>
     <url>/2022/09/17/CF-Round-802/</url>
     <content><![CDATA[<p><a href="https://codeforces.com/contest/1700">Codeforces Round#802
@@ -132,8 +63,53 @@ class="math inline">\(f_{1} \gt 0, f_{2} \lt
 class="math inline">\(f_{1}\)</span>和<span
 class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，即绝对值为1，因此这种情况下把多余的1纵向交换到另一行一定是最优解，贪心从左到右扫描即可。</p>
 ]]></content>
+      <categories>
+        <category>Codeforces</category>
+      </categories>
       <tags>
-        <tag>Codeforces</tag>
+        <tag>Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
+    <url>/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</url>
+    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
+<h2 id="introduction">Introduction</h2>
+<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
+<h2 id="design-of-opbench-system">Design of OpBench System</h2>
+<p>OpBench的使用分为四个阶段：</p>
+<ol type="1">
+<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
+<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
+128, 256位的情况分别生成测试。</p></li>
+<li><p>将合约部署在测试链上并执行。</p></li>
+<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
+</ol>
+<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
+<ol type="1">
+<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
+<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
+<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
+<li><p>CALLDATACOPY &amp;
+CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
+<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
+</ol>
+<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
+<h2 id="result">Result</h2>
+<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+<ul>
+<li><p>go客户端的性能更好。</p></li>
+<li><p>客户端和系统共同影响着性能。</p></li>
+<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
+<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
+      <tags>
+        <tag>Ethereum</tag>
+        <tag>TestBench</tag>
       </tags>
   </entry>
   <entry>
@@ -215,8 +191,7 @@ Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可�
 <img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
 </div>
 <p>这里使用的哈希树是Counter-based Integrity
-Tree，通过计数器对数据完整性进行保护，与传统的Merkle
-Tree还有所不同，具体的方法暂时没有查到，后面有需要的话再阅读相关的论文补充。</p>
+Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此增加重放攻击的攻击难度。</p>
 <div style="width:80%;margin:auto">
 <img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
 </div>
@@ -229,7 +204,7 @@ Mem区域进行完整性的保护。</p>
 </div>
 <p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
 Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
-<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。</p>
+<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
 <p>在系统启动时，MMT
 meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
 <p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
@@ -237,20 +212,134 @@ region的概念，这是一个可配置的连续区域，由寄存器<code>reg_h
 <h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
 Initialization with Shadow Fork</h3>
 <p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
-<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，基于此进行进一步的保护即可。</p>
+<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
 <h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
-<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较为关键的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
+<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
+line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
 <h2 id="implementation">Implementation</h2>
+<h3 id="hardware-implementation">Hardware Implementation</h3>
+<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
+Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
+Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
+Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
 <div style="width:80%;margin:auto">
-
+<img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
 </div>
-<p>介绍了一下上文提及的软硬件实现，蓬莱的形式化验证正在进行中。</p>
+<h3 id="software-implementation">Software Implementation</h3>
+<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
+Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
+<p>蓬莱同时也对Linux
+Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
+<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
+<p>蓬莱的形式化验证工作正在进行中。</p>
 <h2 id="evaluation">Evaluation</h2>
+<p>蓬莱在VC707开发板上基于SiFive Freedom
+U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
+<p>通过实验结果得到的结论整理如下：</p>
+<ul>
+<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
+<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
+<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
+<li>Cache Locking会产生17.73%的额外开销</li>
+<li>对硬件的额外改动基本不需要占用硬件资源</li>
+</ul>
+<h2 id="discussion">Discussion</h2>
+<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
+<p>针对内存管理的侧信道攻击讨论：</p>
+<ul>
+<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
+<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
+</ul>
 ]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
       <tags>
-        <tag>Paper</tag>
         <tag>TEE</tag>
+        <tag>Risc-V</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures</title>
+    <url>/2023/06/07/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/</url>
+    <content><![CDATA[<p>VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。</p>
+<h2 id="introduction">Introduction</h2>
+<p>SGX是Intel提出的TEE解决方案，可以保护敏感信息的CIA（Confidentiality,
+Integrity,
+Authentication），在内存保护方面，SGX可以保护敏感页内存的安全性。SGX讲内存划分为两个区域，EPC（Enclave
+Page
+Cache）区域存放敏感页内存数据，实施保护机制，而以外的non-EPC区域不做保护。SGX方案需要硬件上提供EPC区域，这是一段片上的内存区域，具有物理大小的限制，论文中提及是128MB。</p>
+<p>那么SGX针对内存的保护主要会产生两种额外开销，时间开销和空间开销。时间开销分为两个方面，一方面是访问敏感内存的时候需要经过校验数据完整性并解密使用。另一方面当敏感数据占满了EPC区域后，需要将敏感信息加密后存储到非EPC区域，SGX在触发EPC
+miss（需要的内容不在EPC中，包含需要换入换出的情况）时通过page
+fault的方式进行替换，这带来了上下文切换，数据拷贝，加解密的额外时间开销。空间开销主要是需要对数据进行保护，需要存储额外的信息。</p>
+<p>本文工作目标就是降低这两种额外开销。</p>
+<h2 id="background">BackGround</h2>
+<h3 id="threat-model">Threat Model</h3>
+<p>在TEE方案中，一般来说除了硬件本身以外都不属于可信基，应用层软件可能是攻击者运行，操作系统可能被攻击者操纵，甚至设备实体也可以被攻击者物理接触。在这种威胁模型下，要保证敏感信息的安全性非常困难，只考虑内存的安全性，通常我们认为片内的内存是不易被攻击者获取的，相对安全，防护的重点在于从片外内存中的数据。</p>
+<p>常见的针对内存数据的攻击有： *
+攻击者通过恶意的操作系统或软件窃取不具备访问权限的敏感信息 *
+攻击者通过物理手段读取甚至修改片外内存中的数据（TEE方案通常支持多个飞地的建立，当EPC内存不足以存储所有敏感信息时就会发生换入换出，再次读取换出内容时就不能再信任内存提供的数据）</p>
+<p>这要求TEE方案做好严格的权限控制，确保敏感信息不被泄露，同时又不能信任内存提供的数据。SGX中在EPC中划分出了区域存储页的元数据，来存储访问页的权限信息，实现了权限控制。比较难的问题是如何信任内存中保存的数据。</p>
+<h3 id="integrity">Integrity</h3>
+<p>完整性的保护是TEE内存方案中最为棘手的部分，从原理上看我们需要在有限的可信安全空间内（如上文提到的128MBEPC）对庞大的内存空间做完整性保护，保护其内容不受篡改，由于片上的空间一定更少，一定存储的是特征信息（即不可能做到非概率意义上的安全保证），通过运算验证，以时间代价换取保护。</p>
+<p>最基本的想法是利用MAC（Message Authentication
+Code）来对不可信内存中提供的数据进行校验。如果我们能对每个数据块（这里指一个基本的数据单元）生成一个MAC，同时利用片上产生的可信的私钥进行加密，存储到不可信内存中，待到读取数据时先进行解密，同时校验MAC，就可以确保数据的完整性。（这里MAC是存储在片上的可信数据，存储在不可信内存中则需要考虑存放的位置，以及MAC的保护问题）</p>
+<h4 id="merkle-tree">Merkle Tree</h4>
+<p>只使用MAC是不够的，这会带来重放攻击的风险，即攻击者返回其他未经篡改的区块数据，仍然可以通过MAC校验，但是数据的正确性无法得到保障。Merkle
+Tree的思路是对所有的数据建树，叶子节点为数据块的MAC，非叶子节点的值是所有子节点的哈希校验值，这样就可以通过根哈希值保护整棵树所覆盖地址范围的完整性。而只需要把根哈希值，或者前两层的节点哈希值储存在片内，就可以校验数据不受篡改。在校验时，各层级可以并行计算，同时验证从根出发的一条路径上的所有哈希值是否正确。</p>
+<p>Merkle
+Tree的问题是维护的代价比较大，出于性能考虑一个节点存储的数据最好是一个cache
+line大小，举例来说，在64B的cache
+line中只能存储8个64位的校验值，因此一个非叶子节点最多有8个子节点，若是要维护16GB地址范围的数据完整性，则需要10层树深，这带来了大量的空间开销和访问带宽开销（需要并行访问11个地址的数据）。另外，每一个对数据的写入操作都会导致一条到根的路径的哈希值更新，也会成为性能的瓶颈。</p>
+<h4 id="bonsai-merkle-tree">Bonsai Merkle Tree</h4>
+<p>解决重放攻击最直观的思路是nounce，即增加一个计数器，以抵御重放攻击，考虑对每个数据块维护一个计数器记录写入修改的次数，在换出加密时将计数器作为密钥的一部分，这样在验证时就可以证明是该数据块的最新数据，避免重放攻击。因此Bonsai
+Merkle Tree在Merkle
+Tree的基础上加以改进，将要校验的数据从哈希值改为了计数器，这样可以增加子节点的数量，因为计数器具有更少的位数，从而在同样保护范围内降低树深，减少开销。</p>
+<p>仍以64B举例，每个节点可以包含64个8位计数器，即可以有64个子节点。这时面临的问题是性能和安全性的取舍，如果计数器的位数较少，那么当修改次数超过了<span
+class="math inline">\(2^{8}\)</span>后counter就会循环，产生重放攻击的风险，但是越多的子节点数量就意味着更小的开销。</p>
+<p>进一步地，还可以通过global
+counter来进行优化，改为64个7位计数器和一个64位的全局计数器，可以理解为采用了64个71(7+64)位的计数器以保证安全性，同时这64个计数器共用了全局计数器作为公共的前缀，每当一个计数器溢出时便更改全局计数器，以此同时提高了安全性和性能，71位的计数器已经可以应对绝大多数的飞地应用场景生命周期了。</p>
+<h3 id="sgx-baseline">SGX baseline</h3>
+<p>Intel
+SGX是现行的工业界实现，在硬件上拥有128MB的片上安全空间，其中的32MB用来存储metadata。当安全空间用完需要换入换出时，会以页为单位将患处的数据归入一个non-EPC区域的完整性树管理，以保证对非安全区域的数据篡改会被发现，non-EPC区域的完整性树可以通过根哈希等方式由安全区域保护。SGX通过维护ELRANGE来确定EPC区域的范围。</p>
+<p>SGX也实现了对访问安全数据的权限控制，维护了数据结构EPCM(Enclave Page
+Cache
+Map)，在数据页被分配时记录了该页对应的虚拟地址，所属的飞地以及相应的权限。考虑到操作系统可能是被攻击的，具有操作TLB的权限，在TLB将虚拟地址翻译为物理地址后，处理器发现该物理地址对应EPC区域后，需要用物理地址去查找相应的EPCM表项，检查所访问的虚拟地址是否与预先记录的匹配，是否属于同一飞地，进行权限校验。</p>
+<p>在SGX中，如果飞地访问的页不在EPC区域中，会触发缺页异常，退出飞地转交给OS将缺页拷贝到EPC中（还有可能的换入换出操作），这带来了较大的访问开销。</p>
+<p>SGX使用SGX Integrity Tree(SIT)来维护数据的完整性，类似于Bonsai Merkle
+Tree也采用了counter的形式，每个block采用56bit的counter记录（无global
+counter），每个节点包含8个counter和64bit哈希（实际为56位哈希），哈希值由节点自身的8个counter和父节点对应的counter共同计算以在父子节点间建立联系，根节点的counter保护在片内。</p>
+<h2 id="proposed-techniques">Proposed Techniques</h2>
+<h3 id="unifying-the-epc-and-non-epc-regions">Unifying the EPC and
+non-EPC Regions</h3>
+<p>本文提出不再像SGX一样区分安全区域与非安全区域，即对全部的地址维护EPCM。在访问内存时通过物理地址查找到对应的表项，如果不是SENSITVE数据则正常读写，如果是SENSITIVE数据，类似地通过表项比对虚拟地址的映射，飞地的权限和所属，在通过检查后允许访问。</p>
+<p>这一设想简化了EPC的机制设计，在地址转换过程中无需比较EPC范围寄存器。但是代价是EPCM表的大小增加，对于每一个页，都需要存储映射的虚拟地址，以及权限信息，以16Byte计算，需要<span
+class="math inline">\(\frac{16B}{4KB}=0.04\%\)</span>的额外地址空间。类似于TLB表，EPCM表在这一机制下也需要参与到每一次地址转换过程中，可以采用类似的缓存机制进行加速。</p>
+<h3 id="variable-arity-unified-enctypted-leaftreevault">Variable Arity
+Unified enctypted-LeafTree(VAULT)</h3>
+<p>VAUT(Variable Arity Unified Tree)在Bonsai Merkle
+Tree的基础上做了进一步的优化。在Bonsai结构中，一次写入过程中会从叶节点出发向上更改计数器，直到命中了片上缓存的节点停止，那么显然层级越高的节点counter改变的越频繁，每当一个local
+counter溢出时，需要将节点的全部counter置为0，对应的就是需要重新计算所有子节点的MAC值。</p>
+<p>基于此，VAUT允许每一层的counter位宽不同，越高的层级counter宽度越长。仍然按照一个节点采取一个64B
+cache
+line的大小进行设计，每个节点固定拥有一个64bit-HASH用来保护一致性，64bit
+global
+counter记录溢出次数，还剩下448bit可控使用。在叶子节点，分配为64个6bit-counter，在倒数第二层分配为32个12bit-counter，再上层为16个24bit-counter。</p>
+<p>[graph here]</p>
+<p>相比于BMT，在非叶子节点也采用了计数器，相比于SIT，可变的counter长度以及global
+counter使用让VAUT在使用同样大小空间保护更大的安全区域，并且具有更小的刷新代价。以64GB地址空间为例，采用BMT需要9层树深，SIT需要10层树深，而VAUT只需要7层，需要的时间代价和空间代价都小于二者。</p>
+<p>VAUT看着很美好，同样的空间内容纳更多的counter并且也减少了刷新带来的重加密开销，但是代价是作为叶子节点，每个block只能分到6bit的计数器，会导致叶节点的刷新次数增大，这是不可避免的问题，计数器更宽对应更少的刷新和更小的覆盖面积。为了缓解这一问题，VAULT在VAUT的基础上引入了对叶子结点的加密，即对叶子节点采用父节点对应的64+12bit计数器作为密钥加密，从而省去叶子结点的HASH值建立其父子节点间的关系，省去的HASH值平分到计数器的宽度上，变为7bit计数器，减少了一倍的溢出可能。但是显然这会带来额外的时间开销，访问叶子节点数据还需要先访问父节点的数据，因此这一方法本质上是在<strong>牺牲动态时间换静态时间</strong>。</p>
+<p>[graph here]</p>
+<p>VAULT的改动整体是围绕着counter的宽度和数量进行设计的，作为宽度的取舍，VAULT可以轻易地覆盖较大范围的地址空间，但是会有相对更多的计数器溢出刷新次数（变宽计数器设计只能一定程度上缓解这一问题），而叶子结点的加密也引入了访问内存时新的关键路径。</p>
+<p>如果仅仅看这一设计，保护同样大小空间的空间代价和时间代价肯定都是更小的，层数更少带来较大的优势，但是同样需要考虑减少计数器宽度对刷新代价造成的影响，具体的提升还需要实验去验证。也正是因为VAULT的优势是保护更大的空间，才有上一节对于EPC空间概念泛化的讨论。</p>
+<h3 id="mac-allocation">MAC Allocation</h3>
+<p>最后一个问题，既然VAULT泛化了全部的内存空间为安全空间，那么对应的MAC大小将会暴增，如何存储MAC校验值成为了新的问题。文中提出了两个改进方案。</p>
+<p>第一点是Shared MAC with
+Compression(SMC)，对于数据块进行压缩，将MAC存进里面，我个人觉得这是有些强行的，首先块不一定能压缩，虽然大部分块是可以压缩的（这里提到了Base-Delta-Immediate，看了一下大部分内存中存在许多没有被利用的前导0，就可以进行压缩），其次这引入了额外的解码代价，对压缩数据还原可能会成为关键路径。另一方面SMC也提出了共享MAC的思路，让多个快共享同一MAC，这也是用时间换空间的替代方案，校验时需要将多个数据块一同取出，如果利用上空间一致性可能不会带来过大的overhead。</p>
+<p>第二点是On-Demand MAC
+Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不要产生MAC，聊胜于无的补充。</p>
+<h2 id="result">Result</h2>
+]]></content>
   </entry>
   <entry>
     <title>ghOSt Fast &amp; Flexible User-Space Delegation of Linux Scheduling</title>
@@ -326,9 +415,12 @@ Search测试为例，使用ghOSt执行用户自定义的调度策略，可以看
 <p>ghOSt框架实现对了用户自定义策略的支持，将调度任务又内核态委托给了用户态执行，简化了用户开发、测试、部署的流程，在几乎不增加调度性能开销的基础上实现了功能强大的调度框架支持，为多调度策略，中心化模型提供了良好的支持。</p>
 <p>通过ghOSt框架的实验测试，在云端等场景下存在着巨量的通过改进调度策略而提升执行效率的空间，这也为调度方向后续的研究提供了参考。</p>
 ]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
       <tags>
-        <tag>Paper</tag>
-        <tag>Note</tag>
+        <tag>OS</tag>
+        <tag>Scheduler</tag>
       </tags>
   </entry>
   <entry>
@@ -460,9 +552,13 @@ class="math inline">\(K=r^{-1}(sQ - Keccak(m) * G)\)</span>。</p>
 <p>EIP-155提案又为交易增加了<code>chainID, r(=0), s(=0)</code>的结构成员，其中<code>chainID</code>是为了抵御不同以太坊网络间的重放攻击。</p>
 <p>目前以太坊没有原生的多签名交易支持，需要智能合约进行实现。交易的隐秘性通过P2P的传播来保护，任何一个消息的传递都可能来自发起者或是网络中的传播节点，攻击者需要掌握大多数节点才能确认交易发起者的网络地址。</p>
 ]]></content>
+      <categories>
+        <category>Book Note</category>
+      </categories>
       <tags>
-        <tag>Note</tag>
-        <tag>Book</tag>
+        <tag>Ethereum</tag>
+        <tag>Crypto</tag>
+        <tag>Security</tag>
       </tags>
   </entry>
   <entry>
@@ -491,48 +587,84 @@ Sum。</p>
 href="https://learn.digilentinc.com/Documents/312">Transistors as
 Switches</a></p>
 ]]></content>
+      <categories>
+        <category>Book Note</category>
+      </categories>
       <tags>
-        <tag>Note</tag>
-        <tag>Book</tag>
+        <tag>Vivado</tag>
+        <tag>Hardware design</tag>
       </tags>
   </entry>
   <entry>
-    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
-    <url>/2022/12/22/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code/</url>
-    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
-<h2 id="introduction">Introduction</h2>
-<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
-<h2 id="design-of-opbench-system">Design of OpBench System</h2>
-<p>OpBench的使用分为四个阶段：</p>
-<ol type="1">
-<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
-<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
-128, 256位的情况分别生成测试。</p></li>
-<li><p>将合约部署在测试链上并执行。</p></li>
-<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
-</ol>
-<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
-<ol type="1">
-<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
-<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
-<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
-<li><p>CALLDATACOPY &amp;
-CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
-<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
-</ol>
-<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
-<h2 id="result">Result</h2>
-<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+    <title>Keccak-256算法详解</title>
+    <url>/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
+<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
+<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
 <ul>
-<li><p>go客户端的性能更好。</p></li>
-<li><p>客户端和系统共同影响着性能。</p></li>
-<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
-<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
+<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
 </ul>
+<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
+class="math inline">\(b=25*2^{l}\)</span>，其中<span
+class="math inline">\(l \in [0, 6]\)</span>）</p>
+<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
+class="math inline">\(P =
+M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
+<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
+<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
+<div style="width:70%;margin:auto">
+<img src="/2022/08/31/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
+</div>
+<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
+class="math inline">\(x, y \in [0, 5), z \in
+2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
+<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
+<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
+\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
+\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
+class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
+<p><span class="math inline">\(\rho: a[x][y][z] =
+a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
+[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
+class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
+\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
+x \\ y \end{pmatrix}\)</span>，特殊地当<span
+class="math inline">\(x=y=0\)</span>时，令<span
+class="math inline">\(t=-1\)</span>。<span
+class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
+<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
+\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
+&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
+y&#39;\end{pmatrix}\)</span>。 <span
+class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
+<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
+1)a[x+2]\)</span>。<span
+class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
+<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
+class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
+<p>在实际实现中，可以通过预先计算好的常数对<span
+class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
+<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
+<h2 id="参考链接">参考链接</h2>
+<ol type="1">
+<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
+Keccak-256 on Youtube</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
+<li><a
+href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
+website</a></li>
+</ol>
 ]]></content>
+      <categories>
+        <category>Crypto</category>
+      </categories>
       <tags>
-        <tag>Paper</tag>
-        <tag>Note</tag>
+        <tag>Ethereum</tag>
+        <tag>Keccak-256</tag>
       </tags>
   </entry>
 </search>

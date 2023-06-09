@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="蓬莱是上交研究的RISC-V架构下的可信执行环境方案。 Introduction 目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM TrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存">
 <meta property="og:type" content="article">
@@ -31,11 +31,12 @@
 <meta property="og:image" content="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png">
 <meta property="og:image" content="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png">
 <meta property="og:image" content="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png">
 <meta property="article:published_time" content="2023-03-25T08:23:54.000Z">
-<meta property="article:modified_time" content="2023-03-29T11:49:05.869Z">
+<meta property="article:modified_time" content="2023-06-09T14:34:20.577Z">
 <meta property="article:author" content="SunZhibo">
-<meta property="article:tag" content="Paper">
 <meta property="article:tag" content="TEE">
+<meta property="article:tag" content="Risc-V">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://sunzhibo.github.io/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png">
 
@@ -68,6 +69,9 @@
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
   </div>
 
@@ -89,6 +93,10 @@
 
 
 
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
 
 
 
@@ -120,7 +128,7 @@
             <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motivation"><span class="nav-number">2.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#system-overview"><span class="nav-number">3.</span> <span class="nav-text">System Overview</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#architecture"><span class="nav-number">3.1.</span> <span class="nav-text">Architecture</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#thread-model"><span class="nav-number">3.2.</span> <span class="nav-text">Thread Model</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#design"><span class="nav-number">4.</span> <span class="nav-text">Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fine-grained-flexible-memory-isolation"><span class="nav-number">4.1.</span> <span class="nav-text">Fine-grained Flexible
 Memory Isolation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scalable-memory-integrity-protection"><span class="nav-number">4.2.</span> <span class="nav-text">Scalable Memory Integrity
 Protection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#secure-memory-initialization-with-shadow-fork"><span class="nav-number">4.3.</span> <span class="nav-text">Secure Memory
-Initialization with Shadow Fork</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-demand-cache-line-locking"><span class="nav-number">4.4.</span> <span class="nav-text">On-demand Cache Line Locking</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#implementation"><span class="nav-number">5.</span> <span class="nav-text">Implementation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#evaluation"><span class="nav-number">6.</span> <span class="nav-text">Evaluation</span></a></li></ol></div>
+Initialization with Shadow Fork</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-demand-cache-line-locking"><span class="nav-number">4.4.</span> <span class="nav-text">On-demand Cache Line Locking</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#implementation"><span class="nav-number">5.</span> <span class="nav-text">Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hardware-implementation"><span class="nav-number">5.1.</span> <span class="nav-text">Hardware Implementation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#software-implementation"><span class="nav-number">5.2.</span> <span class="nav-text">Software Implementation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#evaluation"><span class="nav-number">6.</span> <span class="nav-text">Evaluation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#discussion"><span class="nav-number">7.</span> <span class="nav-text">Discussion</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -133,13 +141,19 @@ Initialization with Shadow Fork</span></a></li><li class="nav-item nav-level-3">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">标签</span>
+          <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
 </div>
@@ -213,7 +227,16 @@ Initialization with Shadow Fork</span></a></li><li class="nav-item nav-level-3">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-03-29 19:49:05" itemprop="dateModified" datetime="2023-03-29T19:49:05+08:00">2023-03-29</time>
+      <time title="修改时间：2023-06-09 22:34:20" itemprop="dateModified" datetime="2023-06-09T22:34:20+08:00">2023-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Paper-Note/" itemprop="url" rel="index"><span itemprop="name">Paper Note</span></a>
+        </span>
     </span>
 
   
@@ -302,8 +325,7 @@ Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可�
 <img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
 </div>
 <p>这里使用的哈希树是Counter-based Integrity
-Tree，通过计数器对数据完整性进行保护，与传统的Merkle
-Tree还有所不同，具体的方法暂时没有查到，后面有需要的话再阅读相关的论文补充。</p>
+Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此增加重放攻击的攻击难度。</p>
 <div style="width:80%;margin:auto">
 <img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
 </div>
@@ -316,7 +338,7 @@ Mem区域进行完整性的保护。</p>
 </div>
 <p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
 Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
-<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。</p>
+<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
 <p>在系统启动时，MMT
 meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
 <p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
@@ -324,15 +346,44 @@ region的概念，这是一个可配置的连续区域，由寄存器<code>reg_h
 <h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
 Initialization with Shadow Fork</h3>
 <p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
-<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，基于此进行进一步的保护即可。</p>
+<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
 <h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
-<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较为关键的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
+<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
+line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
 <h2 id="implementation">Implementation</h2>
+<h3 id="hardware-implementation">Hardware Implementation</h3>
+<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
+Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
+Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
+Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
 <div style="width:80%;margin:auto">
-
+<img src="/2023/03/25/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
 </div>
-<p>介绍了一下上文提及的软硬件实现，蓬莱的形式化验证正在进行中。</p>
+<h3 id="software-implementation">Software Implementation</h3>
+<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
+Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
+<p>蓬莱同时也对Linux
+Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
+<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
+<p>蓬莱的形式化验证工作正在进行中。</p>
 <h2 id="evaluation">Evaluation</h2>
+<p>蓬莱在VC707开发板上基于SiFive Freedom
+U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
+<p>通过实验结果得到的结论整理如下：</p>
+<ul>
+<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
+<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
+<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
+<li>Cache Locking会产生17.73%的额外开销</li>
+<li>对硬件的额外改动基本不需要占用硬件资源</li>
+</ul>
+<h2 id="discussion">Discussion</h2>
+<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
+<p>针对内存管理的侧信道攻击讨论：</p>
+<ul>
+<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
+<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
+</ul>
 
     </div>
 
@@ -342,8 +393,8 @@ Initialization with Shadow Fork</h3>
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Paper/" rel="tag"># Paper</a>
               <a href="/tags/TEE/" rel="tag"># TEE</a>
+              <a href="/tags/Risc-V/" rel="tag"># Risc-V</a>
           </div>
 
         
@@ -355,6 +406,9 @@ Initialization with Shadow Fork</h3>
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2023/06/07/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/" rel="next" title="VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures">
+                  VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
@@ -381,7 +435,7 @@ Initialization with Shadow Fork</h3>
   </span>
   <span class="author" itemprop="copyrightHolder">SunZhibo</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
 
     </div>
