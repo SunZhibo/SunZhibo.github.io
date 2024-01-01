@@ -20,16 +20,16 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（">
+    <meta name="description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关称为金属氧化物半导体场效应晶体管（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《Vivado数字设计》读书笔记">
 <meta property="og:url" content="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="Hexo Blog">
-<meta property="og:description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（">
+<meta property="og:description" content="数字逻辑基础 数字电路与晶体管 数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高&#x2F;低电平，数字电路状态&quot;0, 1&quot;定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。 为了对电路进行控制，需要引入数字电路的开关，在现代数字电路中的晶体管开关称为金属氧化物半导体场效应晶体管（">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://sunzhibo.github.io/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg">
 <meta property="article:published_time" content="2022-10-15T02:08:44.000Z">
-<meta property="article:modified_time" content="2023-06-07T13:59:34.818Z">
+<meta property="article:modified_time" content="2024-01-01T07:38:12.903Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Vivado">
 <meta property="article:tag" content="Hardware design">
@@ -121,7 +121,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">数字逻辑基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF%E4%B8%8E%E6%99%B6%E4%BD%93%E7%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">数字电路与晶体管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E4%BB%A3%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">逻辑代数</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">数字逻辑基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF%E4%B8%8E%E6%99%B6%E4%BD%93%E7%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">数字电路与晶体管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E4%BB%A3%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">逻辑代数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91%E7%94%B5%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text">数字逻辑电路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%85%83%E5%99%A8%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">常见元器件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">存储器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E7%BC%96%E7%A8%8B%E9%80%BB%E8%BE%91%E5%99%A8%E4%BB%B6%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">可编程逻辑器件原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vivado%E9%9B%86%E6%88%90%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">Vivado集成开发环境设计流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#verilog-hdl%E8%A7%84%E8%8C%83"><span class="nav-number">5.</span> <span class="nav-text">Verilog HDL规范</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B1%95%E5%8E%86%E5%8F%B2"><span class="nav-number">5.1.</span> <span class="nav-text">发展历史</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E7%BB%93%E6%9E%84"><span class="nav-number">5.2.</span> <span class="nav-text">程序结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">5.3.</span> <span class="nav-text">描述方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#verilog-hdl%E8%A6%81%E7%B4%A0"><span class="nav-number">5.4.</span> <span class="nav-text">Verilog HDL要素</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -134,18 +134,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -220,7 +220,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-06-07 21:59:34" itemprop="dateModified" datetime="2023-06-07T21:59:34+08:00">2023-06-07</time>
+      <time title="修改时间：2024-01-01 15:38:12" itemprop="dateModified" datetime="2024-01-01T15:38:12+08:00">2024-01-01</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -246,24 +246,103 @@
 <h3 id="数字电路与晶体管">数字电路与晶体管</h3>
 <p>数字电路中的信号变化是不连续的，信号的电压取值只有VCC和GND两种情况，表示逻辑高/低电平，数字电路状态"0,
 1"定义了两个宽范围电压区域，在区域内电压的变化不会改变数字信号的状态。因此相比于模拟电路信号，数字信号具有抗干扰能力强和处理方式灵活的显著优势。</p>
-<p>为了对电路进行控制，需要引入数字电路的<strong>开关</strong>，在现代数字电路中的晶体管开关成为金属氧化物半导体场效应晶体管（Metal
+<p>为了对电路进行控制，需要引入数字电路的<strong>开关</strong>，在现代数字电路中的晶体管开关称为金属氧化物半导体场效应晶体管（Metal
 Oxide Semiconductor Field Effect Transistor,
-MOSFET），它是三端口器件，称为源极，漏极和栅极。其制作工艺为在半导体硅的源极和漏极区域中植入带电离子，在二者中间创建一个绝缘层并生长另一个导体形成栅极，根据植入离子的电性不同，分为植入负电粒子的nFET和植入正电粒子的pFET。</p>
-<p>以nFET为例进行说明，在逻辑电路中nFET源极接GND，当栅极接VCC时，源极和栅极间形成了电压差，会吸引硅中的负电荷进入中间的沟道（半导体中正负电荷粒子可以移动），形成了连续的负电荷通路，nFET处于强导通状态；当栅极接GND时会吸引正电荷聚集在沟道，与两侧扩散区中的负电荷形成PN结，阻止任何一个方向的电流流过。如果源极接VCC的话，栅极接地形成电压差，也不能吸引负电荷移动到栅极绝缘层下，无法形成负电荷通路。</p>
+MOSFET），它是三端口器件，称为源极，漏极和栅极。其制作工艺为在半导体硅的源极和漏极区域中植入带电离子，在二者中间创建一个绝缘层并生长另一个导体形成栅极，根据植入离子的电性不同，分为植入负电粒子的nFET和植入正电粒子的pFET。也就是说，栅极的极性决定了下方绝缘层中电荷的极性，是可以变化的，但是在左右的源极和漏极区域中，电荷的极性是预先植入好的，不能发生变化，因此可以通过改变栅极的极性来形成或断开电荷通路，从而达到开关的效果。</p>
+<p>以nFET（植入了负电荷）为例进行说明，在逻辑电路中nFET源极接GND，当栅极接VCC时，源极和栅极间形成了电压差，会吸引硅中的负电荷进入中间的沟道（半导体中正负电荷粒子可以移动），形成了连续的负电荷通路，nFET处于强导通状态；当栅极接GND时会吸引正电荷聚集在沟道，与两侧扩散区中的负电荷形成PN结，阻止任何一个方向的电流流过。</p>
+<p>在源极接GND的情况下，可以通过控制栅极的极性与源极形成电压差，使电路导通。反之如果源极接VCC的话，栅极接VCC也不会形成电压差，栅极接GND形成电压差也不能吸引负电荷移动到栅极绝缘层下，无法形成负电荷通路。</p>
 <div style="width:70%;margin:auto">
 <img src="/2022/10/15/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/FET.svg" class="" title="nFET">
 </div>
-<p>因此nFET源极通常接地，当栅极为VCC时导通，pFET源极通常接VCC，当栅极为GND时导通。可以总结出使用FET构建逻辑电路的基本规则：
-1. pFET源极必须连接到VCC，nFET源极必须连接到GND 2.
-电路输出必须通过一个pFET连接到VCC，电路输出必须通过一个nFET连接到GND 3.
-逻辑电路的输出不能同时连接到VCC和GND 4. 逻辑电路使用数量最少的FET</p>
-<p>由于pFET和nFET的特性，称为互补金属氧化物半导体电路，即CMOS电路，常见的逻辑门需要的晶体管数量为：INV，需要两个晶体管，NOR，NAND，需要四个晶体管。CMOS电路的功耗与逻辑门的输出信号频率成正比，与供电电压的平方成正比。</p>
+<p>因此nFET源极通常接地，当栅极为VCC时导通，pFET源极通常接VCC，当栅极为GND时导通。可以总结出使用FET构建逻辑电路的基本规则：</p>
+<ol type="1">
+<li>pFET源极必须连接到VCC，nFET源极必须连接到GND</li>
+<li>电路输出必须通过一个pFET连接到VCC，电路输出必须通过一个nFET连接到GND</li>
+<li>逻辑电路的输出不能同时连接到VCC和GND</li>
+<li>逻辑电路使用数量最少的FET</li>
+</ol>
+<p>由于pFET和nFET的特性，称为互补金属氧化物半导体电路，即CMOS电路，常见的逻辑门需要的晶体管数量为：INV，需要两个晶体管，NOR，NAND，需要四个晶体管。这也可以解释为什么综合出的网表文件中，使用的是NOR和NAND逻辑门，因为这是最基本的逻辑电路门，只能基于此来实现OR和AND逻辑。</p>
+<p>CMOS电路的功耗与逻辑门的输出信号频率成正比，与供电电压的平方成正比。</p>
 <h3 id="逻辑代数">逻辑代数</h3>
 <p>提到了格雷码，卡诺图，以及表示方法Sum Of Product，Product Of
 Sum。</p>
+<p>逻辑函数可以写为</p>
+<ul>
+<li>SOP(Sum of Product)的形式，选取所有最小项（函数输出为1）的积</li>
+<li>POS(Product of Sum)的形式，选取所有最大项（函数输出为0）的和</li>
+</ul>
+<p>利用卡诺图，可以通过划定长宽均为2的幂次的长方形来化简逻辑，需要注意卡诺图的四个方向都是循环相接的，例如四个角应当被视作在一个长方形内。</p>
 <p>参考资料： 1. <a
 target="_blank" rel="noopener" href="https://learn.digilentinc.com/Documents/312">Transistors as
 Switches</a></p>
+<h2 id="数字逻辑电路">数字逻辑电路</h2>
+<h3 id="常见元器件">常见元器件</h3>
+<p>格雷码的特点是<span class="math inline">\(g(x)\)</span>与<span
+class="math inline">\(g(x+1)\)</span>只相差一个位，一个由二进制逐位转为格雷码的方式为：<span
+class="math inline">\(g(x)[n]\)</span> = <span class="math inline">\(x[n
++ 1]\)</span> ^ <span
+class="math inline">\(x[n]\)</span>，反之也可以逆向转换。</p>
+<p>半加器是指不接受进位输入，全加器则接受进位输入，超前进位加法器即使用更复杂的逻辑函数来避免逐级进位产生的电路延迟，但是这也会导致逻辑函数的复杂度随位数快速增大。</p>
+<p>SR锁存器即可通过Set,
+Reset信号锁存状态，引入clk信号即为同步SR锁存器，进一步为了避免SR信号相同的状态发明了D锁存器。进一步地，通过多状态的锁存和逻辑，可以实现D触发器，在时钟信号的上升沿或者下降沿锁存，也就是说<strong>信号的上升沿和下降沿是通过组合逻辑与锁存的方式来实现的</strong>。位移寄存器可以通过多个D触发器相连的方式实现，每当时钟信号上升沿来临时，前一个触发器的信号就会作为下一个触发器的输入，从而起到位移寄存器的作用。</p>
+<h3 id="存储器">存储器</h3>
+<ul>
+<li>SRAM成本较高，速度较快，1个比特需要6个FET组成。</li>
+<li>DRAM成本较低，速度相对较慢，1个比特只需要一个晶体管和电容，但是由于电容上的电荷会泄露，DRAM需要周期性的充电。访问DRAM时，地址先被译码取出行地址，转为独热码使能信号激活，再译码列地址，这样给Row
+Hammer这样的攻击留下了可能。</li>
+</ul>
+<h2 id="可编程逻辑器件原理">可编程逻辑器件原理</h2>
+<p>可编程逻辑器件发展历史：</p>
+<ol type="1">
+<li>由熔丝，紫外线擦除，电可擦除等工艺实现的PROM（可编程只读储存器），一旦编程后不可修改。</li>
+<li>可编程逻辑阵列（PAL）和通用逻辑阵列（GAL），可以实现相对复杂的逻辑函数，由与门和或门的阵列组成。</li>
+<li>复杂可编程逻辑器件（CPLD），是FPGA的前身，由可编程的逻辑门与若干功能单元组成。</li>
+<li>可编程门阵列（FPGA），集成了更多复杂的功能模块，如时钟管理、专用DSP等，也集成了处理器核心和SoC，高速互联总线等。</li>
+</ol>
+<p>采用可编程的与门或门阵列控制逻辑时，根据逻辑函数的不同，输入通过的门数量不同，导致阵列的输出延时不可控，需要对具体的逻辑函数实现进行分析，不利于确定频率。而FPGA为了解决这一问题采取了查找表LUT(Look
+Up
+Table)来生成逻辑，LUT采用了SRAM的工艺，存储了输入与输出的直接对应关系，无需通过逻辑门运算，通过直接查表的方式输出，从而确定了延迟。在烧录时，EDA会将这一真值表写入对应的LUT资源中。</p>
+<h2 id="vivado集成开发环境设计流程">Vivado集成开发环境设计流程</h2>
+<ul>
+<li>Post-Synthesis Project 可以导入综合后的网表创建工程。</li>
+<li>XDC 约束文件遵循 TCL 命令</li>
+<li>Post-Implementation Timing Simulation
+综合时考虑到了毛刺等实际问题。</li>
+</ul>
+<h2 id="verilog-hdl规范">Verilog HDL规范</h2>
+<h3 id="发展历史">发展历史</h3>
+<p>Verilog硬件描述语言由OVI(Open Verilog
+Internatiaonal)组织推动，最早提出的标准为Verilog-1995，经过改进形成标准Verilog-2001，又融合了Verilog-AMS形成了标准Verilog-2005，可以对集成的模拟信号和混合信号系统进行建模。其中还存在另一个Verilog-2005标准是现在的System
+Verilog，它是Verilog HDL的超集，是对硬件描述语言和验证语言的集成。</p>
+<h3 id="程序结构">程序结构</h3>
+<p>最基本的设计单元是模块，通过<code>module</code>和<code>endmodule</code>关键字声明，包括端口声明、数据声明和逻辑功能定义：
+*
+端口具有三种方向，分别为<code>input</code>，<code>output</code>，<code>inout</code>，<code>inout</code>是由三态门实现的双向端口，需要辅助使能信号控制方向，只能使用<code>assign</code>语句进行逻辑定义。
+*
+端口可以声明其数据类型为<code>wire</code>或<code>reg</code>，其中输入端口或双向端口只能为<code>wire</code>类型，默认也为<code>wire</code>类型。
+* 端口可以声明其数据含义为<code>signed</code>表示为有符号数据。</p>
+<p>Verilog中也支持函数这一概念，函数本身与是否实例化为硬件电路并无绝对关系，可以理解为是对代码语言复用的概念，至于是否实例化则却决于复用的代码本身。通过关键字<code>function</code>和<code>endfunction</code>声明，需要对输入进行声明，只能输出一个结果。</p>
+<h3 id="描述方式">描述方式</h3>
+<p>按照抽象层级划分，Verilog可分为以下四种描述方式： *
+行为级描述：通常用于仿真行为描述，而非硬件实例化，包含的关键字有： *
+<code>initial</code>：用于初始化寄存器状态，在综合阶段不起作用，若想实现寄存器初值应当通过<code>reset</code>信号
+* <code>for, while, fork &amp; join</code>：用于仿真阶段的循环，并行 *
+<code>event, task</code>：可以通过<code>call</code>触发，用于仿真一些触发行为
+* <code>time, #</code>：设置时间参数，或表示若干时间停顿后继续执行 *
+数据传输级描述：也就是RTL级别，描述数据的控制流与传输流，是主要的硬件逻辑行为描述层
+* 结构级描述：以<code>module</code>为单位建立整体的结构，相对RTL更加抽象
+*
+开关级描述：可以使用硬件原语对门级别进行描述，可以对传输延迟，驱动强度等参数进行声明</p>
+<h3 id="verilog-hdl要素">Verilog HDL要素</h3>
+<p>变量名以下划线或者字母开头，大小写敏感，可以由数字、字母、<code>$</code>、<code>_</code>组成，特别地，由<code>\</code>开头的表示转义标识。</p>
+<p>Verilog中实现了一些系统函数和任务，用于仿真测试，常见的有： *
+<code>$display("info")</code>：在仿真控制台上显示信息，可以接受格式化字符串
+* <code>$dumpfile("wave.vcd"), dumpvars</code>：将波形输出到文件中 *
+<code>load("test_vector.hex")</code>：从文件中加载向量 *
+<code>$finish, $random, $realtime ....</code></p>
+<p>类似于其他语言，在编程过程中可以向编译器提供元信息，通过<code>define</code>进行声明，以指导编译器。也可以通过声明属性的方式进行指导，在变量或者结构前通过<code>(* [attribute] = [constant expression] *)</code>的方式声明其属性，当然编译器并不保证完全遵照属性要求编译。比较常用的属性是<code>mark_debug</code>，可以标记信号，在综合阶段生成调试核后保留该信号以便接入调试，书中还介绍了<code>full_case</code>属性，用于标记<code>case</code>结构，告诉编译器条件完备，避免编译器生成锁存结构应对未列出的情况。其他常见的属性还有<code>optimize_power, fsm_state, dont_touch ...</code></p>
+<p>Verilog中的数字常量格式为：<code>[sign][width]['][base][number]</code>，其中sign表示符号，默认为正，bsae表示进制，默认为十进制，当数字超过位宽时截取低位，当数字不足位宽时根据是否表示符号数补0或1（base中若出现<code>s</code>则表示符号数），未指定宽度一般默认为32位。数字常量中的<code>_</code>只起分隔作用，无实际意义，也可以定义值为高阻态Z。</p>
+<p>Verilog同时也支持浮点数的常量，转换时遵循四舍五入，负数则取整按照相反数取整结果的相反数计算。Verilog中的字符串常量会将每个字符编码为8bitASCII码进行存储。</p>
 
     </div>
 
@@ -309,7 +388,7 @@ Switches</a></p>
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

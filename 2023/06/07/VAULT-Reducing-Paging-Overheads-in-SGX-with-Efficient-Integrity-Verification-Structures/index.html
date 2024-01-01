@@ -28,7 +28,7 @@
 <meta property="og:description" content="VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。 Introduction SGX是Intel提出的TEE解决方案，可以保护敏感信息的CIA（Confidentiality, Integrity, Authentication），在内存保护方面，SGX可以保护敏感页内存的安全性。SGX讲内存划分为两个区域，EPC（Enclave Page Cache）区域存放敏感页内存数据，实">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-06-07T14:12:42.000Z">
-<meta property="article:modified_time" content="2023-06-09T05:48:10.031Z">
+<meta property="article:modified_time" content="2023-10-30T08:18:07.405Z">
 <meta property="article:author" content="SunZhibo">
 <meta name="twitter:card" content="summary">
 
@@ -119,7 +119,7 @@
         <div class="post-toc-wrap sidebar-panel">
             <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background"><span class="nav-number">2.</span> <span class="nav-text">BackGround</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#threat-model"><span class="nav-number">2.1.</span> <span class="nav-text">Threat Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#integrity"><span class="nav-number">2.2.</span> <span class="nav-text">Integrity</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#merkle-tree"><span class="nav-number">2.2.1.</span> <span class="nav-text">Merkle Tree</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bonsai-merkle-tree"><span class="nav-number">2.2.2.</span> <span class="nav-text">Bonsai Merkle Tree</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sgx-baseline"><span class="nav-number">2.3.</span> <span class="nav-text">SGX baseline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#proposed-techniques"><span class="nav-number">3.</span> <span class="nav-text">Proposed Techniques</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#unifying-the-epc-and-non-epc-regions"><span class="nav-number">3.1.</span> <span class="nav-text">Unifying the EPC and
 non-EPC Regions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#variable-arity-unified-enctypted-leaftreevault"><span class="nav-number">3.2.</span> <span class="nav-text">Variable Arity
-Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mac-allocation"><span class="nav-number">3.3.</span> <span class="nav-text">MAC Allocation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#result"><span class="nav-number">4.</span> <span class="nav-text">Result</span></a></li></ol></div>
+Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mac-allocation"><span class="nav-number">3.3.</span> <span class="nav-text">MAC Allocation</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -132,18 +132,18 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -218,7 +218,7 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2023-06-09 13:48:10" itemprop="dateModified" datetime="2023-06-09T13:48:10+08:00">2023-06-09</time>
+      <time title="修改时间：2023-10-30 16:18:07" itemprop="dateModified" datetime="2023-10-30T16:18:07+08:00">2023-10-30</time>
     </span>
 
   
@@ -307,7 +307,6 @@ counter使用让VAUT在使用同样大小空间保护更大的安全区域，并
 Compression(SMC)，对于数据块进行压缩，将MAC存进里面，我个人觉得这是有些强行的，首先块不一定能压缩，虽然大部分块是可以压缩的（这里提到了Base-Delta-Immediate，看了一下大部分内存中存在许多没有被利用的前导0，就可以进行压缩），其次这引入了额外的解码代价，对压缩数据还原可能会成为关键路径。另一方面SMC也提出了共享MAC的思路，让多个快共享同一MAC，这也是用时间换空间的替代方案，校验时需要将多个数据块一同取出，如果利用上空间一致性可能不会带来过大的overhead。</p>
 <p>第二点是On-Demand MAC
 Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不要产生MAC，聊胜于无的补充。</p>
-<h2 id="result">Result</h2>
 
     </div>
 
@@ -326,6 +325,9 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/" rel="next" title="Risc Zero项目调研">
+                  Risc Zero项目调研 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
@@ -346,7 +348,7 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

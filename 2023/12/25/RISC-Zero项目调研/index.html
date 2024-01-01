@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近老板提了一嘴 RISC Zero，就去调研了一下这方面的内容，在这边总结一下，目前给我的感觉是中看不中用，去中心化的可验证计算还需要等待硬件算力的发展以及使用场景的更大规模出现，目前执行可验证计算仍需要专业的约束审计与高额的算力进行支撑，不过确实可以解决去中心化的问题。 Risc Zero Introduction Risc Zero 项目为零知识证明虚拟机提供了软件的解决方案，使得程序可以在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Risc Zero项目调研">
+<meta property="og:url" content="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/index.html">
+<meta property="og:site_name" content="Hexo Blog">
+<meta property="og:description" content="最近老板提了一嘴 RISC Zero，就去调研了一下这方面的内容，在这边总结一下，目前给我的感觉是中看不中用，去中心化的可验证计算还需要等待硬件算力的发展以及使用场景的更大规模出现，目前执行可验证计算仍需要专业的约束审计与高额的算力进行支撑，不过确实可以解决去中心化的问题。 Risc Zero Introduction Risc Zero 项目为零知识证明虚拟机提供了软件的解决方案，使得程序可以在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/flow.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/cycle.png">
+<meta property="og:image" content="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/bonsai.png">
+<meta property="article:published_time" content="2023-12-25T11:05:01.000Z">
+<meta property="article:modified_time" content="2023-12-30T14:06:17.923Z">
+<meta property="article:author" content="SunZhibo">
+<meta property="article:tag" content="Ethereum">
+<meta property="article:tag" content="Crypto">
+<meta property="article:tag" content="Zero knowledge proof">
+<meta property="article:tag" content="Virtual machine">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/flow.png">
+
+
+<link rel="canonical" href="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/","path":"2023/12/25/RISC-Zero项目调研/","title":"Risc Zero项目调研"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Risc Zero项目调研 | Hexo Blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hexo Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">record</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#risc-zero"><span class="nav-number">1.</span> <span class="nav-text">Risc Zero</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#introduction"><span class="nav-number">1.1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#verified-computation"><span class="nav-number">1.1.1.</span> <span class="nav-text">Verified Computation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#develop-friendly"><span class="nav-number">1.1.2.</span> <span class="nav-text">Develop Friendly</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#detail"><span class="nav-number">1.2.</span> <span class="nav-text">Detail</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#stark"><span class="nav-number">1.2.1.</span> <span class="nav-text">STARK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#trace-contraints"><span class="nav-number">1.2.2.</span> <span class="nav-text">Trace &amp; Contraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#reciept"><span class="nav-number">1.2.3.</span> <span class="nav-text">Reciept</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#host-interacion"><span class="nav-number">1.2.4.</span> <span class="nav-text">Host Interacion</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#performace"><span class="nav-number">1.2.5.</span> <span class="nav-text">Performace</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#special-technology"><span class="nav-number">1.3.</span> <span class="nav-text">Special Technology</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#continuations"><span class="nav-number">1.3.1.</span> <span class="nav-text">Continuations</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bonsai"><span class="nav-number">1.3.2.</span> <span class="nav-text">Bonsai</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">SunZhibo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="SunZhibo">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Risc Zero项目调研 | Hexo Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Risc Zero项目调研
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-12-25 19:05:01" itemprop="dateCreated datePublished" datetime="2023-12-25T19:05:01+08:00">2023-12-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-12-30 22:06:17" itemprop="dateModified" datetime="2023-12-30T22:06:17+08:00">2023-12-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Study/" itemprop="url" rel="index"><span itemprop="name">Study</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>最近老板提了一嘴 RISC
+Zero，就去调研了一下这方面的内容，在这边总结一下，目前给我的感觉是中看不中用，去中心化的可验证计算还需要等待硬件算力的发展以及使用场景的更大规模出现，目前执行可验证计算仍需要专业的约束审计与高额的算力进行支撑，不过确实可以解决去中心化的问题。</p>
+<h2 id="risc-zero">Risc Zero</h2>
+<h3 id="introduction">Introduction</h3>
+<p>Risc Zero
+项目为零知识证明虚拟机提供了软件的解决方案，使得程序可以在虚拟机环境中可验证地执行，任何人都可以通过零知识证明的方式验证程序是否在虚拟机中被正确地执行。官方文档中对
+Risc Zero 项目的解释为：<em>The RISC Zero zero-knowledge virtual machine
+(zkVM) lets you prove correct execution of arbitrary Rust code.</em></p>
+<p>具体到使用场景，用户将要执行的程序编译为 risc-v
+指令集，送入零知识证明虚拟机（zkVM）中，虚拟机执行程序并生成公开的程序输出和证明，任何人可以通过执行程序的哈希值验证该程序是否在虚拟机中被正确地执行。那么对应地，Risc
+Zero 可以按照功能划分为两个部分，一个是软件编写的 risc-v
+模拟器，支持在执行的过程中生成
+trace，另一个部分则负责零知识证明，用相应的密码学知识提供 trace
+正确性的证明。</p>
+<h4 id="verified-computation">Verified Computation</h4>
+<p>零知识证明，即在验证者不知道具体信息的情况下，使验证者相信提供者的描述是真实的。零知识证明属于密码学的一个重要分支，目前已有许多密码学算法来实现零知识证明。那么回到
+zkVM 的使用场景中，提供者持有的信息就是程序执行过程中收集的 execution
+trace，尝试通过零知识证明的方式让验证者相信程序被正确地执行，并提供程序的输出。</p>
+<div style="width:70%;margin:auto">
+<img src="/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/flow.png" class="" title="nFET">
+</div>
+<p>zkVM
+解决的问题是可验证计算，即程序不需要再次执行，通过简单地数学计算就可以验证第三方给出的执行结果。与这一概念很类似的是可信计算，基于零知识证明密码学体系的可验证计算也可以验证第三方执行的正确性，但是二者也有很大的不同。可验证计算的过程并不是要保护的机密，也就是说计算的程序，数据，过程，结果对于第三方计算服务提供商来说都是透明公开的，可验证计算只能验证该计算是被正确执行的。但是另一方面，可验证计算解决了去中心化的问题，可信计算无论如何都是基于硬件的
+TPM
+等机制，可信根一定包含硬件厂商颁发的签名证书，而可验证计算是不需要任何中心化结构的，任何人都可以对计算生成的证明进行验证。</p>
+<h4 id="develop-friendly">Develop Friendly</h4>
+<p>项目取名叫做 Risc Zero 是因为选取了 risc-v
+作为虚拟机的指令集，模拟器中实现了 RV32-IM 指令集（未实现 CSR
+以及特权态，但是官方画饼说正在开发相关功能），通过 ecall
+指令来实现程序的退出，选择 risc-v 作为指令集的原因有：</p>
+<ul>
+<li>risc-v32 指令简洁规律，长度和操作寄存器都相对固定，便于生成
+trace</li>
+<li>risc-v 指令集支持模块化，更加灵活，便于扩展</li>
+</ul>
+<p>Risc Zero 项目使用 Rust 语言开发，基于 crates 和
+riscv-toolchain，可以支持大多数的高级语言程序运行在 zkVM
+中，只需要将它们通过工具链编译为 risc-v 二进制程序即可。</p>
+<h3 id="detail">Detail</h3>
+<h4 id="stark">STARK</h4>
+<p>zk-STARK 全称 Zero-Knowledge Scalable Transparent Argument of
+Knowledge（零知识可扩展透明知识论证），是一种零知识证明系统。与之对应的是
+zk-SNARK 全称 Zero-Knowledge Succinct Non-interractive Argument of
+Knowledge（零知识简洁非交互式知识论证），SNARK
+更加高效，但是依赖于可信多方计算，这带来了额外的供给面。 Risc Zero
+目前使用的是 STARK 系统实现零知识证明。zkVM
+问题中，项目尝试在不暴露执行过程的前提下，证明 execution trace
+是正确的（正确性可由约束系统表示，例如在约束 <code>pc</code>
+在没有跳转的情况下应当满足
+<code>pc' = pc + 1</code>，例如<code>ADD</code>指令的结果应该满足<code>rd = rs + rt</code>），符合描述
+risc-v 指令集的constraints（约束系统）的。</p>
+<p>这里简单描述一下 zkVM
+中零知识证明的过程，基于一部分科普博客得来，仅做一个形象的补充：每一条
+trace
+都相当于一个函数在某一点的取值（在本问题中，时间索引可以作为自变量，而信息本身则可以被编码为函数值），通过拉格朗日插值生成一个多项式函数，是最简单的验证想法。从提高安全性的角度考虑，为了避免在插值点过少时的知识泄露，以及一些碰撞攻击，要进行低度多项式扩展，基于随机生成的点提高多项式的次数，在一个更大的求值域上承诺多项式。</p>
+<p>根据多项式基本定理，可以将约束条件转换为函数的次数判断，将所有约束转换为待验证的多项式，并通过添加随机多项式扩充为同一次数（同时保证约束条件成立时值仍为0），这样可以讲所有约束合并为一个多项式进行验证，计算其次数是否符合要求即可验证
+trace 是否符合所有约束条件。从验证的便捷性考虑，将插值前的点做成一颗
+merkle
+tree，验证时由验证者随机选择一条树上的路径进行验证，因此在上一步扩展时通常会将散点先扩充为2的整数次幂。</p>
+<p>这里仅仅是对于验证过程部分信息的描述，可以帮助理解零知识证明的过程，但是并不完全严谨与正确，仅供参考。Risc
+Zero还使用了许多零知识证明算法或协议，这里列举一下名字，感兴趣的读者可以去学习相关的知识：PLONK,
+FRI, DEEP-ALI, Fiat-Shamir, IOP....</p>
+<h4 id="trace-contraints">Trace &amp; Contraints</h4>
+<p>Trace 数据用于提供程序执行过程中的模拟器状态，根据 STARK
+系统可以让验证者验证 trace 是否满足了约束系统，因此 trace
+采集的数据必须完备，足以表明所有执行时的状态，任何没有追踪的必要信息都可能导致执行过程被篡改。Risc
+Zero 项目中，采用了 rv32-im
+作为模拟器的指令集，因此需要采集的数据可以分为两类：</p>
+<ul>
+<li><strong>CONTROL</strong>：全局执行状态（如开始，结束等虚拟机状态信息），待执行的二进制映像</li>
+<li><strong>DATA</strong>：寄存器值，对内存的读写操作序列，模拟器微架构内的状态信息</li>
+</ul>
+<p>在模拟器中，每个时钟周期都会收集一次状态信息，根据时间顺序可以将其写作一个矩阵表格，每一行都是一个时钟周期内的状态信息，每一列则是同一种状态在不同周期的值。这里的时钟周期含义略异于硬件，采用了模拟器自定的周期，其中一条指令需要三个时钟周期来执行，通过这种划分可以保证在一个时钟周期内最多只会出现一个对内存的操作。</p>
+<div style="width:70%;margin:auto">
+<img src="/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/cycle.png" class="" title="nFET">
+</div>
+<p>那么只需要制作一套对上述数据进行约束的<strong>完备的</strong>约束系统，并通过
+STARK 系统论证 trace
+符合约束，即能说明用户传入的程序被正确地执行。这套约束系统需要完备地对
+rv32-im
+的执行做出约束，一旦其不能完整地约束指令语义，就会存在通过歧义的攻击方式，使得伪造的
+trace
+可以通过约束系统。这也是零知识证明约束系统存在的问题，需要对齐进行安全审计工作，目前尚无自动化工具进行测试分析工作。Risc
+Zero
+目前并没有开源，也并没有对其约束系统进行细致的说明和审计，安全性存疑。</p>
+<p>通常来说大部分约束描述的是指令执行的语义信息，除此以外还有对内存操作的约束系统，在结束对程序的执行后，根据读写地址作为第一关键字，时间顺序作为第二关键字，排序所有对内存的操作，约束读取的值必须等于最后一次读取或写入的值，以保证执行过程中内存数据的完整性。另外，也是通过约束来保证用户的程序和输入被正确地加载到内存中。</p>
+<h4 id="reciept">Reciept</h4>
+<p>程序执行完毕后会返回公开的 reciept，包括两部分：</p>
+<ul>
+<li>Journal：公开的程序执行输出结果</li>
+<li>Seal：公开的基于 STARK
+系统的验证信息，任何验证者可以通过程序二进制映像的哈希值进行快速地验证</li>
+</ul>
+<p>因此 Risc Zero
+并不能保护执行程序的隐私，执行的结果暴露给所有人，执行的过程暴露给了服务提供商，但是可以让用户转移程序执行的计算代价，仅承担简单的验证计算就可以得到正确的执行结果。目前一个应用是
+Ethereum
+Layer2，用户的合约在次级链上可验证执行，将结果打包发往主链，以减少用户的计算开销。</p>
+<h4 id="host-interacion">Host Interacion</h4>
+<p>Risc Zero
+目前还无法动态地与外界进行通信，团队声称正在开发特权态相关的功能以实现该功能。如果仅仅是与用户进行静态地数据交互，可以通过未初始化内存区域进行通信，这可以绕过上文提到的内存约束系统。</p>
+<h4 id="performace">Performace</h4>
+<p>官网未对性能进行详细说明，目测是表现很糟糕，找到了一个非官方的性能测试实验，使用
+Risc Zero 重新执行了区块17735424生成证明，在 AWS 上租用64块
+GPU，花了十分钟。</p>
+<h3 id="special-technology">Special Technology</h3>
+<h4 id="continuations">Continuations</h4>
+<p>zkVM 的解决方案中一直存在着一个问题：基于 merkle tree 的结构，需要将
+trace
+随机生成补全至2的整数次幂，但是又受限于有限域的选择不能太大，因此对程序执行的时钟周期数有上限的限制，另外较大的
+trace 会使得验证的生成复杂度快速增长。为了解决这个问题， Risc Zero
+提出了 Continuations
+机制，将程序划分为若干段（文档中并没有介绍划分的细节，依据），每一段（session）独立地执行，证明，具有依赖关系的段需要保证段开始时的状态与上一段结束时的状态一致。通过延续机制，可以实现：</p>
+<ul>
+<li>暂停：当程序需要暂停时，视为一个段的结束，等待继续时开始下一段的执行，借此也可以实现热启动</li>
+<li>并行化：复杂的程序可以分为多个段，交由分布式的节点进行计算，每个段间的证明可以独立生成</li>
+<li>不受限制：程序可以是任意复杂的，划分为若干不超限制的段执行</li>
+</ul>
+<h4 id="bonsai">Bonsai</h4>
+<p>Risc Zero
+项目的野心很大，虽然目前看来只有区块链这边很支持零知识证明，但是在未来这是可能成为去中心化世界的基础设施的，作为一个
+zkVM 项目，它也提供了 verified computation
+的支持，Bonsai就是云可验证计算平台，并且已经投入试验运行。</p>
+<div style="width:70%;margin:auto">
+<img src="/2023/12/25/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94/bonsai.png" class="" title="nFET">
+</div>
+<p>参考链接：</p>
+<ol type="1">
+<li><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/mutourend/article/details/134001186">Zeth：首个Type
+0 zkEVM</a></li>
+<li><a
+target="_blank" rel="noopener" href="https://trapdoor-tech.github.io/zkstark-book/">深入理解zk-STARK证明系统</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ethereum/" rel="tag"># Ethereum</a>
+              <a href="/tags/Crypto/" rel="tag"># Crypto</a>
+              <a href="/tags/Zero-knowledge-proof/" rel="tag"># Zero knowledge proof</a>
+              <a href="/tags/Virtual-machine/" rel="tag"># Virtual machine</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/07/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/" rel="prev" title="VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures">
+                  <i class="fa fa-chevron-left"></i> VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SunZhibo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"all","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
