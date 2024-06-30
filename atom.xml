@@ -6,7 +6,7 @@
   <link href="https://sunzhibo.github.io/atom.xml" rel="self"/>
   
   <link href="https://sunzhibo.github.io/"/>
-  <updated>2024-06-15T07:23:37.512Z</updated>
+  <updated>2024-06-30T15:14:21.821Z</updated>
   <id>https://sunzhibo.github.io/</id>
   
   <author>
@@ -15,6 +15,40 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Why and How zk-SNARK Works: Definitive Explanation</title>
+    <link href="https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html"/>
+    <id>https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html</id>
+    <published>2024-06-30T06:29:29.000Z</published>
+    <updated>2024-06-30T15:14:21.821Z</updated>
+    
+    <content type="html"><![CDATA[<p>零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。</p><h1 id="零知识证明算法概览">零知识证明算法概览</h1><p>零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，不泄露任何信息。在零知识证明系统中，有Prover,Verifier两个角色，针对需要验证的知识，生成对应的Circuit（逻辑电路），这里的Circuit指的是知识需要符合的逻辑（亦或称之为待证明的知识本身），即一个逻辑系统，使用数学语言的方式进行描述，而并非指代数字电路。在以太坊目前的L2扩容方案中，链下节点作为证明者，通过零知识证明方案证明L2中合约被正确执行，因此L1网络可以在校验的基础上不经过再次执行，直接采纳L2的执行结果提交至L1网络。</p><p>零知识证明目前有多种不同的实现方案，依赖于不同的密码学问题，也有不同的实现方法，其中比较常用的一类叫做ZK-SNARK（Zero-KnowledgeSuccinct Non-Interactive Argument ofKnowledge）。其中Succinct指简洁，即验证过程的复杂度要为知识本身的sublinear级别，Non-Interactive指非交互，验证者也证明者无需进行多次通信完成验证，任何符合这两点要求且可以对一定形式的知识进行证明的系统都可以称为ZK-SNARK。基于简洁性，ZK-SNARK在大规模数据的证明上表现良好，验证者可以在极短的时间内对极短的证明进行验证，这也是被L2广泛应用的证明系统。</p><p>我调研了一些零知识证明系统，列举了其中不同的四种方法：</p><ul><li><p>Groth：提出于2016年，属于ZK-SNARK，它的验证代价极小，但需要对每一个不同的Circuit重新进行setup，即向证明者和验证者约定一系列证明使用的参数</p></li><li><p>ZKG：通过bilinearmapping和多项式承诺来完成零知识证明，它可以对不同的Circuit使用同一套参数进行验证，并且验证时间非常短，但setup过程中需要进行可信初始化，即参数的生成需要至少一个信任方在参与产生后销毁（多方可信计算）</p></li><li><p>BulletProof：通过离散对数问题和多项式承诺来完成零知识证明，它的验证需要相对更大的代价，但是较于ZKG的优点是不需要可信初始化。</p></li><li><p>ZK-STARK：也有人称其为SNARK的一种，不需要可信初始化，验证随数据规模变化较严重，适合于小数据的快速验证。</p></li></ul><p>本文主要参考了标题同名文章，其中重点介绍了KZG系统在零知识证明中的原理和使用。</p><h1 id="kzg多项式承诺系统">KZG多项式承诺系统</h1><p>让我们假设一个场景，Prover想向Verifier证明他知道一个多项式形式的知识（自然Verifier也需要知道该多项式），这个待证明的多项式记为<spanclass="math inline">\(t(x)\)</span>，而证明者为了不泄漏<spanclass="math inline">\(t(x)\)</span>，则构造一个多项式<spanclass="math inline">\(p(x)\)</span>，使得<spanclass="math inline">\(h(x) =\frac{p(x)}{t(x)}\)</span>，即可以整除，那么验证者就有很大的概率相信证明者知晓<spanclass="math inline">\(t(x)\)</span>这一知识。这就是多项式承诺系统的核心思想，在验证时验证者选定一个随机值<spanclass="math inline">\(r\)</span>，证明者计算出<spanclass="math inline">\(p(r), h(r)\)</span>发给验证者，如果满足<spanclass="math inline">\(t(r)=\frac{p(r)}{h(r)}\)</span>则以较大的概率相信证明者。这是最简单直观的交互式多项式承诺系统。</p><h2 id="公开参数保护">公开参数保护</h2><p>如果想构造一个非交互式的零知识证明系统，那么就需要把一些参数预先公开发布，例如多项式的度数上限<spanclass="math inline">\(d\)</span>（如果没有度数上限，那么可能会通过对大量数据的收集进行插值构造），随机数<spanclass="math inline">\(r\)</span>，包括下文即将提到的位移参数<spanclass="math inline">\(\alpha\)</span>。为了达成非交互式验证系统，这些参数一定会以明文可获取的形式公开，为了保护其中重要的信息，就要引入同态加密。</p><p>同态加密指的是对数据<spanclass="math inline">\(M\)</span>进行加密，并支持有限的运算操作满足<spanclass="math inline">\(f(enc(M))=enc(f(M))\)</span>。以较为简单的同态加密方式为例，一种支持加法与乘法的同态加密方法：<spanclass="math inline">\(enc(x)=g^{x}\)</span>，加法转换为幂加法，乘法转换为幂乘法，即在有限域上的乘法和幂操作，即<spanclass="math inline">\(enc(x + y) = g^{x+y},enc(xy)=(g^{x})^{y}\)</span>。注意这里<spanclass="math inline">\(g\)</span>需要在有限循环域上进行选择。</p><p>为了保护公开的校验随机数<spanclass="math inline">\(r\)</span>，即采用同态加密的方式，以上述方法为例，在初始化时公开约定好的随机数根<spanclass="math inline">\(g^{r^{1}}, g^{r^{2}} ...g^{r^{d}}\)</span>，这样就可以防止攻击者根据<spanclass="math inline">\(r\)</span>去泄漏额外的知识，或伪造多项式通过验证，证明者和验证者都通过这些随机数的若干次幂在有限循环域上计算，并不影响证明过程。（计算多项式只需要加法和乘法操作）</p><h2 id="多项式计算约束">多项式计算约束</h2><p>证明者理论上应该利用公开的<spanclass="math inline">\(g\)</span>的幂去计算多项式的值，但是如果恶意证明者使用了其他方法想要通过概率碰撞的方式通过证明，或者以其他运算方式生成多项式的结果，会存在较低的概率被破解。为了解决这一问题，就需要证明Prover真的是用了这些值进行了加法和乘法运算。</p><p>以上述同态加密方法为例，使用KEA（Knowledge-of-ExponentAssumption），引入位移参数<spanclass="math inline">\(\alpha\)</span>，提供一套完全相同的基<spanclass="math inline">\(g^{\alpha r^{1}}, g^{\alpha r^{2}} ... g^{\alphar^{d}}\)</span>，那么使用这组基计算出来的结果即为<spanclass="math inline">\(g^{\alphat(r)}\)</span>。公开的参数为两组不同的基，要求验证者使用两组基做完全相同的运算操作，只有当验证者没有欺骗时才能满足<spanclass="math inline">\(g^{\alpha t(r)} = g^{t(\alphar)}\)</span>，以保证证明者式通过多项式的基产生的证明。</p><h2 id="零知识保护">零知识保护</h2><p>进一步地进行零知识的保护，观察目前的方案：记证明者使用基计算出的值为<spanclass="math inline">\(g^{h}, g^{p}\)</span>，使用位移基计算出的值为<spanclass="math inline">\(g^{p&#39;}\)</span>，验证者需要验证以下等式：<span class="math display">\[\begin{equation}\begin{aligned}g^{p} &amp;= (g^{h})^{t} \\g^{p&#39;} &amp;= (g^{p})^{\alpha}\end{aligned}\end{equation}\]</span></p><p>因此证明者在生成证明时可以进一步地保护信息不泄漏，产生一个随机的混淆参数<spanclass="math inline">\(\delta\)</span>，提供新的证明参数<spanclass="math inline">\(((g^{p})^{\delta}, (g^{h})^{\delta},(g^{p&#39;})^{\delta})\)</span>，仍然满足需要检验的约束条件，并且不会泄漏验证值的具体信息。</p><h2 id="双线性映射">双线性映射</h2><p>截止到目前为止仍然存在一个问题，为了支持任意验证者对证明进行验证，公开的参数CSR（CommonReference String）中含有了验证需要的<spanclass="math inline">\(g^{\alpha},g^{t(r)}\)</span>，那么验证者可以从这个值入手构造证明，只要通过上述等式就可以伪造。</p><p>为了解决这个问题，KZG引入了双线性映射，指的是一种映射<spanclass="math inline">\(e\)</span>，可以将一个二元组映射到另一个域上，且满足<spanclass="math inline">\(e(g^{a}, g^{b}) = e(g,g)^{ab}\)</span>，可以将其简单地理解为同态哈希函数，在实践中往往采取椭圆曲线作为双线性映射，利用椭圆曲线的乘法与加法的性质进行映射。</p><p>有了双线性映射后，关键的CSR就在某种程度上进行了哈希映射，变为双线性映射后的参数值，验证者检验映射后的对应关系：</p><p><span class="math display">\[\begin{equation}\begin{aligned}e(g^{p}, g) &amp;= (g^{h}, g^{t}) \\e(g^{p&#39;}, g) &amp;= e(g^{p}, g^{\alpha})\end{aligned}\end{equation}\]</span></p><p>这样证明者无法通过值简单地进行构造，就可以将参数直接公开，允许任意的验证者对证明进行验证。</p><h2 id="可信初始化">可信初始化</h2><p>现在一个完备的ZK-SNARK系统已经建立完毕，补充说明一下可信初始化的过程。显然，几个关键参数包括基、随机数、位移参数等是非常重要的安全参数，在生成后必须销毁，因此KZG系统需要一个可信的初始化过程，在生成后进行销毁。借助目前的多方可信计算技术，可以做到多人共同参与参数的生成，只要至少一个参与者销毁了自己的参数，就可以保证该参数不可被重新生成，这就是KZG系统的最小可信需求。</p><h1 id="知识系统的转换与构建">知识系统的转换与构建</h1><p>基于一个多项式，我们已经有了一个承诺系统，那么如何将一个实际问题转换为多项式呢？知识系统可以由多个不同的方法进行构建，下面介绍一种构建方式。</p><h1 id="补充">补充</h1><p>在了解零知识证明体系的过程中，我也了解到很多本文未涉及的密码学算法，包括将交互式证明转为非交互式的Fiat-Shamir协议（涉及随机预言机）等。我对这部分知识的了解并不深入，感兴趣的同学可以继续学习。</p><p>参考链接：</p><ol type="1"><li><ahref="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">QuadraticArithmetic Programs: from Zero to Hero</a></li><li><a href="https://arxiv.org/abs/1906.07221">Why and How zk-SNARKWorks</a></li></ol>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。&lt;/p&gt;
+&lt;h1 id=&quot;零知识证明算法概览&quot;&gt;零知识证明算法概览&lt;/h1&gt;
+&lt;p&gt;零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，</summary>
+      
+    
+    
+    
+    <category term="Study" scheme="https://sunzhibo.github.io/categories/Study/"/>
+    
+    <category term="Paper Note" scheme="https://sunzhibo.github.io/categories/Study/Paper-Note/"/>
+    
+    
+    <category term="Ethereum" scheme="https://sunzhibo.github.io/tags/Ethereum/"/>
+    
+    <category term="Crypto" scheme="https://sunzhibo.github.io/tags/Crypto/"/>
+    
+    <category term="Zero Knowledge Proof" scheme="https://sunzhibo.github.io/tags/Zero-Knowledge-Proof/"/>
+    
+    <category term="Study" scheme="https://sunzhibo.github.io/tags/Study/"/>
+    
+  </entry>
   
   <entry>
     <title>CF Round#930 Div.1</title>

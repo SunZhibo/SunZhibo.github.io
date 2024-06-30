@@ -538,152 +538,6 @@ href="https://trapdoor-tech.github.io/zkstark-book/">深入理解zk-STARK证明�
       </tags>
   </entry>
   <entry>
-    <title>Scalable Memory Protection in the PENGLAI Enclave</title>
-    <url>/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave.html</url>
-    <content><![CDATA[<p>蓬莱是上交研究的RISC-V架构下的可信执行环境方案。</p>
-<h2 id="introduction">Introduction</h2>
-<p>目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM
-TrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存保护机制：</p>
-<ol type="1">
-<li>不可扩展的内存划分/隔离：大多数设计使用了硬件中单独为飞地存在的内存，具有硬件上的大小和数量限制</li>
-<li>不可扩展的内存完整性保护：使用传统的Merkel Hash
-Tree方案校验完整性是难以扩展的，只能对固定大小的内存核验完整性</li>
-<li>不可扩展的内存安全初始化：初始化一片飞地的内存往往需要数秒，但是服务本身的运行时间通常很短（&lt;1s）</li>
-</ol>
-<p>因此本篇文章提出的蓬莱设计就是要解决上述问题，在安全内存的大小和粒度、飞地的数量、启动飞地的延迟方面提供支持。</p>
-<h2 id="motivation">Motivation</h2>
-<p>目前的解决方案都存在着各自的缺陷，在可创建的飞地数量，可用的内存大小，启动飞地的速度，内存完整性保护的粒度，保护的额外开销，可信启动的证明能力等方面上表现出不同层级的限制。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<p>蓬莱的目标就是解决上述已知的缺陷，提供可扩展的内存管理，支持不限量的飞地同时运行，以及可扩展的内存大小，在不添加过大开销的基础上，提供应对更高权限软件攻击，片外硬件攻击，基于缓存的侧信道攻击的安全支持。</p>
-<h2 id="system-overview">System Overview</h2>
-<h3 id="architecture">Architecture</h3>
-<p>蓬莱是一个软硬件协同的方案，软件实现了Secure
-Monitor用于管理并监视安全世界，硬件补充了下图中红色的新单元，以实现预期的功能目标。类似于TrustZone的想法，蓬莱也将系统状态划分为安全世界和不安全世界，分别运行不同的操作系统和软件，其中Secure
-Monitor运行于最高权限级。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<h3 id="thread-model">Thread Model</h3>
-<p>蓬莱的可信基为CPU和Monitor软件正确性，Monitor通过安全启动的方式由ROM中加载，在加载完成后会通过RISC-V自身的内存安全机制（PMP）保护自身。</p>
-<p>在蓬莱方案中，威胁模型有以下三个攻击面：</p>
-<ol type="1">
-<li>权限级软件攻击：攻击者可以完全地控制非安全世界的OS和软件</li>
-<li>物理硬件攻击：攻击者可以截获并分析CPU与其他硬件（如内存）的通信信息</li>
-<li>侧信道攻击：考虑控制信道攻击和基于缓存的侧信道攻击</li>
-</ol>
-<p>这里补充一下侧信道攻击，以SGX技术为例，CPU通过指令切换状态，分别对应飞地内的程序和飞地外的世界，在这个过程中两个世界会共享许多硬件资源，这就导致了信息泄露的可行性。控制信道攻击一般指对页表信息的泄露利用，SGX方案中非安全世界试图访问安全世界内存时会发生Page
-Fault，因此可以以页为单位对安全世界进行探查，更进一步还可以利用页表的信息位，观察安全世界的逻辑行为信息。除此以外，流水线，分支预测器，缓存都可以通过侧信道攻击的方式泄露出安全世界的信息。</p>
-<p>在本篇文章中不考虑其他的侧信道攻击，与本方案关注的内存安全无关，也不考虑Dos攻击。</p>
-<h2 id="design">Design</h2>
-<h3 id="fine-grained-flexible-memory-isolation">Fine-grained Flexible
-Memory Isolation</h3>
-<p>为了实现细粒度的内存隔离，蓬莱像许多方案一样维护了表明物理页表所属世界的bitmap，以页表为粒度进行内存隔离。传统的方案往往基于此，在进行虚拟地址转换时，进行两次查找，先查询bitmap确认所查页表是否属于安全世界，再进行二次读取，这导致了25.2%的额外开销。</p>
-<p>而蓬莱方案则关注在<strong>页表的管理</strong>，观察到mapping的操作远小于访问内存的次数，蓬莱在硬件中添加了Guarded
-Page
-Table模块对页表进行管理，并尝试通过页表的管理避免二次读取，以降低额外的性能开销。</p>
-<p>在Guarded
-PT模块中，引入了两个新的寄存器<code>reg_hptarea_start</code>和<code>reg_hptarea_size</code>，HPT表示Host
-Page
-Table即不信任的主机的页表区域，通过这两个寄存器将主机可以使用的页表全部限制在一段连续的物理空间内。</p>
-<p>当主机试图更改页表区域时，会触发trap交由secure
-monitor进行检查，通过secure
-page的bitmap对映射区域的属性进行检查，在非安全世界中只能映射到non-secure
-page，而在安全世界中则不受限制，可以对两个世界的内存进行操作。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png" class="" title="Guarded Page Table">
-</div>
-<p>回顾TEE的目标，我们需要禁止非安全世界访问安全世界，结合下图所示的MMU扩展，在虚拟地址转换的每一步过程中都将得到的下一级页表地址进行检查，是否处于<code>hptarea</code>寄存器规定的范围中。</p>
-<p>通过MMU，我们限定了非安全世界访问的页表范围只能处于<code>hptarea</code>中，而在这一范围内页表的所有改动都将触发trap，由monitor进行bitmap核验后写入，因此限制了非安全世界对安全世界的访问。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png" class="" title="MMU">
-</div>
-<p><strong>因此，总结来看这一方案创新性地将安全检查的代价由访问内存时转移到了创建映射时，基于映射次数较少的观察，该方案可以显著地降低访问开销。</strong></p>
-<p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p>
-<p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>
-<h3 id="scalable-memory-integrity-protection">Scalable Memory Integrity
-Protection</h3>
-<p>为了保护安全世界的内存完整性，过去方案采用了Merkle
-Tree的方式对连续内存进行哈希，形成树形结构并通过根节点的哈希值保护整棵树的完整性。这些方案普遍存在一些问题，如保护的是一段连续的特定地址内存，树节点存储代价很大，更新哈希值开销较大等。</p>
-<p>蓬莱提出了硬件上的Mountable Merkle
-Tree对安全世界的内存进行完整性保护。MMT最基本的单位是SubTree，不同层级的Merkle
-Tree共同通过哈希对整片内存进行完整性保护，最下层的叶子节点对应4个1MB的页。根据每一级子节点数量的设计，MMT最多可以对512GB内存进行完整性验证。</p>
-<p>为了防止Merkle
-Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可信的SoC出发，将树的根节点地址存于SoC中的<code>Root-root</code>寄存器中，保证根不受篡改，依据根节点的哈希值递归保证子节点的哈希值不受篡改。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
-</div>
-<p>这里使用的哈希树是Counter-based Integrity
-Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此减少路径哈希更新的频率。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
-</div>
-<p>上图为完整性信任链的建立，<code>Root-root</code>存储在SoC中，认为是可信任的，所有子节点的地址信息和计数器信息都存储在一块称为MMT
-meta-zone的区域中，完整性由root保护。这片区域的信息又保护了counter指向的Subtree
-Node区域，存储了所需的数据信息，通过哈希值对Secure
-Mem区域进行完整性的保护。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
-Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
-<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
-<p>在系统启动时，MMT
-meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
-<p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
-region的概念，这是一个可配置的连续区域，由寄存器<code>reg_hole_va_start</code>和<code>reg_hole_va_size</code>配置。在hole区域中，执行相反的完整性验证，即当<code>reg_ms=ENCL_MODE</code>时不对hole区域做完整性校验，提供二者共享的内存。这需要在MMT中做出支持，不对代表hole区域的子树进行完整性校验。</p>
-<h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
-Initialization with Shadow Fork</h3>
-<p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
-<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
-<h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
-<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
-line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
-<h2 id="implementation">Implementation</h2>
-<h3 id="hardware-implementation">Hardware Implementation</h3>
-<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
-Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
-Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
-Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
-</div>
-<h3 id="software-implementation">Software Implementation</h3>
-<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
-Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
-<p>蓬莱同时也对Linux
-Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
-<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
-<p>蓬莱的形式化验证工作正在进行中。</p>
-<h2 id="evaluation">Evaluation</h2>
-<p>蓬莱在VC707开发板上基于SiFive Freedom
-U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
-<p>通过实验结果得到的结论整理如下：</p>
-<ul>
-<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
-<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
-<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
-<li>Cache Locking会产生17.73%的额外开销</li>
-<li>对硬件的额外改动基本不需要占用硬件资源</li>
-</ul>
-<h2 id="discussion">Discussion</h2>
-<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
-<p>针对内存管理的侧信道攻击讨论：</p>
-<ul>
-<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
-<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Paper Note</category>
-      </categories>
-      <tags>
-        <tag>TEE</tag>
-        <tag>Risc-V</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures</title>
     <url>/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html</url>
     <content><![CDATA[<p>VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。</p>
@@ -775,6 +629,121 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
       <tags>
         <tag>TEE</tag>
         <tag>SGX</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Why and How zk-SNARK Works: Definitive Explanation</title>
+    <url>/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html</url>
+    <content><![CDATA[<p>零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。</p>
+<h1 id="零知识证明算法概览">零知识证明算法概览</h1>
+<p>零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，不泄露任何信息。在零知识证明系统中，有Prover,
+Verifier两个角色，针对需要验证的知识，生成对应的Circuit（逻辑电路），这里的Circuit指的是知识需要符合的逻辑（亦或称之为待证明的知识本身），即一个逻辑系统，使用数学语言的方式进行描述，而并非指代数字电路。在以太坊目前的L2扩容方案中，链下节点作为证明者，通过零知识证明方案证明L2中合约被正确执行，因此L1网络可以在校验的基础上不经过再次执行，直接采纳L2的执行结果提交至L1网络。</p>
+<p>零知识证明目前有多种不同的实现方案，依赖于不同的密码学问题，也有不同的实现方法，其中比较常用的一类叫做ZK-SNARK（Zero-Knowledge
+Succinct Non-Interactive Argument of
+Knowledge）。其中Succinct指简洁，即验证过程的复杂度要为知识本身的sublinear级别，Non-Interactive指非交互，验证者也证明者无需进行多次通信完成验证，任何符合这两点要求且可以对一定形式的知识进行证明的系统都可以称为ZK-SNARK。基于简洁性，ZK-SNARK在大规模数据的证明上表现良好，验证者可以在极短的时间内对极短的证明进行验证，这也是被L2广泛应用的证明系统。</p>
+<p>我调研了一些零知识证明系统，列举了其中不同的四种方法：</p>
+<ul>
+<li><p>Groth：提出于2016年，属于ZK-SNARK，它的验证代价极小，但需要对每一个不同的Circuit重新进行setup，即向证明者和验证者约定一系列证明使用的参数</p></li>
+<li><p>ZKG：通过bilinear
+mapping和多项式承诺来完成零知识证明，它可以对不同的Circuit使用同一套参数进行验证，并且验证时间非常短，但setup过程中需要进行可信初始化，即参数的生成需要至少一个信任方在参与产生后销毁（多方可信计算）</p></li>
+<li><p>BulletProof：通过离散对数问题和多项式承诺来完成零知识证明，它的验证需要相对更大的代价，但是较于ZKG的优点是不需要可信初始化。</p></li>
+<li><p>ZK-STARK：也有人称其为SNARK的一种，不需要可信初始化，验证随数据规模变化较严重，适合于小数据的快速验证。</p></li>
+</ul>
+<p>本文主要参考了标题同名文章，其中重点介绍了KZG系统在零知识证明中的原理和使用。</p>
+<h1 id="kzg多项式承诺系统">KZG多项式承诺系统</h1>
+<p>让我们假设一个场景，Prover想向Verifier证明他知道一个多项式形式的知识（自然Verifier也需要知道该多项式），这个待证明的多项式记为<span
+class="math inline">\(t(x)\)</span>，而证明者为了不泄漏<span
+class="math inline">\(t(x)\)</span>，则构造一个多项式<span
+class="math inline">\(p(x)\)</span>，使得<span
+class="math inline">\(h(x) =
+\frac{p(x)}{t(x)}\)</span>，即可以整除，那么验证者就有很大的概率相信证明者知晓<span
+class="math inline">\(t(x)\)</span>这一知识。这就是多项式承诺系统的核心思想，在验证时验证者选定一个随机值<span
+class="math inline">\(r\)</span>，证明者计算出<span
+class="math inline">\(p(r), h(r)\)</span>发给验证者，如果满足<span
+class="math inline">\(t(r)=\frac{p(r)}{h(r)}\)</span>则以较大的概率相信证明者。这是最简单直观的交互式多项式承诺系统。</p>
+<h2 id="公开参数保护">公开参数保护</h2>
+<p>如果想构造一个非交互式的零知识证明系统，那么就需要把一些参数预先公开发布，例如多项式的度数上限<span
+class="math inline">\(d\)</span>（如果没有度数上限，那么可能会通过对大量数据的收集进行插值构造），随机数<span
+class="math inline">\(r\)</span>，包括下文即将提到的位移参数<span
+class="math inline">\(\alpha\)</span>。为了达成非交互式验证系统，这些参数一定会以明文可获取的形式公开，为了保护其中重要的信息，就要引入同态加密。</p>
+<p>同态加密指的是对数据<span
+class="math inline">\(M\)</span>进行加密，并支持有限的运算操作满足<span
+class="math inline">\(f(enc(M))=enc(f(M))\)</span>。以较为简单的同态加密方式为例，一种支持加法与乘法的同态加密方法：<span
+class="math inline">\(enc(x)=g^{x}\)</span>，加法转换为幂加法，乘法转换为幂乘法，即在有限域上的乘法和幂操作，即<span
+class="math inline">\(enc(x + y) = g^{x+y},
+enc(xy)=(g^{x})^{y}\)</span>。注意这里<span
+class="math inline">\(g\)</span>需要在有限循环域上进行选择。</p>
+<p>为了保护公开的校验随机数<span
+class="math inline">\(r\)</span>，即采用同态加密的方式，以上述方法为例，在初始化时公开约定好的随机数根<span
+class="math inline">\(g^{r^{1}}, g^{r^{2}} ...
+g^{r^{d}}\)</span>，这样就可以防止攻击者根据<span
+class="math inline">\(r\)</span>去泄漏额外的知识，或伪造多项式通过验证，证明者和验证者都通过这些随机数的若干次幂在有限循环域上计算，并不影响证明过程。（计算多项式只需要加法和乘法操作）</p>
+<h2 id="多项式计算约束">多项式计算约束</h2>
+<p>证明者理论上应该利用公开的<span
+class="math inline">\(g\)</span>的幂去计算多项式的值，但是如果恶意证明者使用了其他方法想要通过概率碰撞的方式通过证明，或者以其他运算方式生成多项式的结果，会存在较低的概率被破解。为了解决这一问题，就需要证明Prover真的是用了这些值进行了加法和乘法运算。</p>
+<p>以上述同态加密方法为例，使用KEA（Knowledge-of-Exponent
+Assumption），引入位移参数<span
+class="math inline">\(\alpha\)</span>，提供一套完全相同的基<span
+class="math inline">\(g^{\alpha r^{1}}, g^{\alpha r^{2}} ... g^{\alpha
+r^{d}}\)</span>，那么使用这组基计算出来的结果即为<span
+class="math inline">\(g^{\alpha
+t(r)}\)</span>。公开的参数为两组不同的基，要求验证者使用两组基做完全相同的运算操作，只有当验证者没有欺骗时才能满足<span
+class="math inline">\(g^{\alpha t(r)} = g^{t(\alpha
+r)}\)</span>，以保证证明者式通过多项式的基产生的证明。</p>
+<h2 id="零知识保护">零知识保护</h2>
+<p>进一步地进行零知识的保护，观察目前的方案：记证明者使用基计算出的值为<span
+class="math inline">\(g^{h}, g^{p}\)</span>，使用位移基计算出的值为<span
+class="math inline">\(g^{p&#39;}\)</span>，验证者需要验证以下等式：
+<span class="math display">\[\begin{equation}
+\begin{aligned}
+g^{p} &amp;= (g^{h})^{t} \\
+g^{p&#39;} &amp;= (g^{p})^{\alpha}
+\end{aligned}
+\end{equation}\]</span></p>
+<p>因此证明者在生成证明时可以进一步地保护信息不泄漏，产生一个随机的混淆参数<span
+class="math inline">\(\delta\)</span>，提供新的证明参数<span
+class="math inline">\(((g^{p})^{\delta}, (g^{h})^{\delta},
+(g^{p&#39;})^{\delta})\)</span>，仍然满足需要检验的约束条件，并且不会泄漏验证值的具体信息。</p>
+<h2 id="双线性映射">双线性映射</h2>
+<p>截止到目前为止仍然存在一个问题，为了支持任意验证者对证明进行验证，公开的参数CSR（Common
+Reference String）中含有了验证需要的<span
+class="math inline">\(g^{\alpha},g^{t(r)}\)</span>，那么验证者可以从这个值入手构造证明，只要通过上述等式就可以伪造。</p>
+<p>为了解决这个问题，KZG引入了双线性映射，指的是一种映射<span
+class="math inline">\(e\)</span>，可以将一个二元组映射到另一个域上，且满足<span
+class="math inline">\(e(g^{a}, g^{b}) = e(g,
+g)^{ab}\)</span>，可以将其简单地理解为同态哈希函数，在实践中往往采取椭圆曲线作为双线性映射，利用椭圆曲线的乘法与加法的性质进行映射。</p>
+<p>有了双线性映射后，关键的CSR就在某种程度上进行了哈希映射，变为双线性映射后的参数值，验证者检验映射后的对应关系：</p>
+<p><span class="math display">\[\begin{equation}
+\begin{aligned}
+e(g^{p}, g) &amp;= (g^{h}, g^{t}) \\
+e(g^{p&#39;}, g) &amp;= e(g^{p}, g^{\alpha})
+\end{aligned}
+\end{equation}\]</span></p>
+<p>这样证明者无法通过值简单地进行构造，就可以将参数直接公开，允许任意的验证者对证明进行验证。</p>
+<h2 id="可信初始化">可信初始化</h2>
+<p>现在一个完备的ZK-SNARK系统已经建立完毕，补充说明一下可信初始化的过程。显然，几个关键参数包括基、随机数、位移参数等是非常重要的安全参数，在生成后必须销毁，因此KZG系统需要一个可信的初始化过程，在生成后进行销毁。借助目前的多方可信计算技术，可以做到多人共同参与参数的生成，只要至少一个参与者销毁了自己的参数，就可以保证该参数不可被重新生成，这就是KZG系统的最小可信需求。</p>
+<h1 id="知识系统的转换与构建">知识系统的转换与构建</h1>
+<p>基于一个多项式，我们已经有了一个承诺系统，那么如何将一个实际问题转换为多项式呢？知识系统可以由多个不同的方法进行构建，下面介绍一种构建方式。</p>
+<h1 id="补充">补充</h1>
+<p>在了解零知识证明体系的过程中，我也了解到很多本文未涉及的密码学算法，包括将交互式证明转为非交互式的Fiat-Shamir协议（涉及随机预言机）等。我对这部分知识的了解并不深入，感兴趣的同学可以继续学习。</p>
+<p>参考链接：</p>
+<ol type="1">
+<li><a
+href="https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649">Quadratic
+Arithmetic Programs: from Zero to Hero</a></li>
+<li><a href="https://arxiv.org/abs/1906.07221">Why and How zk-SNARK
+Works</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Study</category>
+        <category>Paper Note</category>
+      </categories>
+      <tags>
+        <tag>Ethereum</tag>
+        <tag>Crypto</tag>
+        <tag>Zero Knowledge Proof</tag>
+        <tag>Study</tag>
       </tags>
   </entry>
   <entry>
@@ -1129,6 +1098,152 @@ Verilog，它是Verilog HDL的超集，是对硬件描述语言和验证语言�
       <tags>
         <tag>Vivado</tag>
         <tag>Hardware design</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Scalable Memory Protection in the PENGLAI Enclave</title>
+    <url>/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave.html</url>
+    <content><![CDATA[<p>蓬莱是上交研究的RISC-V架构下的可信执行环境方案。</p>
+<h2 id="introduction">Introduction</h2>
+<p>目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM
+TrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存保护机制：</p>
+<ol type="1">
+<li>不可扩展的内存划分/隔离：大多数设计使用了硬件中单独为飞地存在的内存，具有硬件上的大小和数量限制</li>
+<li>不可扩展的内存完整性保护：使用传统的Merkel Hash
+Tree方案校验完整性是难以扩展的，只能对固定大小的内存核验完整性</li>
+<li>不可扩展的内存安全初始化：初始化一片飞地的内存往往需要数秒，但是服务本身的运行时间通常很短（&lt;1s）</li>
+</ol>
+<p>因此本篇文章提出的蓬莱设计就是要解决上述问题，在安全内存的大小和粒度、飞地的数量、启动飞地的延迟方面提供支持。</p>
+<h2 id="motivation">Motivation</h2>
+<p>目前的解决方案都存在着各自的缺陷，在可创建的飞地数量，可用的内存大小，启动飞地的速度，内存完整性保护的粒度，保护的额外开销，可信启动的证明能力等方面上表现出不同层级的限制。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>蓬莱的目标就是解决上述已知的缺陷，提供可扩展的内存管理，支持不限量的飞地同时运行，以及可扩展的内存大小，在不添加过大开销的基础上，提供应对更高权限软件攻击，片外硬件攻击，基于缓存的侧信道攻击的安全支持。</p>
+<h2 id="system-overview">System Overview</h2>
+<h3 id="architecture">Architecture</h3>
+<p>蓬莱是一个软硬件协同的方案，软件实现了Secure
+Monitor用于管理并监视安全世界，硬件补充了下图中红色的新单元，以实现预期的功能目标。类似于TrustZone的想法，蓬莱也将系统状态划分为安全世界和不安全世界，分别运行不同的操作系统和软件，其中Secure
+Monitor运行于最高权限级。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<h3 id="thread-model">Thread Model</h3>
+<p>蓬莱的可信基为CPU和Monitor软件正确性，Monitor通过安全启动的方式由ROM中加载，在加载完成后会通过RISC-V自身的内存安全机制（PMP）保护自身。</p>
+<p>在蓬莱方案中，威胁模型有以下三个攻击面：</p>
+<ol type="1">
+<li>权限级软件攻击：攻击者可以完全地控制非安全世界的OS和软件</li>
+<li>物理硬件攻击：攻击者可以截获并分析CPU与其他硬件（如内存）的通信信息</li>
+<li>侧信道攻击：考虑控制信道攻击和基于缓存的侧信道攻击</li>
+</ol>
+<p>这里补充一下侧信道攻击，以SGX技术为例，CPU通过指令切换状态，分别对应飞地内的程序和飞地外的世界，在这个过程中两个世界会共享许多硬件资源，这就导致了信息泄露的可行性。控制信道攻击一般指对页表信息的泄露利用，SGX方案中非安全世界试图访问安全世界内存时会发生Page
+Fault，因此可以以页为单位对安全世界进行探查，更进一步还可以利用页表的信息位，观察安全世界的逻辑行为信息。除此以外，流水线，分支预测器，缓存都可以通过侧信道攻击的方式泄露出安全世界的信息。</p>
+<p>在本篇文章中不考虑其他的侧信道攻击，与本方案关注的内存安全无关，也不考虑Dos攻击。</p>
+<h2 id="design">Design</h2>
+<h3 id="fine-grained-flexible-memory-isolation">Fine-grained Flexible
+Memory Isolation</h3>
+<p>为了实现细粒度的内存隔离，蓬莱像许多方案一样维护了表明物理页表所属世界的bitmap，以页表为粒度进行内存隔离。传统的方案往往基于此，在进行虚拟地址转换时，进行两次查找，先查询bitmap确认所查页表是否属于安全世界，再进行二次读取，这导致了25.2%的额外开销。</p>
+<p>而蓬莱方案则关注在<strong>页表的管理</strong>，观察到mapping的操作远小于访问内存的次数，蓬莱在硬件中添加了Guarded
+Page
+Table模块对页表进行管理，并尝试通过页表的管理避免二次读取，以降低额外的性能开销。</p>
+<p>在Guarded
+PT模块中，引入了两个新的寄存器<code>reg_hptarea_start</code>和<code>reg_hptarea_size</code>，HPT表示Host
+Page
+Table即不信任的主机的页表区域，通过这两个寄存器将主机可以使用的页表全部限制在一段连续的物理空间内。</p>
+<p>当主机试图更改页表区域时，会触发trap交由secure
+monitor进行检查，通过secure
+page的bitmap对映射区域的属性进行检查，在非安全世界中只能映射到non-secure
+page，而在安全世界中则不受限制，可以对两个世界的内存进行操作。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png" class="" title="Guarded Page Table">
+</div>
+<p>回顾TEE的目标，我们需要禁止非安全世界访问安全世界，结合下图所示的MMU扩展，在虚拟地址转换的每一步过程中都将得到的下一级页表地址进行检查，是否处于<code>hptarea</code>寄存器规定的范围中。</p>
+<p>通过MMU，我们限定了非安全世界访问的页表范围只能处于<code>hptarea</code>中，而在这一范围内页表的所有改动都将触发trap，由monitor进行bitmap核验后写入，因此限制了非安全世界对安全世界的访问。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png" class="" title="MMU">
+</div>
+<p><strong>因此，总结来看这一方案创新性地将安全检查的代价由访问内存时转移到了创建映射时，基于映射次数较少的观察，该方案可以显著地降低访问开销。</strong></p>
+<p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p>
+<p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>
+<h3 id="scalable-memory-integrity-protection">Scalable Memory Integrity
+Protection</h3>
+<p>为了保护安全世界的内存完整性，过去方案采用了Merkle
+Tree的方式对连续内存进行哈希，形成树形结构并通过根节点的哈希值保护整棵树的完整性。这些方案普遍存在一些问题，如保护的是一段连续的特定地址内存，树节点存储代价很大，更新哈希值开销较大等。</p>
+<p>蓬莱提出了硬件上的Mountable Merkle
+Tree对安全世界的内存进行完整性保护。MMT最基本的单位是SubTree，不同层级的Merkle
+Tree共同通过哈希对整片内存进行完整性保护，最下层的叶子节点对应4个1MB的页。根据每一级子节点数量的设计，MMT最多可以对512GB内存进行完整性验证。</p>
+<p>为了防止Merkle
+Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可信的SoC出发，将树的根节点地址存于SoC中的<code>Root-root</code>寄存器中，保证根不受篡改，依据根节点的哈希值递归保证子节点的哈希值不受篡改。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
+</div>
+<p>这里使用的哈希树是Counter-based Integrity
+Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此减少路径哈希更新的频率。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
+</div>
+<p>上图为完整性信任链的建立，<code>Root-root</code>存储在SoC中，认为是可信任的，所有子节点的地址信息和计数器信息都存储在一块称为MMT
+meta-zone的区域中，完整性由root保护。这片区域的信息又保护了counter指向的Subtree
+Node区域，存储了所需的数据信息，通过哈希值对Secure
+Mem区域进行完整性的保护。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
+Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
+<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
+<p>在系统启动时，MMT
+meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
+<p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
+region的概念，这是一个可配置的连续区域，由寄存器<code>reg_hole_va_start</code>和<code>reg_hole_va_size</code>配置。在hole区域中，执行相反的完整性验证，即当<code>reg_ms=ENCL_MODE</code>时不对hole区域做完整性校验，提供二者共享的内存。这需要在MMT中做出支持，不对代表hole区域的子树进行完整性校验。</p>
+<h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
+Initialization with Shadow Fork</h3>
+<p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
+<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
+<h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
+<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
+line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
+<h2 id="implementation">Implementation</h2>
+<h3 id="hardware-implementation">Hardware Implementation</h3>
+<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
+Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
+Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
+Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
+</div>
+<h3 id="software-implementation">Software Implementation</h3>
+<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
+Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
+<p>蓬莱同时也对Linux
+Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
+<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
+<p>蓬莱的形式化验证工作正在进行中。</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>蓬莱在VC707开发板上基于SiFive Freedom
+U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
+<p>通过实验结果得到的结论整理如下：</p>
+<ul>
+<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
+<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
+<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
+<li>Cache Locking会产生17.73%的额外开销</li>
+<li>对硬件的额外改动基本不需要占用硬件资源</li>
+</ul>
+<h2 id="discussion">Discussion</h2>
+<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
+<p>针对内存管理的侧信道攻击讨论：</p>
+<ul>
+<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
+<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
+      <tags>
+        <tag>TEE</tag>
+        <tag>Risc-V</tag>
       </tags>
   </entry>
 </search>
