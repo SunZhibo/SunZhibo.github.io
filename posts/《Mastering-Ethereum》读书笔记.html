@@ -166,7 +166,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -295,31 +295,31 @@ class="math inline">\(K\)</span>，那么则有<span class="math inline">\(K
 class="math inline">\(G\)</span>是一个椭圆曲线上的常量点。由于椭圆曲线的定义，椭圆曲线上的乘法是难以进行逆运算的，因此保证了私钥的安全性。根据SECG发布的一种序列化编码方式，用四种可能的前缀来表示椭圆曲线上的点位，如下表所示，以太坊使用未压缩点编码公钥，即<code>0x04 + x + y</code>的方式编码。</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th style="text-align: center;">前缀</th>
 <th style="text-align: center;">含义</th>
 <th style="text-align: center;">长度（字节）</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">0x00</td>
 <td style="text-align: center;">无穷远点(0,0)</td>
 <td style="text-align: center;">1</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">0x04</td>
 <td style="text-align: center;">未压缩点，保存<span
 class="math inline">\(x, y\)</span>坐标</td>
 <td style="text-align: center;">65</td>
 </tr>
-<tr class="odd">
+<tr>
 <td style="text-align: center;">0x01</td>
 <td style="text-align: center;">偶数<span
 class="math inline">\(y\)</span>压缩点</td>
 <td style="text-align: center;">33</td>
 </tr>
-<tr class="even">
+<tr>
 <td style="text-align: center;">0x03</td>
 <td style="text-align: center;">奇数<span
 class="math inline">\(y\)</span>压缩点</td>

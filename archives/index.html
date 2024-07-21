@@ -154,7 +154,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -225,9 +225,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2024-06-30 14:29:29 / 修改时间：23:14:21" itemprop="dateCreated datePublished" datetime="2024-06-30T14:29:29+08:00">2024-06-30</time>
+      <time title="创建时间：2024-06-30 14:29:29" itemprop="dateCreated datePublished" datetime="2024-06-30T14:29:29+08:00">2024-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-07-21 15:19:08" itemprop="dateModified" datetime="2024-07-21T15:19:08+08:00">2024-07-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -235,11 +241,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Study/" itemprop="url" rel="index"><span itemprop="name">Study</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Study/Paper-Note/" itemprop="url" rel="index"><span itemprop="name">Paper Note</span></a>
+          <a href="/categories/Paper-Note/" itemprop="url" rel="index"><span itemprop="name">Paper Note</span></a>
         </span>
     </span>
 
@@ -343,6 +345,41 @@ e(g^{p&#39;}, g) &amp;= e(g^{p}, g^{\alpha})
 <p>现在一个完备的ZK-SNARK系统已经建立完毕，补充说明一下可信初始化的过程。显然，几个关键参数包括基、随机数、位移参数等是非常重要的安全参数，在生成后必须销毁，因此KZG系统需要一个可信的初始化过程，在生成后进行销毁。借助目前的多方可信计算技术，可以做到多人共同参与参数的生成，只要至少一个参与者销毁了自己的参数，就可以保证该参数不可被重新生成，这就是KZG系统的最小可信需求。</p>
 <h1 id="知识系统的转换与构建">知识系统的转换与构建</h1>
 <p>基于一个多项式，我们已经有了一个承诺系统，那么如何将一个实际问题转换为多项式呢？知识系统可以由多个不同的方法进行构建，下面介绍一种构建方式。</p>
+<h2 id="rank-1-constraints-system">Rank-1 Constraints System</h2>
+<p>首先要明确的是并不是任意问题都可以构造出知识系统，这里有相对严格的数学证明（想要继续了解的可以去进一步学习），这里以参考链接中给出的例子说明，Prover需要证明它知道<span
+class="math inline">\(x^3 + x + 5 =
+35\)</span>，因此可以构建出一个简单的逻辑关系表：</p>
+<p><span class="math display">\[\begin{equation}
+\begin{aligned}
+t_1 = x * x \\
+t_2 = t_1 * x \\
+t_3 = x + 5 \\
+out = t_2 + t_3
+\end{aligned}
+\end{equation}\]</span></p>
+<p>可以注意到这里构建的逻辑关系表遵循了类似于LLVM的SSA原则（这是为了转换为R1CS），左侧只有一个元素，右侧是两个元素执行某种运算，得到了这样的Circuit之后就可以据此转换为一个多项式形式的知识证明系统。</p>
+<p>R1CS指的是秩为1的约束系统，其由向量组<span class="math inline">\((a,
+b, c)\)</span>组成，该系统的解向量<span
+class="math inline">\(s\)</span>满足<span class="math inline">\(sa * sb
+- sc = 0\)</span>（此处为内积，即<span class="math inline">\(sa = \sum
+s_{i} *
+a_{i}\)</span>），那么基于上述生成的逻辑电路表，我们就可以构建出一个R1CS。其中向量<span
+class="math inline">\(s\)</span>的每一项都对应着逻辑电路表中的一个变量，将等式转换为<span
+class="math inline">\(a, b, c\)</span>。不妨设逻辑电路表中有<span
+class="math inline">\(n\)</span>个变量，<span
+class="math inline">\(m\)</span>个参数，那么就可以向量<span
+class="math inline">\(a, b, c\)</span>将含有<span
+class="math inline">\(n\)</span>行<span
+class="math inline">\(m\)</span>列，每一列都代表着一个不同的约束条件。</p>
+<h2 id="qap-linear-pcp">QAP &amp; Linear PCP</h2>
+<p>为了保证零知识性，下一步需要对向量<span class="math inline">\(a, b,
+c\)</span>进行模糊处理，首先对向量进行随机扩展（不改变已经产生的值），之后通过拉格朗日插值法将向量转换为多项式，保证在<span
+class="math inline">\(x=i\)</span>的取值上可以得到<span
+class="math inline">\(a_i, b_i,
+c_i\)</span>。这样原始向量就被保护起来，并且验证者可以通过选取<span
+class="math inline">\(x\)</span>，使用解向量在多项式的某一点进行验证，是否真的满足<span
+class="math inline">\(sa_i * sb_i - sc_i =
+0\)</span>，这一验证过程由于可以合并多项式，具有非常低的时间复杂度，符合ZK-SNARK的代价需求。就由此，我们就完成了知识系统的转换与构建。</p>
 <h1 id="补充">补充</h1>
 <p>在了解零知识证明体系的过程中，我也了解到很多本文未涉及的密码学算法，包括将交互式证明转为非交互式的Fiat-Shamir协议（涉及随机预言机）等。我对这部分知识的了解并不深入，感兴趣的同学可以继续学习。</p>
 <p>参考链接：</p>
@@ -352,6 +389,8 @@ target="_blank" rel="noopener" href="https://medium.com/@VitalikButerin/quadrati
 Arithmetic Programs: from Zero to Hero</a></li>
 <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1906.07221">Why and How zk-SNARK
 Works</a></li>
+<li><a target="_blank" rel="noopener" href="https://rdi.berkeley.edu/course/zkp/s23">CS294/194-238 Zero
+Knowledge Proof</a></li>
 </ol>
 
       
