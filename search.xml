@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CF Round#802 Div2</title>
+    <title>CF Round#802 Div.2</title>
     <url>/posts/CF-Round-802-Div-2.html</url>
     <content><![CDATA[<p><a href="https://codeforces.com/contest/1700">Codeforces Round#802
 Div2</a></p>
@@ -138,6 +138,388 @@ class="math inline">\(O(qlogNlogV)\)</span>。</p>
       </tags>
   </entry>
   <entry>
+    <title>CF Round#941 Div.2</title>
+    <url>/posts/CF-Round-941-Div-2.html</url>
+    <content><![CDATA[<p><a href="https://codeforces.com/contest/1966">Codeforces Round#941
+Div2</a></p>
+<h2 id="a.-card-exchange">A. Card Exchange</h2>
+<p><code>题意</code>：给定<span
+class="math inline">\(n\)</span>个数，可以选择<span
+class="math inline">\(k\)</span>个相同的数变为<span
+class="math inline">\(k-1\)</span>个任意数，求操作后最少剩几个数。</p>
+<p><code>题解</code>：只要能开始操作，答案就是1。</p>
+<h2 id="b.-rectangle-filling">B. Rectangle Filling</h2>
+<p><code>题意</code>：给定一个二维黑白染色矩阵，操作是选择两个颜色相同的块，将这两个块对应的矩形染为这个颜色，求是否能将矩阵染成纯色。</p>
+<p><code>题解</code>：手玩一下，不能染为纯色的充要条件是黑色和白色各站住了对侧最边缘的一条（左右/上下）。</p>
+<h2 id="c.-everything-nim">C. Everything Nim</h2>
+<p><code>题意</code>：一堆石子，每次要从所有所有堆中拿走一样多的石子，不能操作的输。</p>
+<p><code>题解</code>：差分一下变成从一堆石子里面取，然后倒着推一下状态，只考虑数量是否为1就可以。</p>
+<h2 id="d.-missing-subsequence-sum">D. Missing Subsequence Sum</h2>
+<p><code>题意</code>：构造一个数组，子序列的和可以覆盖<span
+class="math inline">\([1,n]\)</span>，但是不能含有<span
+class="math inline">\(k\)</span>。</p>
+<p><code>题解</code>：首先构造<span
+class="math inline">\([1,k-1]\)</span>，类似二进制的方式构造，最后一步跟<span
+class="math inline">\(k\)</span>做差算一下，然后后面很简单地缺什么加什么，例如得到<span
+class="math inline">\([1,k-1]\)</span>后添加<span
+class="math inline">\(k+1\)</span>，子序列和对应<span
+class="math inline">\([1, 2k]\)</span>，然后添加<span
+class="math inline">\(2k+1\)</span>，注意这次开始会引入新的缺陷<span
+class="math inline">\(3k+1\)</span>，然后逐次添加缺陷即可，会发现缺陷每次会倍增，因此构造的数组不会超过<span
+class="math inline">\(log2_{2}\)</span>级别。</p>
+<h2 id="e.-folding-strip">E. Folding Strip</h2>
+<p><code>题意</code>：一个01纸带，定义合法的折叠是指折叠后空间上重合的纸袋数字相同，求经过合法折叠后纸带最短的长度。</p>
+<p><code>题解</code></p>
+<ul>
+<li><p>看着很像回文串相关，区间dp相关，但是仔细想做不了一点，全是后效性和影响。因此尝试找性质，提出一种可能：在每个相邻的相同数字之间都折一下，是一种合法的折叠方案。证明从奇偶性考虑，这样折叠后按照下标考虑，所有的0和1奇偶性一定不同（相同的就被折叠了），因此在空间上重叠的一定都相同，方案合法。这样折叠之后不可能再次折叠了，而且通过回文的性质可知，局部的回文折叠不会影响更长的回文串，因此这个折法是最优方案。</p></li>
+<li><p>考虑怎么求解最后剩余的纸带长度，从空间上一层一层摊开，可以认为纸带先往一个方向延申，遇到需要折叠的地方再调转方向，这样就可以模拟一个数轴，记录纸带到达的最左侧和最右侧，做差即为折叠后并在一起的纸带的长度。实际代码特别短，这道题很有意思。</p></li>
+</ul>
+<h2 id="f.-missing-subarray-sum">F. Missing Subarray Sum</h2>
+<p><code>题意</code>：有一个回文数组，给出所有子数组的和，但是去掉了其中一个，尝试还原数组。</p>
+<p><code>题解</code>：回文的性质很好地限制了数组的构成，但是不太好找出被删掉的数是什么。那么分情况讨论一下：如果数组是奇数长度<span
+class="math inline">\(2k+1\)</span>，那么子数组的和构成的序列中，应该会有<span
+class="math inline">\(k+1\)</span>个出现过奇数次的和，且保持一样的奇偶性；如果数组是偶数长度<span
+class="math inline">\(2k\)</span>，应该会有<span
+class="math inline">\(k\)</span>个出现过奇数次的和，且都为偶数。那么就可以根据这个性质得出，删掉的数到底是本应出现奇数次的中心对称回文的和，还是一个本应出现偶数次的和。</p>
+<p>分情况讨论，如果删掉的是本应出现奇数次的和，也就是删掉了一个中心对称的回文和：那么我们先当作没有删，去重建这个数组，可以发现相当于得到的数组相比于原数组，会有两个数合在了一起，对应着被删掉的和的位置。举例来说原数组在<span
+class="math inline">\(a_{x}=3,a_{x+1}=2\)</span>，那么在重建数组中只会得到<span
+class="math inline">\(a_{x}=5\)</span>，因为区间和<span
+class="math inline">\(a_{x+1,
+n}\)</span>被删掉了。同样地，如果是删掉了偶数次的和，那么会有一个数被拆开成两个数。</p>
+<p>那么我们比较重建数组的子数组和与给出的删掉一个数的原数组和，排序后第一个不同的和<span
+class="math inline">\(t\)</span>就代表着两个数组的差异。对于两个数合二为一的情况，说明原数组的和刚好只包含了两个数之一，对于拆开的情况，则是重建的和包含了拆开的两个数之一。无论哪个情况，这个和都包含着回文数组和的一半，再加上从中心到达两个数之一的子数组之和。</p>
+<p>如果删除的不是数组的最大值<span
+class="math inline">\(sum\)</span>，那么就可以通过<span
+class="math inline">\(2 * t -
+sum\)</span>来算出删掉的和，补全后重建即可。如果删除的正好是数组的最大值，那么仍然这么做，可以发现<span
+class="math inline">\(t=a_{1, n -
+1}\)</span>，依然可以还原出删去的值。</p>
+]]></content>
+      <categories>
+        <category>Codeforces</category>
+      </categories>
+      <tags>
+        <tag>Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CF Round#953 Div.2</title>
+    <url>/posts/CF-Round-953-Div-2.html</url>
+    <content><![CDATA[<p><a href="https://codeforces.com/contest/1978">Codeforces Round#953
+Div2</a></p>
+<h2 id="a.-alice-and-books">A. Alice and Books</h2>
+<p><code>题意</code>：给定<span
+class="math inline">\(n\)</span>个数，分为两堆，每堆取编号最大的，求最大的和为多少。</p>
+<p><code>题解</code>：答案即为前<span
+class="math inline">\(n-1\)</span>个数中的最大值加上第<span
+class="math inline">\(n\)</span>个数。</p>
+<h2 id="b.-new-bakery">B. New Bakery</h2>
+<p><code>题意</code>：卖<span
+class="math inline">\(n\)</span>件货物，可以选定一个<span
+class="math inline">\(k\)</span>，前<span
+class="math inline">\(k\)</span>件卖出的货物中的第<span
+class="math inline">\(i\)</span>件以<span
+class="math inline">\(b-i+1\)</span>的价格卖出，其余按照固定价<span
+class="math inline">\(a\)</span>卖出，求最大获利。</p>
+<p><code>题解</code>：想办法卖高价，<span class="math inline">\(k \leq b
+- a\)</span>，考虑一下边界条件。</p>
+<h2 id="c.-manhattan-permutations">C. Manhattan Permutations</h2>
+<p><code>题意</code>：定义排列的曼哈顿距离为<span
+class="math inline">\(\sum |p_i - i|\)</span>，构造距离为<span
+class="math inline">\(k\)</span>的<span
+class="math inline">\(n\)</span>的排列。</p>
+<p><code>题解</code>：手玩一下，曼哈顿距离一定为偶数，且最大的情况为倒序排列。考虑构造，从正序排列开始，如果<span
+class="math inline">\(k\)</span>够大则交换首位元素，否则交换首元素与某一中间元素停止。这样的交换方法不会对序列中间的距离产生影响，可以方便地缩小问题的规模。</p>
+<h2 id="d.-elections">D. Elections</h2>
+<p><code>题意</code>：<span
+class="math inline">\(n\)</span>个人选举，每个人有<span
+class="math inline">\(a_i\)</span>选民，还有<span
+class="math inline">\(c\)</span>个不定选民会投给编号最小的候选人，当平票时选编号最小的当选。你可以选择一部分候选人出局，他们的选民会成为不定选民，问每个候选人当选最少需要出局多少人。</p>
+<p><code>题解</code>：考虑胜选的情况：如果不需要不定选民投给你，那么就要满足<span
+class="math inline">\(a_{x} &gt; a_{1} +
+c\)</span>，否则就一定需要不定选民，那么<span class="math inline">\([1,
+x)\)</span>的候选人一定要出局，若还不够再考虑从后面贪心选大的出局。</p>
+<h2 id="e.-computing-machine">E. Computing Machine</h2>
+<p><code>题意</code>：给定两个01串<span class="math inline">\(s,
+t\)</span>，若<span
+class="math inline">\(s_{i}=s_{i+2}=0\)</span>则可使<span
+class="math inline">\(b_{i}=1\)</span>，若<span
+class="math inline">\(b_{i}=b_{i+2}=1\)</span>则可使<span
+class="math inline">\(a_{i}=1\)</span>，多次查询区间<span
+class="math inline">\(l,
+r\)</span>，对这个区间的字串进行操作最多可得到多少个<span
+class="math inline">\(s\)</span>串中的1。</p>
+<p><code>题解</code>：字串只有边缘会受到影响，中间的结果与两个串直接操作没区别，边缘单独判断一下即可。</p>
+<h2 id="f.-large-graph">F. Large Graph</h2>
+<p><code>题意</code>：给定一个数组<span
+class="math inline">\(a\)</span>，循环右移得到<span
+class="math inline">\(n * n\)</span>矩阵<span
+class="math inline">\(b\)</span>，由矩阵<span
+class="math inline">\(b\)</span>生成一张图，每个点代表矩阵中一个元素，两个点有边当两点在矩阵中曼哈顿距离不超过<span
+class="math inline">\(k\)</span>，且两个点在矩阵代表的值不互质，求图中连通块的数量。</p>
+<p><code>题解</code>：当<span class="math inline">\(k \geq
+2\)</span>时，斜着的条状带构成了<span class="math inline">\(2n -
+1\)</span>个连通块，问题退化为一维，那么对于每一个质因数，添加连向最近的公共因子的边，这样可以控制每一个质因子的边的数量不超过<span
+class="math inline">\(O(N)\)</span>，直接搜索即可。稍微注意一下当<span
+class="math inline">\(a_i =
+1\)</span>时，每个点都是独立的连通块，然后<span
+class="math inline">\(ans\)</span>是<span
+class="math inline">\(O(n^2)\)</span>级别的，会暴int，最后质数只要枚举到根号级别就可以，剩下的做个map搞一下。</p>
+]]></content>
+      <categories>
+        <category>Codeforces</category>
+      </categories>
+      <tags>
+        <tag>Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CF Round#959 Div.1+Div.2</title>
+    <url>/posts/CF-Round-959-Div-1-Div-2.html</url>
+    <content><![CDATA[<p><a href="https://codeforces.com/contest/1994">Codeforces Round#959
+Div1+Div2</a></p>
+<h2 id="a.-diverse-game">A. Diverse Game</h2>
+<p><code>题意</code>：构造一个排列与给出的排列每一位都不相同。</p>
+<p><code>题解</code>：每位+1输出即可。</p>
+<h2 id="b.-fun-game">B. Fun Game</h2>
+<p><code>题意</code>：给定两个01串<span class="math inline">\(s,
+t\)</span>，每次操作可以选定一个子区间<span class="math inline">\(l,
+r\)</span>，替换<span class="math inline">\(s_{i} = s_{i} \ xor \  s_{i
+- l + 1}\)</span>，问是否可以通过操作使<span
+class="math inline">\(s\)</span>变成<span
+class="math inline">\(t\)</span>。</p>
+<p><code>题解</code>：考虑前缀，异或自己1可以变成0，但是0无法变成1，如果一直到<span
+class="math inline">\(t\)</span>串第一个1出现为止<span
+class="math inline">\(s,
+t\)</span>都可以匹配，那么后面任何想要更改的位都可以通过这个1来逐位操作。</p>
+<h2 id="c.-hungry-games">C. Hungry Games</h2>
+<p><code>题意</code>：给定一个数组<span
+class="math inline">\(a\)</span>，代表蘑菇的毒性，如果要吃掉一个区间<span
+class="math inline">\(l,
+r\)</span>的蘑菇，会按照顺序吃，毒性每累积到<span
+class="math inline">\(x\)</span>或更高，毒性会刷新清零，问有多少个字区间吃完后毒性累积不为0。</p>
+<p><code>题解</code>：对于每一个点求出到哪里毒性清零，然后从后往前递推一下即可。</p>
+<h2 id="d.-funny-games">D. Funny Games</h2>
+<p><code>题意</code>：给定一个数组<span
+class="math inline">\(a\)</span>，进行<span
+class="math inline">\(n-1\)</span>次操作，每<span
+class="math inline">\(i\)</span>次操作可以任选一个<span
+class="math inline">\(u, v\)</span>满足<span class="math inline">\(|a_u
+- a_v| \equiv 0 \  mod \  i\)</span>，会添加一条<span
+class="math inline">\(u,
+v\)</span>之间的边。尝试给出一种方案使得图连通。</p>
+<p><code>题解</code>：样例猜个结论，一定有可行解，根据抽屉原理，模数总会有两个相同的，因此从<span
+class="math inline">\(n-1\)</span>开始倒序构造，每次任选两个模数相同的点连起来即可。</p>
+<h2 id="e.-wooden-game">E. Wooden Game</h2>
+<p><code>题意</code>：给出<span
+class="math inline">\(n\)</span>棵树，每次可以任选一棵砍掉一个子树，记其大小为<span
+class="math inline">\(x\)</span>，求可以得到的最大的<span
+class="math inline">\(\sum xor(x)\)</span>。</p>
+<p><code>题解</code>：一棵大小为<span
+class="math inline">\(x\)</span>的树可以得到<span
+class="math inline">\([1,
+x]\)</span>的任意结果，只需要一个一个的砍掉，直到剩下的大小为需要的结果。那么逐位构造答案，如果只有一棵树的大小这一位为1，那么直接减去这个大小继续构造，如果多于一棵则后续所有位都可以为1。</p>
+<h2 id="f.-stardew-valley">F. Stardew Valley</h2>
+<p><code>题意</code>：给定一张无向图，有一部分边必须要选，一部分边可选，找出一条欧拉回路。</p>
+<p><code>题解</code>：必须选的边会导致一部分点的度数为奇数，但是加边不太好加，换一个思路从所有边往下删边，删非必选的边。</p>
+<p>只考虑非必选边，搜索出一棵生成树，自下而上地遍历，若点的度数为奇数，删去与父亲连接的边，这样总能调整到所有的点都为偶数。（因为度数总和一定为2的倍数，所以根节点的度数奇偶性也可以得到保证）又由于图中保证了必选边的连通性，得到的图一定具有欧拉回路。</p>
+<h2 id="g.-minecraft">G. Minecraft</h2>
+<p><code>题意</code>：给定<span
+class="math inline">\(n\)</span>个数，求一个数<span
+class="math inline">\(x\)</span>使得<span class="math inline">\(\sum
+a_{i} \ xor \ x =
+s\)</span>，其中数为大数，以01串形式给出，01串的长度为<span
+class="math inline">\(k\)</span>。</p>
+<p><code>题解</code>：先不考虑复杂度，很显然的想法就是按位考虑dp，但是问题是状态数目爆炸，想办法压缩状态。观察发现有效的状态其实非常少，因为<span
+class="math inline">\(x\)</span>的这一位会造成<span
+class="math inline">\(n-cnt_i\)</span>或者<span
+class="math inline">\(cnt_i\)</span>的贡献，所以有效的状态不超过<span
+class="math inline">\(n\)</span>个，状态就可以被压缩到<span
+class="math inline">\(O(nk)\)</span>，直接dp即可。</p>
+<h2 id="h.-fortnite">H. Fortnite</h2>
+<p><code>题意</code>：交互题，最多三次查询找出参数<span
+class="math inline">\(p,
+m\)</span>，可以查询一个小写字母字符串，返回<span
+class="math inline">\((\sum ord(s_i)p^i) \% m\)</span>，保证<span
+class="math inline">\(27 \le p \leq 50, \ p + 2 \leq m\)</span></p>
+<p><code>题解</code>：第一次查询<span
+class="math inline">\(aa\)</span>得到<span
+class="math inline">\(p\)</span>，第二次查询一定是构造一个足够大的串（至少要大于<span
+class="math inline">\(m\)</span>），关键是第三次怎么得到<span
+class="math inline">\(m\)</span>。</p>
+<p>这种构造题，范围又给的很刻意，就会有一些神秘的性质。一个显然的思路是这样：记第二次查询的原始值为<span
+class="math inline">\(h_1\)</span>，答案为<span
+class="math inline">\(a_1\)</span>，那么显然<span
+class="math inline">\(h_1 - a_1 =
+km\)</span>。那么如果第三次查询的原始值<span
+class="math inline">\(h_2\)</span>满足<span class="math inline">\(h_1 -
+a_1 - 1 \geq h2 \geq h_1 - a_1 - m\)</span>，那么就一定有<span
+class="math inline">\(h_2 - a_2 = (k - 1)m\)</span>，即得到<span
+class="math inline">\(m = (h_1 - a_1) - (h_2 -
+a_2)\)</span>。这个倒是不难想，关键是如何构造这样的<span
+class="math inline">\(h_2\)</span>，注意到在这个<span
+class="math inline">\(p\)</span>进制下，有些数字可能是表示不了的，因为小写字母只有1到26。</p>
+<p>题解给了一种利用性质的构造方法，首先令第一次查询的串为<span
+class="math inline">\(zzzzzzz\)</span>，我们不妨先不考虑1到26的限制，将<span
+class="math inline">\(a_1 + 1\)</span>写为<span
+class="math inline">\(p\)</span>进制数，即<span
+class="math inline">\(a_1 + 1 = \sum_{i = 0}^{i &lt; len} d_i \
+p^i\)</span>，然后我们用<span
+class="math inline">\(h_1\)</span>减去它得到一个可能不合法的<span
+class="math inline">\(p\)</span>进制数。记不合法的下标集合为<span
+class="math inline">\(S\)</span>，对于每个<span class="math inline">\(i
+\in S\)</span>，令<span class="math inline">\(d_i = 26, \ d_{i+1} = d_{i
++ 1} - 1\)</span>，得到一个合法的<span
+class="math inline">\(p\)</span>进制串作为第三次查询。这样的构造一定能满足<span
+class="math inline">\(h_1 - a_1 - 1 \geq h2 \geq h_1 - a_1 -
+m\)</span>，证明如下。</p>
+<p>首先新构造出的值一定会更小，因为借位操作<span class="math inline">\(p
+\geq 27\)</span>，因此满足<span class="math inline">\(h_2 \leq h_1 - a_1
+-1\)</span>。考虑发生借位的情况，借位操作会减去一个<span
+class="math inline">\(p^{i+1}\)</span>，增加一个<span
+class="math inline">\(d_i \ p^i\)</span>，因此借位操作会让构造出的<span
+class="math inline">\(h_2\)</span>在<span class="math inline">\(h_1 -a_1
+-1\)</span>的基础上变小<span class="math inline">\((p -
+d_i)p^i\)</span>。又因为发生借位的情况一定是<span
+class="math inline">\(d_i \geq 26\)</span>，因此变小的差值为<span
+class="math inline">\(\delta = \sum_{i \in S} (p - d_{i}) p^{i} \leq
+\sum_{i \in S} 24p_{i}\)</span></p>
+<p>又由于<span class="math inline">\(a_1 + 1 = \sum_{i = 0}^{i &lt;
+len}d_i \ p^i \geq \sum_{i \in S}d_{i} \ p^i \geq \sum_{i \in S}
+26p^i\)</span>，所以<span class="math inline">\(\delta \leq a_1 + 1 \leq
+m\)</span>，所以<span class="math inline">\(h_2 = h_1 - a_1 - 1 - \delta
+\geq h_1 - a_1 - m\)</span>，得证构造出的<span
+class="math inline">\(h_2\)</span>符合要求，通过三次查询即可算出<span
+class="math inline">\(p, m\)</span>的值。</p>
+]]></content>
+      <categories>
+        <category>Codeforces</category>
+      </categories>
+      <tags>
+        <tag>Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors</title>
+    <url>/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html</url>
+    <content><![CDATA[
+]]></content>
+  </entry>
+  <entry>
+    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
+    <url>/posts/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code.html</url>
+    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
+<h2 id="introduction">Introduction</h2>
+<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
+<h2 id="design-of-opbench-system">Design of OpBench System</h2>
+<p>OpBench的使用分为四个阶段：</p>
+<ol type="1">
+<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
+<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
+128, 256位的情况分别生成测试。</p></li>
+<li><p>将合约部署在测试链上并执行。</p></li>
+<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
+</ol>
+<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
+<ol type="1">
+<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
+<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
+<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
+<li><p>CALLDATACOPY &amp;
+CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
+<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
+</ol>
+<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
+<h2 id="result">Result</h2>
+<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+<ul>
+<li><p>go客户端的性能更好。</p></li>
+<li><p>客户端和系统共同影响着性能。</p></li>
+<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
+<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Study</category>
+      </categories>
+      <tags>
+        <tag>Ethereum</tag>
+        <tag>TestBench</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Keccak-256算法详解</title>
+    <url>/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html</url>
+    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
+<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
+<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
+<ul>
+<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
+<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
+</ul>
+<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
+class="math inline">\(b=25*2^{l}\)</span>，其中<span
+class="math inline">\(l \in [0, 6]\)</span>）</p>
+<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
+class="math inline">\(P =
+M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
+<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
+<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
+<div style="width:70%;margin:auto">
+<img src="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
+</div>
+<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
+class="math inline">\(x, y \in [0, 5), z \in
+2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
+<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
+<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
+\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
+\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
+class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
+<p><span class="math inline">\(\rho: a[x][y][z] =
+a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
+[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
+class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
+\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
+x \\ y \end{pmatrix}\)</span>，特殊地当<span
+class="math inline">\(x=y=0\)</span>时，令<span
+class="math inline">\(t=-1\)</span>。<span
+class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
+<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
+\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
+&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
+y&#39;\end{pmatrix}\)</span>。 <span
+class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
+<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
+1)a[x+2]\)</span>。<span
+class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
+<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
+class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
+<p>在实际实现中，可以通过预先计算好的常数对<span
+class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
+<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
+<h2 id="参考链接">参考链接</h2>
+<ol type="1">
+<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
+Keccak-256 on Youtube</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
+<li><a
+href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
+<li><a
+href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
+website</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Crypto</category>
+      </categories>
+      <tags>
+        <tag>Ethereum</tag>
+        <tag>Keccak-256</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CF Round#934 Div.2</title>
     <url>/posts/CF-Round-934-Div-2.html</url>
     <content><![CDATA[<p><a href="https://codeforces.com/contest/1944">Codeforces Round#934
@@ -203,217 +585,6 @@ class="math inline">\(f[i][j][l] = \sum f[i-2][j&#39;][l^1] *
 <li><p>dp式前缀和优化一下就可以得到<span
 class="math inline">\(O(n^2)\)</span>的写法。</p></li>
 </ul>
-]]></content>
-      <categories>
-        <category>Codeforces</category>
-      </categories>
-      <tags>
-        <tag>Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Scalable Memory Protection in the PENGLAI Enclave</title>
-    <url>/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave.html</url>
-    <content><![CDATA[<p>蓬莱是上交研究的RISC-V架构下的可信执行环境方案。</p>
-<h2 id="introduction">Introduction</h2>
-<p>目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM
-TrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存保护机制：</p>
-<ol type="1">
-<li>不可扩展的内存划分/隔离：大多数设计使用了硬件中单独为飞地存在的内存，具有硬件上的大小和数量限制</li>
-<li>不可扩展的内存完整性保护：使用传统的Merkel Hash
-Tree方案校验完整性是难以扩展的，只能对固定大小的内存核验完整性</li>
-<li>不可扩展的内存安全初始化：初始化一片飞地的内存往往需要数秒，但是服务本身的运行时间通常很短（&lt;1s）</li>
-</ol>
-<p>因此本篇文章提出的蓬莱设计就是要解决上述问题，在安全内存的大小和粒度、飞地的数量、启动飞地的延迟方面提供支持。</p>
-<h2 id="motivation">Motivation</h2>
-<p>目前的解决方案都存在着各自的缺陷，在可创建的飞地数量，可用的内存大小，启动飞地的速度，内存完整性保护的粒度，保护的额外开销，可信启动的证明能力等方面上表现出不同层级的限制。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<p>蓬莱的目标就是解决上述已知的缺陷，提供可扩展的内存管理，支持不限量的飞地同时运行，以及可扩展的内存大小，在不添加过大开销的基础上，提供应对更高权限软件攻击，片外硬件攻击，基于缓存的侧信道攻击的安全支持。</p>
-<h2 id="system-overview">System Overview</h2>
-<h3 id="architecture">Architecture</h3>
-<p>蓬莱是一个软硬件协同的方案，软件实现了Secure
-Monitor用于管理并监视安全世界，硬件补充了下图中红色的新单元，以实现预期的功能目标。类似于TrustZone的想法，蓬莱也将系统状态划分为安全世界和不安全世界，分别运行不同的操作系统和软件，其中Secure
-Monitor运行于最高权限级。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<h3 id="thread-model">Thread Model</h3>
-<p>蓬莱的可信基为CPU和Monitor软件正确性，Monitor通过安全启动的方式由ROM中加载，在加载完成后会通过RISC-V自身的内存安全机制（PMP）保护自身。</p>
-<p>在蓬莱方案中，威胁模型有以下三个攻击面：</p>
-<ol type="1">
-<li>权限级软件攻击：攻击者可以完全地控制非安全世界的OS和软件</li>
-<li>物理硬件攻击：攻击者可以截获并分析CPU与其他硬件（如内存）的通信信息</li>
-<li>侧信道攻击：考虑控制信道攻击和基于缓存的侧信道攻击</li>
-</ol>
-<p>这里补充一下侧信道攻击，以SGX技术为例，CPU通过指令切换状态，分别对应飞地内的程序和飞地外的世界，在这个过程中两个世界会共享许多硬件资源，这就导致了信息泄露的可行性。控制信道攻击一般指对页表信息的泄露利用，SGX方案中非安全世界试图访问安全世界内存时会发生Page
-Fault，因此可以以页为单位对安全世界进行探查，更进一步还可以利用页表的信息位，观察安全世界的逻辑行为信息。除此以外，流水线，分支预测器，缓存都可以通过侧信道攻击的方式泄露出安全世界的信息。</p>
-<p>在本篇文章中不考虑其他的侧信道攻击，与本方案关注的内存安全无关，也不考虑Dos攻击。</p>
-<h2 id="design">Design</h2>
-<h3 id="fine-grained-flexible-memory-isolation">Fine-grained Flexible
-Memory Isolation</h3>
-<p>为了实现细粒度的内存隔离，蓬莱像许多方案一样维护了表明物理页表所属世界的bitmap，以页表为粒度进行内存隔离。传统的方案往往基于此，在进行虚拟地址转换时，进行两次查找，先查询bitmap确认所查页表是否属于安全世界，再进行二次读取，这导致了25.2%的额外开销。</p>
-<p>而蓬莱方案则关注在<strong>页表的管理</strong>，观察到mapping的操作远小于访问内存的次数，蓬莱在硬件中添加了Guarded
-Page
-Table模块对页表进行管理，并尝试通过页表的管理避免二次读取，以降低额外的性能开销。</p>
-<p>在Guarded
-PT模块中，引入了两个新的寄存器<code>reg_hptarea_start</code>和<code>reg_hptarea_size</code>，HPT表示Host
-Page
-Table即不信任的主机的页表区域，通过这两个寄存器将主机可以使用的页表全部限制在一段连续的物理空间内。</p>
-<p>当主机试图更改页表区域时，会触发trap交由secure
-monitor进行检查，通过secure
-page的bitmap对映射区域的属性进行检查，在非安全世界中只能映射到non-secure
-page，而在安全世界中则不受限制，可以对两个世界的内存进行操作。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png" class="" title="Guarded Page Table">
-</div>
-<p>回顾TEE的目标，我们需要禁止非安全世界访问安全世界，结合下图所示的MMU扩展，在虚拟地址转换的每一步过程中都将得到的下一级页表地址进行检查，是否处于<code>hptarea</code>寄存器规定的范围中。</p>
-<p>通过MMU，我们限定了非安全世界访问的页表范围只能处于<code>hptarea</code>中，而在这一范围内页表的所有改动都将触发trap，由monitor进行bitmap核验后写入，因此限制了非安全世界对安全世界的访问。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png" class="" title="MMU">
-</div>
-<p><strong>因此，总结来看这一方案创新性地将安全检查的代价由访问内存时转移到了创建映射时，基于映射次数较少的观察，该方案可以显著地降低访问开销。</strong></p>
-<p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p>
-<p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>
-<h3 id="scalable-memory-integrity-protection">Scalable Memory Integrity
-Protection</h3>
-<p>为了保护安全世界的内存完整性，过去方案采用了Merkle
-Tree的方式对连续内存进行哈希，形成树形结构并通过根节点的哈希值保护整棵树的完整性。这些方案普遍存在一些问题，如保护的是一段连续的特定地址内存，树节点存储代价很大，更新哈希值开销较大等。</p>
-<p>蓬莱提出了硬件上的Mountable Merkle
-Tree对安全世界的内存进行完整性保护。MMT最基本的单位是SubTree，不同层级的Merkle
-Tree共同通过哈希对整片内存进行完整性保护，最下层的叶子节点对应4个1MB的页。根据每一级子节点数量的设计，MMT最多可以对512GB内存进行完整性验证。</p>
-<p>为了防止Merkle
-Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可信的SoC出发，将树的根节点地址存于SoC中的<code>Root-root</code>寄存器中，保证根不受篡改，依据根节点的哈希值递归保证子节点的哈希值不受篡改。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
-</div>
-<p>这里使用的哈希树是Counter-based Integrity
-Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此减少路径哈希更新的频率。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
-</div>
-<p>上图为完整性信任链的建立，<code>Root-root</code>存储在SoC中，认为是可信任的，所有子节点的地址信息和计数器信息都存储在一块称为MMT
-meta-zone的区域中，完整性由root保护。这片区域的信息又保护了counter指向的Subtree
-Node区域，存储了所需的数据信息，通过哈希值对Secure
-Mem区域进行完整性的保护。</p>
-<div style="width:80%;margin:auto">
-
-</div>
-<p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
-Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
-<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
-<p>在系统启动时，MMT
-meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
-<p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
-region的概念，这是一个可配置的连续区域，由寄存器<code>reg_hole_va_start</code>和<code>reg_hole_va_size</code>配置。在hole区域中，执行相反的完整性验证，即当<code>reg_ms=ENCL_MODE</code>时不对hole区域做完整性校验，提供二者共享的内存。这需要在MMT中做出支持，不对代表hole区域的子树进行完整性校验。</p>
-<h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
-Initialization with Shadow Fork</h3>
-<p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
-<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
-<h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
-<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
-line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
-<h2 id="implementation">Implementation</h2>
-<h3 id="hardware-implementation">Hardware Implementation</h3>
-<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
-Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
-Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
-Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
-<div style="width:80%;margin:auto">
-<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
-</div>
-<h3 id="software-implementation">Software Implementation</h3>
-<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
-Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
-<p>蓬莱同时也对Linux
-Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
-<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
-<p>蓬莱的形式化验证工作正在进行中。</p>
-<h2 id="evaluation">Evaluation</h2>
-<p>蓬莱在VC707开发板上基于SiFive Freedom
-U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
-<p>通过实验结果得到的结论整理如下：</p>
-<ul>
-<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
-<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
-<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
-<li>Cache Locking会产生17.73%的额外开销</li>
-<li>对硬件的额外改动基本不需要占用硬件资源</li>
-</ul>
-<h2 id="discussion">Discussion</h2>
-<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
-<p>针对内存管理的侧信道攻击讨论：</p>
-<ul>
-<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
-<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Paper Note</category>
-      </categories>
-      <tags>
-        <tag>TEE</tag>
-        <tag>Risc-V</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CF Round#941 Div 2</title>
-    <url>/posts/CF-Round-941-Div-2.html</url>
-    <content><![CDATA[<p><a href="https://codeforces.com/contest/1966">Codeforces Round#941
-Div2</a></p>
-<h2 id="a.-card-exchange">A. Card Exchange</h2>
-<p><code>题意</code>：给定<span
-class="math inline">\(n\)</span>个数，可以选择<span
-class="math inline">\(k\)</span>个相同的数变为<span
-class="math inline">\(k-1\)</span>个任意数，求操作后最少剩几个数。</p>
-<p><code>题解</code>：只要能开始操作，答案就是1。</p>
-<h2 id="b.-rectangle-filling">B. Rectangle Filling</h2>
-<p><code>题意</code>：给定一个二维黑白染色矩阵，操作是选择两个颜色相同的块，将这两个块对应的矩形染为这个颜色，求是否能将矩阵染成纯色。</p>
-<p><code>题解</code>：手玩一下，不能染为纯色的充要条件是黑色和白色各站住了对侧最边缘的一条（左右/上下）。</p>
-<h2 id="c.-everything-nim">C. Everything Nim</h2>
-<p><code>题意</code>：一堆石子，每次要从所有所有堆中拿走一样多的石子，不能操作的输。</p>
-<p><code>题解</code>：差分一下变成从一堆石子里面取，然后倒着推一下状态，只考虑数量是否为1就可以。</p>
-<h2 id="d.-missing-subsequence-sum">D. Missing Subsequence Sum</h2>
-<p><code>题意</code>：构造一个数组，子序列的和可以覆盖<span
-class="math inline">\([1,n]\)</span>，但是不能含有<span
-class="math inline">\(k\)</span>。</p>
-<p><code>题解</code>：首先构造<span
-class="math inline">\([1,k-1]\)</span>，类似二进制的方式构造，最后一步跟<span
-class="math inline">\(k\)</span>做差算一下，然后后面很简单地缺什么加什么，例如得到<span
-class="math inline">\([1,k-1]\)</span>后添加<span
-class="math inline">\(k+1\)</span>，子序列和对应<span
-class="math inline">\([1, 2k]\)</span>，然后添加<span
-class="math inline">\(2k+1\)</span>，注意这次开始会引入新的缺陷<span
-class="math inline">\(3k+1\)</span>，然后逐次添加缺陷即可，会发现缺陷每次会倍增，因此构造的数组不会超过<span
-class="math inline">\(log2_{2}\)</span>级别。</p>
-<h2 id="e.-folding-strip">E. Folding Strip</h2>
-<p><code>题意</code>：一个01纸带，定义合法的折叠是指折叠后空间上重合的纸袋数字相同，求经过合法折叠后纸带最短的长度。</p>
-<p><code>题解</code></p>
-<ul>
-<li><p>看着很像回文串相关，区间dp相关，但是仔细想做不了一点，全是后效性和影响。因此尝试找性质，提出一种可能：在每个相邻的相同数字之间都折一下，是一种合法的折叠方案。证明从奇偶性考虑，这样折叠后按照下标考虑，所有的0和1奇偶性一定不同（相同的就被折叠了），因此在空间上重叠的一定都相同，方案合法。这样折叠之后不可能再次折叠了，而且通过回文的性质可知，局部的回文折叠不会影响更长的回文串，因此这个折法是最优方案。</p></li>
-<li><p>考虑怎么求解最后剩余的纸带长度，从空间上一层一层摊开，可以认为纸带先往一个方向延申，遇到需要折叠的地方再调转方向，这样就可以模拟一个数轴，记录纸带到达的最左侧和最右侧，做差即为折叠后并在一起的纸带的长度。实际代码特别短，这道题很有意思。</p></li>
-</ul>
-<h2 id="f.-missing-subarray-sum">F. Missing Subarray Sum</h2>
-<p><code>题意</code>：有一个回文数组，给出所有子数组的和，但是去掉了其中一个，尝试还原数组。</p>
-<p><code>题解</code>：回文的性质很好地限制了数组的构成，但是不太好找出被删掉的数是什么。那么分情况讨论一下：如果数组是奇数长度<span
-class="math inline">\(2k+1\)</span>，那么子数组的和构成的序列中，应该会有<span
-class="math inline">\(k+1\)</span>个出现过奇数次的和，且保持一样的奇偶性；如果数组是偶数长度<span
-class="math inline">\(2k\)</span>，应该会有<span
-class="math inline">\(k\)</span>个出现过奇数次的和，且都为偶数。那么就可以根据这个性质得出，删掉的数到底是本应出现奇数次的中心对称回文的和，还是一个本应出现偶数次的和。</p>
-<p>分情况讨论，如果删掉的是本应出现奇数次的和，也就是删掉了一个中心对称的回文和：那么我们先当作没有删，去重建这个数组，可以发现相当于得到的数组相比于原数组，会有两个数合在了一起，对应着被删掉的和的位置。举例来说原数组在<span
-class="math inline">\(a_{x}=3,a_{x+1}=2\)</span>，那么在重建数组中只会得到<span
-class="math inline">\(a_{x}=5\)</span>，因为区间和<span
-class="math inline">\(a_{x+1,
-n}\)</span>被删掉了。同样地，如果是删掉了偶数次的和，那么会有一个数被拆开成两个数。</p>
-<p>那么我们比较重建数组的子数组和与给出的删掉一个数的原数组和，排序后第一个不同的和<span
-class="math inline">\(t\)</span>就代表着两个数组的差异。对于两个数合二为一的情况，说明原数组的和刚好只包含了两个数之一，对于拆开的情况，则是重建的和包含了拆开的两个数之一。无论哪个情况，这个和都包含着回文数组和的一半，再加上从中心到达两个数之一的子数组之和。</p>
-<p>如果删除的不是数组的最大值<span
-class="math inline">\(sum\)</span>，那么就可以通过<span
-class="math inline">\(2 * t -
-sum\)</span>来算出删掉的和，补全后重建即可。如果删除的正好是数组的最大值，那么仍然这么做，可以发现<span
-class="math inline">\(t=a_{1, n -
-1}\)</span>，依然可以还原出删去的值。</p>
 ]]></content>
       <categories>
         <category>Codeforces</category>
@@ -570,6 +741,152 @@ href="https://trapdoor-tech.github.io/zkstark-book/">深入理解zk-STARK证明�
       </tags>
   </entry>
   <entry>
+    <title>Scalable Memory Protection in the PENGLAI Enclave</title>
+    <url>/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave.html</url>
+    <content><![CDATA[<p>蓬莱是上交研究的RISC-V架构下的可信执行环境方案。</p>
+<h2 id="introduction">Introduction</h2>
+<p>目前已经有许多成熟的TEE方案，如Intel SGX，AMD SEV，ARM
+TrustZone，以及一些学术界的研究工作，但是过去的TEE方案都存在着一些缺陷，较明显的就是无法适应云端应用的特性：弹性的内存分配，高资源负载，auto-scaling（动态调整实例资源分配），短执行时间等。这往往是受限于方案设计的内存保护机制：</p>
+<ol type="1">
+<li>不可扩展的内存划分/隔离：大多数设计使用了硬件中单独为飞地存在的内存，具有硬件上的大小和数量限制</li>
+<li>不可扩展的内存完整性保护：使用传统的Merkel Hash
+Tree方案校验完整性是难以扩展的，只能对固定大小的内存核验完整性</li>
+<li>不可扩展的内存安全初始化：初始化一片飞地的内存往往需要数秒，但是服务本身的运行时间通常很短（&lt;1s）</li>
+</ol>
+<p>因此本篇文章提出的蓬莱设计就是要解决上述问题，在安全内存的大小和粒度、飞地的数量、启动飞地的延迟方面提供支持。</p>
+<h2 id="motivation">Motivation</h2>
+<p>目前的解决方案都存在着各自的缺陷，在可创建的飞地数量，可用的内存大小，启动飞地的速度，内存完整性保护的粒度，保护的额外开销，可信启动的证明能力等方面上表现出不同层级的限制。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>蓬莱的目标就是解决上述已知的缺陷，提供可扩展的内存管理，支持不限量的飞地同时运行，以及可扩展的内存大小，在不添加过大开销的基础上，提供应对更高权限软件攻击，片外硬件攻击，基于缓存的侧信道攻击的安全支持。</p>
+<h2 id="system-overview">System Overview</h2>
+<h3 id="architecture">Architecture</h3>
+<p>蓬莱是一个软硬件协同的方案，软件实现了Secure
+Monitor用于管理并监视安全世界，硬件补充了下图中红色的新单元，以实现预期的功能目标。类似于TrustZone的想法，蓬莱也将系统状态划分为安全世界和不安全世界，分别运行不同的操作系统和软件，其中Secure
+Monitor运行于最高权限级。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<h3 id="thread-model">Thread Model</h3>
+<p>蓬莱的可信基为CPU和Monitor软件正确性，Monitor通过安全启动的方式由ROM中加载，在加载完成后会通过RISC-V自身的内存安全机制（PMP）保护自身。</p>
+<p>在蓬莱方案中，威胁模型有以下三个攻击面：</p>
+<ol type="1">
+<li>权限级软件攻击：攻击者可以完全地控制非安全世界的OS和软件</li>
+<li>物理硬件攻击：攻击者可以截获并分析CPU与其他硬件（如内存）的通信信息</li>
+<li>侧信道攻击：考虑控制信道攻击和基于缓存的侧信道攻击</li>
+</ol>
+<p>这里补充一下侧信道攻击，以SGX技术为例，CPU通过指令切换状态，分别对应飞地内的程序和飞地外的世界，在这个过程中两个世界会共享许多硬件资源，这就导致了信息泄露的可行性。控制信道攻击一般指对页表信息的泄露利用，SGX方案中非安全世界试图访问安全世界内存时会发生Page
+Fault，因此可以以页为单位对安全世界进行探查，更进一步还可以利用页表的信息位，观察安全世界的逻辑行为信息。除此以外，流水线，分支预测器，缓存都可以通过侧信道攻击的方式泄露出安全世界的信息。</p>
+<p>在本篇文章中不考虑其他的侧信道攻击，与本方案关注的内存安全无关，也不考虑Dos攻击。</p>
+<h2 id="design">Design</h2>
+<h3 id="fine-grained-flexible-memory-isolation">Fine-grained Flexible
+Memory Isolation</h3>
+<p>为了实现细粒度的内存隔离，蓬莱像许多方案一样维护了表明物理页表所属世界的bitmap，以页表为粒度进行内存隔离。传统的方案往往基于此，在进行虚拟地址转换时，进行两次查找，先查询bitmap确认所查页表是否属于安全世界，再进行二次读取，这导致了25.2%的额外开销。</p>
+<p>而蓬莱方案则关注在<strong>页表的管理</strong>，观察到mapping的操作远小于访问内存的次数，蓬莱在硬件中添加了Guarded
+Page
+Table模块对页表进行管理，并尝试通过页表的管理避免二次读取，以降低额外的性能开销。</p>
+<p>在Guarded
+PT模块中，引入了两个新的寄存器<code>reg_hptarea_start</code>和<code>reg_hptarea_size</code>，HPT表示Host
+Page
+Table即不信任的主机的页表区域，通过这两个寄存器将主机可以使用的页表全部限制在一段连续的物理空间内。</p>
+<p>当主机试图更改页表区域时，会触发trap交由secure
+monitor进行检查，通过secure
+page的bitmap对映射区域的属性进行检查，在非安全世界中只能映射到non-secure
+page，而在安全世界中则不受限制，可以对两个世界的内存进行操作。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/GPT.png" class="" title="Guarded Page Table">
+</div>
+<p>回顾TEE的目标，我们需要禁止非安全世界访问安全世界，结合下图所示的MMU扩展，在虚拟地址转换的每一步过程中都将得到的下一级页表地址进行检查，是否处于<code>hptarea</code>寄存器规定的范围中。</p>
+<p>通过MMU，我们限定了非安全世界访问的页表范围只能处于<code>hptarea</code>中，而在这一范围内页表的所有改动都将触发trap，由monitor进行bitmap核验后写入，因此限制了非安全世界对安全世界的访问。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMU.png" class="" title="MMU">
+</div>
+<p><strong>因此，总结来看这一方案创新性地将安全检查的代价由访问内存时转移到了创建映射时，基于映射次数较少的观察，该方案可以显著地降低访问开销。</strong></p>
+<p>当然，这一方案还需要考虑TLB的存在，由于硬件中缺少直接作用于TLB的指令，TLB难以被直接修改，另外在切换到安全世界的过程中，TLB也会被刷新，因此不存在非安全世界直接通过TLB访问安全世界的可能。</p>
+<p>总结来看，这一方案对硬件的修改较小（加入了bitmap和MMU的逻辑判断），唯一需求的物理连续区域是相对较少的页标区域，实现了页级别的内存隔离并减少了二次查找的访问开销。</p>
+<h3 id="scalable-memory-integrity-protection">Scalable Memory Integrity
+Protection</h3>
+<p>为了保护安全世界的内存完整性，过去方案采用了Merkle
+Tree的方式对连续内存进行哈希，形成树形结构并通过根节点的哈希值保护整棵树的完整性。这些方案普遍存在一些问题，如保护的是一段连续的特定地址内存，树节点存储代价很大，更新哈希值开销较大等。</p>
+<p>蓬莱提出了硬件上的Mountable Merkle
+Tree对安全世界的内存进行完整性保护。MMT最基本的单位是SubTree，不同层级的Merkle
+Tree共同通过哈希对整片内存进行完整性保护，最下层的叶子节点对应4个1MB的页。根据每一级子节点数量的设计，MMT最多可以对512GB内存进行完整性验证。</p>
+<p>为了防止Merkle
+Tree中的数值不被篡改，蓬莱建立了依托于SoC的信任链，从可信的SoC出发，将树的根节点地址存于SoC中的<code>Root-root</code>寄存器中，保证根不受篡改，依据根节点的哈希值递归保证子节点的哈希值不受篡改。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/flow.png" class="" title="Protect Flow">
+</div>
+<p>这里使用的哈希树是Counter-based Integrity
+Tree，这里没有详细介绍，我看了Vault那篇文章才理解这个词的含义，具体的内容可以在Vault论文阅读摘要中查看。相比于传统的BMT，蓬莱方案中添加了两个域，<code>idx</code>和<code>extra</code>，这是为了减少对同一分支的修改多次触发<code>global counter</code>域的更新，<code>idx</code>指向刚刚更改的<code>local counter</code>，而<code>extra</code>则作为高位一同作为计数器，当<code>extra</code>域也溢出或<code>idx</code>更换时再更新<code>global</code>域，以此减少路径哈希更新的频率。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/MMT.png" class="" title="Counter-based Integrity Tree">
+</div>
+<p>上图为完整性信任链的建立，<code>Root-root</code>存储在SoC中，认为是可信任的，所有子节点的地址信息和计数器信息都存储在一块称为MMT
+meta-zone的区域中，完整性由root保护。这片区域的信息又保护了counter指向的Subtree
+Node区域，存储了所需的数据信息，通过哈希值对Secure
+Mem区域进行完整性的保护。</p>
+<div style="width:80%;margin:auto">
+
+</div>
+<p>论文中提供了这样一幅图来表述Mountable的概念，Merkle
+Tree保护的是覆盖区域内所有内存的完整性，因此可挂载并不是指改变树的结构，而是可挂载到<strong>SoC</strong>上的意思。</p>
+<p>所有对完整性的验证从某一叶子节点出发，到达某一个在SoC中存储（也就是挂载）的节点时停止。SoC中留有的硬件空间最多可以存储32个子节点信息，存满后就依据LRU进行换入换出，利用空间访问的一致性来减少数据更新的代价，在一次读写后可以访问更少数量的节点来校验完整性。<strong>相比于传统的MT，MMT不将一整条从根节点出发的链存储在SoC上，而是存储子树的低层级节点，提高了SoC空间的利用率</strong>。</p>
+<p>在系统启动时，MMT
+meta-zone是一块可配置的地址空间，由bootROM进行初始配置并通过硬件访问权限设置进行保护。</p>
+<p>考虑到安全世界和非安全世界存在着必要的交换，蓬莱还设置了hole
+region的概念，这是一个可配置的连续区域，由寄存器<code>reg_hole_va_start</code>和<code>reg_hole_va_size</code>配置。在hole区域中，执行相反的完整性验证，即当<code>reg_ms=ENCL_MODE</code>时不对hole区域做完整性校验，提供二者共享的内存。这需要在MMT中做出支持，不对代表hole区域的子树进行完整性校验。</p>
+<h3 id="secure-memory-initialization-with-shadow-fork">Secure Memory
+Initialization with Shadow Fork</h3>
+<p>建立飞地的代价是必须要考虑的因素，为了减小初始化的开销，蓬莱借鉴了shadow-fork的思路。考虑在云服务场景，先建立一个具有必须的运行时环境的shadow-enclave，并进行哈希值证明，当建立飞地时，通过fork的思路，共享R和RX段，只拷贝W段，初始化栈。</p>
+<p>初始化飞地比较大的代价其实是在验证阶段，需要对内存进行完整性的证明，而根据影子飞地，可以轻松地使用已经计算出的证明，证明启动的飞地是可行的，再基于此进行进一步的保护即可。</p>
+<h3 id="on-demand-cache-line-locking">On-demand Cache Line Locking</h3>
+<p>蓬莱设计也考虑了针对缓存的侧信道攻击，提供了<code>CACHE_LINE_LOCK</code>和<code>CACHE_LINE_UNLOCK</code>原语，对cache
+line硬件层上锁，使得内存读写时间一致。这不可避免地会降低性能，因此蓬莱建议只在加密等较高安全需求的部分使用。在不同的飞地间切换时，cache的锁会作为上下文随之切换。</p>
+<h2 id="implementation">Implementation</h2>
+<h3 id="hardware-implementation">Hardware Implementation</h3>
+<p>蓬莱把新增加的寄存器做成了CSR，扩展了MMU的Page Table
+Walker，增加了数据的合法性验证和HPT核验。在核外，蓬莱扩展了Memory
+Controller以实现MMT功能，增加了Mount Table和Root-root，Mount
+Table结构与Cache类似，同样使用LRU策略进行换入换出。</p>
+<div style="width:80%;margin:auto">
+<img src="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave/layout.png" class="" title="Layout">
+</div>
+<h3 id="software-implementation">Software Implementation</h3>
+<p>蓬莱在OpenSBI和Berkeley Boot Loader上都做了Secure
+Monitor的实现，它包含了飞地管理，硬件扩展部分管理，内存检查，以及一些基础的库支持，仅需要6399行代码。</p>
+<p>蓬莱同时也对Linux
+Kernel做了改动，主要是为了适配HPT的设计，分配HPT区域，劫持对于页表的修改行为，转交monitor进行判断。</p>
+<p>飞地的类型包括普通飞地（用以创建可信执行环境），影子飞地（用以快速创建飞地），服务飞地。服务飞地并不能单独存在，需要从其他飞地继承时间片，用以构建飞地链，服务飞地可以提供部分OS的服务，如文件系统等。</p>
+<p>蓬莱的形式化验证工作正在进行中。</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>蓬莱在VC707开发板上基于SiFive Freedom
+U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基准）,Keystone进行整体的性能对比。也在GEM5上进行模拟实验，比较MMT和SIT，VAULT的完整性保护方案代价。</p>
+<p>通过实验结果得到的结论整理如下：</p>
+<ul>
+<li>GPT会在mapping阶段产生26%~46%的额外开销，在内存访问阶段基本不会产生影响</li>
+<li>Shadow-fork可以大量节省启动飞地的时间开销</li>
+<li>MMT在随机内存访问测试中表现出色，在较大访问范围测试中由于mount机制，不会产生过大的开销。在随机访问测试中，mount操作只占用了10%的总访问时间，而完整性验证占了20%。</li>
+<li>Cache Locking会产生17.73%的额外开销</li>
+<li>对硬件的额外改动基本不需要占用硬件资源</li>
+</ul>
+<h2 id="discussion">Discussion</h2>
+<p>实现蓬莱方案，需要两点支持：指令集需要支持比OS和hypervisor更高层级的特权级支持（现代指令集都支持），CPU需要有MMU模块以支持不同粒度内存管理（现代CPU中基本也存在）。</p>
+<p>针对内存管理的侧信道攻击讨论：</p>
+<ul>
+<li>OS无法直接操作页表，避免了对页表观测的攻击</li>
+<li>Cache可以选择性地加锁，避免了对缓存时间的攻击</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
+      <tags>
+        <tag>TEE</tag>
+        <tag>Risc-V</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures</title>
     <url>/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html</url>
     <content><![CDATA[<p>VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。</p>
@@ -661,78 +978,6 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
       <tags>
         <tag>TEE</tag>
         <tag>SGX</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Keccak-256算法详解</title>
-    <url>/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html</url>
-    <content><![CDATA[<h2 id="keccak-256">keccak-256</h2>
-<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
-<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
-<ul>
-<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
-<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
-</ul>
-<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
-class="math inline">\(b=25*2^{l}\)</span>，其中<span
-class="math inline">\(l \in [0, 6]\)</span>）</p>
-<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
-class="math inline">\(P =
-M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
-<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
-<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
-</div>
-<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
-class="math inline">\(x, y \in [0, 5), z \in
-2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
-<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
-<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
-\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
-\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
-<p><span class="math inline">\(\rho: a[x][y][z] =
-a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
-[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
-class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
-\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
-x \\ y \end{pmatrix}\)</span>，特殊地当<span
-class="math inline">\(x=y=0\)</span>时，令<span
-class="math inline">\(t=-1\)</span>。<span
-class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
-<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
-\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
-&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
-y&#39;\end{pmatrix}\)</span>。 <span
-class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
-<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
-1)a[x+2]\)</span>。<span
-class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
-<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
-class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
-<p>在实际实现中，可以通过预先计算好的常数对<span
-class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
-<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
-<h2 id="参考链接">参考链接</h2>
-<ol type="1">
-<li><a href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
-Keccak-256 on Youtube</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
-<li><a
-href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
-<li><a
-href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
-website</a></li>
-</ol>
-]]></content>
-      <categories>
-        <category>Crypto</category>
-      </categories>
-      <tags>
-        <tag>Ethereum</tag>
-        <tag>Keccak-256</tag>
       </tags>
   </entry>
   <entry>
@@ -1238,48 +1483,6 @@ class="math inline">\(K=r^{-1}(sQ - Keccak(m) * G)\)</span>。</p>
         <tag>Ethereum</tag>
         <tag>Crypto</tag>
         <tag>Security</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code</title>
-    <url>/posts/OpBench-A-CPU-Performance-Benchmark-for-Ethereum-Smart-Contract-Operation-Code.html</url>
-    <content><![CDATA[<p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
-<h2 id="introduction">Introduction</h2>
-<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
-<h2 id="design-of-opbench-system">Design of OpBench System</h2>
-<p>OpBench的使用分为四个阶段：</p>
-<ol type="1">
-<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
-<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
-128, 256位的情况分别生成测试。</p></li>
-<li><p>将合约部署在测试链上并执行。</p></li>
-<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
-</ol>
-<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
-<ol type="1">
-<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
-<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
-<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
-<li><p>CALLDATACOPY &amp;
-CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
-<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
-</ol>
-<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
-<h2 id="result">Result</h2>
-<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
-<ul>
-<li><p>go客户端的性能更好。</p></li>
-<li><p>客户端和系统共同影响着性能。</p></li>
-<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
-<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Study</category>
-      </categories>
-      <tags>
-        <tag>Ethereum</tag>
-        <tag>TestBench</tag>
       </tags>
   </entry>
 </search>

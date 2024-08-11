@@ -22,28 +22,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":"default","style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="Codeforces Round#934 Div2 A. Destroying Bridges 题意：给一张完全图，求删去\(k\)条边后，点1不可到达的编号最大的点。 题解：手玩一下最优解盯着点1的边删就行。 B. Equal XOR 题意：将2个n的排列打乱为等长的两部分，各选出\(k\)个值，使得两边的异或和相同。 题解：构造，如果两个一样的数在一侧直接选，如果还剩就从异侧里面补。 C. M">
+    <meta name="description" content="Codeforces Round#953 Div2 A. Alice and Books 题意：给定\(n\)个数，分为两堆，每堆取编号最大的，求最大的和为多少。 题解：答案即为前\(n-1\)个数中的最大值加上第\(n\)个数。 B. New Bakery 题意：卖\(n\)件货物，可以选定一个\(k\)，前\(k\)件卖出的货物中的第\(i\)件以\(b-i+1\)的价格卖出，其余按照固定价\">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CF Round#934 Div.2">
-<meta property="og:url" content="https://sunzhibo.github.io/posts/CF-Round-934-Div-2.html">
+<meta property="og:title" content="CF Round#953 Div.2">
+<meta property="og:url" content="https://sunzhibo.github.io/posts/CF-Round-953-Div-2.html">
 <meta property="og:site_name" content="Hexo Blog">
-<meta property="og:description" content="Codeforces Round#934 Div2 A. Destroying Bridges 题意：给一张完全图，求删去\(k\)条边后，点1不可到达的编号最大的点。 题解：手玩一下最优解盯着点1的边删就行。 B. Equal XOR 题意：将2个n的排列打乱为等长的两部分，各选出\(k\)个值，使得两边的异或和相同。 题解：构造，如果两个一样的数在一侧直接选，如果还剩就从异侧里面补。 C. M">
+<meta property="og:description" content="Codeforces Round#953 Div2 A. Alice and Books 题意：给定\(n\)个数，分为两堆，每堆取编号最大的，求最大的和为多少。 题解：答案即为前\(n-1\)个数中的最大值加上第\(n\)个数。 B. New Bakery 题意：卖\(n\)件货物，可以选定一个\(k\)，前\(k\)件卖出的货物中的第\(i\)件以\(b-i+1\)的价格卖出，其余按照固定价\">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-22T15:47:05.000Z">
-<meta property="article:modified_time" content="2024-06-15T07:23:37.512Z">
+<meta property="article:published_time" content="2024-08-04T09:27:08.000Z">
+<meta property="article:modified_time" content="2024-08-10T13:01:32.583Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Algorithm">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/posts/CF-Round-934-Div-2.html">
+<link rel="canonical" href="https://sunzhibo.github.io/posts/CF-Round-953-Div-2.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/CF-Round-934-Div-2.html","path":"posts/CF-Round-934-Div-2.html","title":"CF Round#934 Div.2"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/CF-Round-953-Div-2.html","path":"posts/CF-Round-953-Div-2.html","title":"CF Round#953 Div.2"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>CF Round#934 Div.2 | Hexo Blog</title>
+<title>CF Round#953 Div.2 | Hexo Blog</title>
   
 
 
@@ -147,7 +147,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#a.-destroying-bridges"><span class="nav-number">1.</span> <span class="nav-text">A. Destroying Bridges</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b.-equal-xor"><span class="nav-number">2.</span> <span class="nav-text">B. Equal XOR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c.-mex-game-1"><span class="nav-number">3.</span> <span class="nav-text">C. MEX Game 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#d.-non-palindromic-substring"><span class="nav-number">4.</span> <span class="nav-text">D. Non-Palindromic Substring</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#e.-tree-compass"><span class="nav-number">5.</span> <span class="nav-text">E. Tree Compass</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#f.-counting-is-fun"><span class="nav-number">6.</span> <span class="nav-text">F. Counting Is Fun</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#a.-alice-and-books"><span class="nav-number">1.</span> <span class="nav-text">A. Alice and Books</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#b.-new-bakery"><span class="nav-number">2.</span> <span class="nav-text">B. New Bakery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#c.-manhattan-permutations"><span class="nav-number">3.</span> <span class="nav-text">C. Manhattan Permutations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#d.-elections"><span class="nav-number">4.</span> <span class="nav-text">D. Elections</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#e.-computing-machine"><span class="nav-number">5.</span> <span class="nav-text">E. Computing Machine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#f.-large-graph"><span class="nav-number">6.</span> <span class="nav-text">F. Large Graph</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -204,7 +204,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/CF-Round-934-Div-2.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/CF-Round-953-Div-2.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,12 +217,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="CF Round#934 Div.2 | Hexo Blog">
+      <meta itemprop="name" content="CF Round#953 Div.2 | Hexo Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CF Round#934 Div.2
+          CF Round#953 Div.2
         </h1>
 
         <div class="post-meta-container">
@@ -233,14 +233,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2024-04-22 23:47:05" itemprop="dateCreated datePublished" datetime="2024-04-22T23:47:05+08:00">2024-04-22</time>
+      <time title="创建时间：2024-08-04 17:27:08" itemprop="dateCreated datePublished" datetime="2024-08-04T17:27:08+08:00">2024-08-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2024-08-10 21:01:32" itemprop="dateModified" datetime="2024-08-10T21:01:32+08:00">2024-08-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -262,69 +262,66 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p><a target="_blank" rel="noopener" href="https://codeforces.com/contest/1944">Codeforces Round#934
+        <p><a target="_blank" rel="noopener" href="https://codeforces.com/contest/1978">Codeforces Round#953
 Div2</a></p>
-<h2 id="a.-destroying-bridges">A. Destroying Bridges</h2>
-<p><code>题意</code>：给一张完全图，求删去<span
-class="math inline">\(k\)</span>条边后，点1不可到达的编号最大的点。</p>
-<p><code>题解</code>：手玩一下最优解盯着点1的边删就行。</p>
-<h2 id="b.-equal-xor">B. Equal XOR</h2>
-<p><code>题意</code>：将2个n的排列打乱为等长的两部分，各选出<span
-class="math inline">\(k\)</span>个值，使得两边的异或和相同。</p>
-<p><code>题解</code>：构造，如果两个一样的数在一侧直接选，如果还剩就从异侧里面补。</p>
-<h2 id="c.-mex-game-1">C. MEX Game 1</h2>
-<p><code>题意</code>：博弈，轮流从数组里面取数，使得Alice得到的数组的mex最大。</p>
-<p><code>题解</code>：发现从0开始，如果有至少两个数，那么一定是不急着拿的，只考虑出现一次的数，第一个可以先手直接拿，第二个就会成为瓶颈。</p>
-<h2 id="d.-non-palindromic-substring">D. Non-Palindromic Substring</h2>
-<p><code>题意</code>：定义字符串为<span
-class="math inline">\(k-good\)</span>，即存在长度为<span
-class="math inline">\(k\)</span>的非回文子串，定义字符串的权重为所有<span
-class="math inline">\(k-good\)</span>的<span
-class="math inline">\(k\)</span>之和，多次区间查询子串的权重。</p>
-<p><code>题解</code>：这个<span
-class="math inline">\(good\)</span>是一个非常强的约束，当<span
-class="math inline">\(k\)</span>为偶数时，要求字符串完全由一个字符组成，当<span
-class="math inline">\(k\)</span>为奇数时，要求字符串由两个字符交替组成，特别地当<span
-class="math inline">\(k =
-len(str)\)</span>时需要特判。因此本题转换为了多次对区间子串求是否为回文串，manacher解决。</p>
-<h2 id="e.-tree-compass">E. Tree Compass</h2>
-<p><code>题意</code>：定义染色操作，对树的任一节点和任一距离<span
-class="math inline">\(d\)</span>，染色所有到该点距离为<span
-class="math inline">\(d\)</span>的点，求一棵树的最小染色次数。</p>
-<p><code>题解</code>：很容易想到树的直径，讨论一下链的退化情况，按照链的长度分为：奇数，模4余2，模4余0，共三类情况，并可以给出由中心开始的染色方案。扩展到树的普通情况，基于链的性质，链外的路径一定不会更长，因此从中心开始的染色方案一定可以覆盖直径以外的节点，固可按照直径链的退化情况进行构造。</p>
-<h2 id="f.-counting-is-fun">F. Counting Is Fun</h2>
-<p><code>题意</code>：对于一个数组，可以选择一段长度大于1的子数组进行区间减操作，如果一个数组可以通过若干次操作变为全0数组，则称其为好的。求长度为<span
-class="math inline">\(n\)</span>的，初始元素范围在<span
-class="math inline">\([0, k]\)</span>中的好数组一共有多少个。</p>
-<p><code>题解</code>：</p>
-<ul>
-<li><p>首先要把这个好的定义转换一下，主要的限制来源于长度要大于1，这意味着需要满足<span
-class="math inline">\(a_{i} \leq a_{i-1} +
-a_{i+1}\)</span>，对于数组两端可以认为<span
-class="math inline">\(a_{0}=a_{n+1}=0\)</span>，满足这个条件即为好数组。</p></li>
-<li><p>然后考虑统计，一个简单的想法是dp，状态一定要有<span
-class="math inline">\(k^2\)</span>表示这个约束，时间复杂度太大，那么这种计数问题通常就要往容斥原理的方向考虑，定义<span
-class="math inline">\(a_{i} \ge a_{i-1}+a{i+1}\)</span>时，位置<span
-class="math inline">\(i\)</span>是坏的。定义<span
-class="math inline">\(f(x)\)</span>表示集合<span
-class="math inline">\(x\)</span>中所有位置都是坏的的数组个数，那么根据容斥原理好的数组总数为<span
-class="math inline">\(\sum (-1)^{|x|}f(x)\)</span>。</p></li>
-<li><p>接下来考虑怎么求这个容斥，<span
-class="math inline">\(f[i][j][0/1]\)</span>表示：<span
-class="math inline">\(a_{i}=j\)</span>，考虑<span
-class="math inline">\([1,
-i)\)</span>位置中有至少奇数/偶数个坏位置的方案数，那么转移方程如下：</p>
-<ul>
-<li><p>位置<span
-class="math inline">\(i-1\)</span>无所谓是不是坏的（容斥原理）：<span
-class="math inline">\(f[i][j][l] = \sum f[i-1][j][l]\)</span></p></li>
-<li><p>位置<span class="math inline">\(i-1\)</span>一定是坏的：<span
-class="math inline">\(f[i][j][l] = \sum f[i-2][j&#39;][l^1] *
-(k-j&#39;-j)\)</span></p></li>
-</ul></li>
-<li><p>dp式前缀和优化一下就可以得到<span
-class="math inline">\(O(n^2)\)</span>的写法。</p></li>
-</ul>
+<h2 id="a.-alice-and-books">A. Alice and Books</h2>
+<p><code>题意</code>：给定<span
+class="math inline">\(n\)</span>个数，分为两堆，每堆取编号最大的，求最大的和为多少。</p>
+<p><code>题解</code>：答案即为前<span
+class="math inline">\(n-1\)</span>个数中的最大值加上第<span
+class="math inline">\(n\)</span>个数。</p>
+<h2 id="b.-new-bakery">B. New Bakery</h2>
+<p><code>题意</code>：卖<span
+class="math inline">\(n\)</span>件货物，可以选定一个<span
+class="math inline">\(k\)</span>，前<span
+class="math inline">\(k\)</span>件卖出的货物中的第<span
+class="math inline">\(i\)</span>件以<span
+class="math inline">\(b-i+1\)</span>的价格卖出，其余按照固定价<span
+class="math inline">\(a\)</span>卖出，求最大获利。</p>
+<p><code>题解</code>：想办法卖高价，<span class="math inline">\(k \leq b
+- a\)</span>，考虑一下边界条件。</p>
+<h2 id="c.-manhattan-permutations">C. Manhattan Permutations</h2>
+<p><code>题意</code>：定义排列的曼哈顿距离为<span
+class="math inline">\(\sum |p_i - i|\)</span>，构造距离为<span
+class="math inline">\(k\)</span>的<span
+class="math inline">\(n\)</span>的排列。</p>
+<p><code>题解</code>：手玩一下，曼哈顿距离一定为偶数，且最大的情况为倒序排列。考虑构造，从正序排列开始，如果<span
+class="math inline">\(k\)</span>够大则交换首位元素，否则交换首元素与某一中间元素停止。这样的交换方法不会对序列中间的距离产生影响，可以方便地缩小问题的规模。</p>
+<h2 id="d.-elections">D. Elections</h2>
+<p><code>题意</code>：<span
+class="math inline">\(n\)</span>个人选举，每个人有<span
+class="math inline">\(a_i\)</span>选民，还有<span
+class="math inline">\(c\)</span>个不定选民会投给编号最小的候选人，当平票时选编号最小的当选。你可以选择一部分候选人出局，他们的选民会成为不定选民，问每个候选人当选最少需要出局多少人。</p>
+<p><code>题解</code>：考虑胜选的情况：如果不需要不定选民投给你，那么就要满足<span
+class="math inline">\(a_{x} &gt; a_{1} +
+c\)</span>，否则就一定需要不定选民，那么<span class="math inline">\([1,
+x)\)</span>的候选人一定要出局，若还不够再考虑从后面贪心选大的出局。</p>
+<h2 id="e.-computing-machine">E. Computing Machine</h2>
+<p><code>题意</code>：给定两个01串<span class="math inline">\(s,
+t\)</span>，若<span
+class="math inline">\(s_{i}=s_{i+2}=0\)</span>则可使<span
+class="math inline">\(b_{i}=1\)</span>，若<span
+class="math inline">\(b_{i}=b_{i+2}=1\)</span>则可使<span
+class="math inline">\(a_{i}=1\)</span>，多次查询区间<span
+class="math inline">\(l,
+r\)</span>，对这个区间的字串进行操作最多可得到多少个<span
+class="math inline">\(s\)</span>串中的1。</p>
+<p><code>题解</code>：字串只有边缘会受到影响，中间的结果与两个串直接操作没区别，边缘单独判断一下即可。</p>
+<h2 id="f.-large-graph">F. Large Graph</h2>
+<p><code>题意</code>：给定一个数组<span
+class="math inline">\(a\)</span>，循环右移得到<span
+class="math inline">\(n * n\)</span>矩阵<span
+class="math inline">\(b\)</span>，由矩阵<span
+class="math inline">\(b\)</span>生成一张图，每个点代表矩阵中一个元素，两个点有边当两点在矩阵中曼哈顿距离不超过<span
+class="math inline">\(k\)</span>，且两个点在矩阵代表的值不互质，求图中连通块的数量。</p>
+<p><code>题解</code>：当<span class="math inline">\(k \geq
+2\)</span>时，斜着的条状带构成了<span class="math inline">\(2n -
+1\)</span>个连通块，问题退化为一维，那么对于每一个质因数，添加连向最近的公共因子的边，这样可以控制每一个质因子的边的数量不超过<span
+class="math inline">\(O(N)\)</span>，直接搜索即可。稍微注意一下当<span
+class="math inline">\(a_i =
+1\)</span>时，每个点都是独立的连通块，然后<span
+class="math inline">\(ans\)</span>是<span
+class="math inline">\(O(n^2)\)</span>级别的，会暴int，最后质数只要枚举到根号级别就可以，剩下的做个map搞一下。</p>
 
     </div>
 
@@ -341,13 +338,13 @@ class="math inline">\(O(n^2)\)</span>的写法。</p></li>
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94.html" rel="prev" title="Risc Zero项目调研">
-                  <i class="fa fa-chevron-left"></i> Risc Zero项目调研
+                <a href="/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html" rel="prev" title="Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors">
+                  <i class="fa fa-chevron-left"></i> Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/CF-Round-941-Div-2.html" rel="next" title="CF Round#941 Div.2">
-                  CF Round#941 Div.2 <i class="fa fa-chevron-right"></i>
+                <a href="/posts/CF-Round-959-Div-1-Div-2.html" rel="next" title="CF Round#959 Div.1+Div.2">
+                  CF Round#959 Div.1+Div.2 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
