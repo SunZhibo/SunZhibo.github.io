@@ -71,73 +71,6 @@ class="math inline">\(f_{2}\)</span>异号时，一定是刚刚变为异号，�
       </tags>
   </entry>
   <entry>
-    <title>CF Round#930 Div.1</title>
-    <url>/posts/CF-Round-930-Div-1.html</url>
-    <content><![CDATA[<p><a href="https://codeforces.com/contest/1936">Codeforces Round#930
-Div1</a></p>
-<h2 id="a.-bitwise-operation-wizard">A. Bitwise Operation Wizard</h2>
-<p><code>题意</code>：已知<span
-class="math inline">\(n\)</span>，有一个未知的<span
-class="math inline">\(n\)</span>的排列<span
-class="math inline">\(p\)</span>，可以交互查询<span
-class="math inline">\(p_{a} | p_{b}\)</span>与<span
-class="math inline">\(p_{c} | p_{d}\)</span>的大小关系，在<span
-class="math inline">\(3n\)</span>次内找出任意一组答案<span
-class="math inline">\(x, y\)</span>使得<span class="math inline">\(p_{x}
-\oplus p_{y}\)</span>最大。</p>
-<p><code>题解</code>：最后的异或没看到被坑惨了，题意玩一下，查询可以直接用来比大小，那么先找到最大值，一定存在一组答案是由最大值<span
-class="math inline">\(p_{x}\)</span>参与的，另一个数要满足跟它二进制互补，但是查询只有或。第一次查询找到所有或起来最大的<span
-class="math inline">\(p_{y}\)</span>集合，他们一定弥补了<span
-class="math inline">\(p_{x}\)</span>二进制中所有的0，那么在其中找最小值就是不含有<span
-class="math inline">\(p_{x}\)</span>中所有的1。</p>
-<h2 id="b.-pinball">B. Pinball</h2>
-<p><code>题意</code>：一个球在一个一维平面内滚动，每个位置表示球的滚动方向'&gt;'或者'&lt;'，滚动后这一位置会变化为反向，问从每个位置开始滚动需要多久才可以滚出去。</p>
-<p><code>题解</code>：手玩一下，球的运动路径就是沿着一个方向一直走，碰到反向前形成了一条反向的路径，反向后在另一个方向重复这个过程，实际上就是反向到球出发的距离和的两倍。因此，考虑一下球最后的落点，这个方向只会走一次，顺便维护一下左侧的'&gt;'和右侧的'&lt;'即可。</p>
-<h2 id="c.-pokémon-arena">C. Pokémon Arena</h2>
-<p><code>题意</code>：<span
-class="math inline">\(n\)</span>个人打比赛，每个人有<span
-class="math inline">\(m\)</span>维的属性和出场费<span
-class="math inline">\(c_{i}\)</span>，任何一个人只要某一维不低于对手就可以战胜他，初始1号在擂台上，战胜他就可以替代他守擂，你可以花费等量的钱来为任意选手永久提升任意的属性，求最小花费的方案使得第<span
-class="math inline">\(n\)</span>个人打上擂台。</p>
-<p><code>题解</code>：首先分析一下这个背景，可以得到两个结论：</p>
-<ul>
-<li>永久属性提升可以视作一次性提升：考虑你通过比较一个提升过的属性来攻擂，那么直接提升属性到攻擂者一定不会更差</li>
-<li>一位选手不会多次登台：既然可以看作一次性提升，那么如果出现选手两次攻擂，直接消除掉中间的过程答案一定更优</li>
-</ul>
-<p>然后发现就可以去掉dp的后效性了，直接做一个dp：f[i]表示第i人守擂的最小花费。可以发现dp的转移是不定向的，那么直接建图跑最短路。进而发现这个图边集是爆炸的，每个状态都有<span
-class="math inline">\(nm\)</span>个转移方式，那就要优化建图，直接拆点，把每个维度按照数值排序，只在相邻数值的点对间建边，那么就可以把边的数量压缩到<span
-class="math inline">\(nm\)</span>级别，最后跑一个最短路得到f[n]。</p>
-<h2 id="d.-bitwise-paradox">D. Bitwise Paradox</h2>
-<p><code>题意</code>：给定两个数组<span class="math inline">\(a,
-b\)</span>和一个常数<span
-class="math inline">\(v\)</span>，定义一个子区间<span
-class="math inline">\([l, r]\)</span>是好的，当满足<span
-class="math inline">\(b_{l} | ... | b_{r} \geq
-v\)</span>，定义区间得权值为<span class="math inline">\(max(a_{l}, ..,
-a_{r})\)</span>。支持两种操作，单点修改<span
-class="math inline">\(b\)</span>，区间查询好的子区间的权值中的最小值。</p>
-<p><code>题解</code>：看着就很像线段树，但是很难决定区间去维护什么，遇事不决就直接维护答案，考虑如何合并两个线段上的节点。父节点的答案取子节点的最小值，再考虑跨区间的情况.</p>
-<p>或操作从高位按位考虑，只考虑更高位是紧约束的情况，分情况讨论：</p>
-<ul>
-<li><p>如果<span
-class="math inline">\(v\)</span>这一位是0，那么跨区间如果取了1，低位再怎么取都没有约束了，直接按照取1带来的约束更新答案，如果跨区间取了0，相当于没有新的约束增加，继续枚举下一位。</p></li>
-<li><p>如果<span
-class="math inline">\(v\)</span>这一位是1，那么跨区间必须取1，更新约束继续。</p></li>
-</ul>
-<p>幸好权值为<span
-class="math inline">\(a\)</span>的区间最大值，因此取1带来的约束就是一次最大值的更新，不同位置的1带来的约束是互不影响的，可以按位独立考虑。那么如果要取1，如何能让跨区间的权值最小呢，那就是跨区间包含了左节点区间中最右侧的1，或者包含右节点区间中最左侧的1，那么额外维护一下这个信息就可以在<span
-class="math inline">\(O(logV)\)</span>时间内合并两个区间了。这里<span
-class="math inline">\(a\)</span>的区间最值需要用RMQ与处理一下，总复杂度为<span
-class="math inline">\(O(qlogNlogV)\)</span>。</p>
-]]></content>
-      <categories>
-        <category>Codeforces</category>
-      </categories>
-      <tags>
-        <tag>Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CF Round#934 Div.2</title>
     <url>/posts/CF-Round-934-Div-2.html</url>
     <content><![CDATA[<p><a href="https://codeforces.com/contest/1944">Codeforces Round#934
@@ -203,6 +136,73 @@ class="math inline">\(f[i][j][l] = \sum f[i-2][j&#39;][l^1] *
 <li><p>dp式前缀和优化一下就可以得到<span
 class="math inline">\(O(n^2)\)</span>的写法。</p></li>
 </ul>
+]]></content>
+      <categories>
+        <category>Codeforces</category>
+      </categories>
+      <tags>
+        <tag>Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CF Round#930 Div.1</title>
+    <url>/posts/CF-Round-930-Div-1.html</url>
+    <content><![CDATA[<p><a href="https://codeforces.com/contest/1936">Codeforces Round#930
+Div1</a></p>
+<h2 id="a.-bitwise-operation-wizard">A. Bitwise Operation Wizard</h2>
+<p><code>题意</code>：已知<span
+class="math inline">\(n\)</span>，有一个未知的<span
+class="math inline">\(n\)</span>的排列<span
+class="math inline">\(p\)</span>，可以交互查询<span
+class="math inline">\(p_{a} | p_{b}\)</span>与<span
+class="math inline">\(p_{c} | p_{d}\)</span>的大小关系，在<span
+class="math inline">\(3n\)</span>次内找出任意一组答案<span
+class="math inline">\(x, y\)</span>使得<span class="math inline">\(p_{x}
+\oplus p_{y}\)</span>最大。</p>
+<p><code>题解</code>：最后的异或没看到被坑惨了，题意玩一下，查询可以直接用来比大小，那么先找到最大值，一定存在一组答案是由最大值<span
+class="math inline">\(p_{x}\)</span>参与的，另一个数要满足跟它二进制互补，但是查询只有或。第一次查询找到所有或起来最大的<span
+class="math inline">\(p_{y}\)</span>集合，他们一定弥补了<span
+class="math inline">\(p_{x}\)</span>二进制中所有的0，那么在其中找最小值就是不含有<span
+class="math inline">\(p_{x}\)</span>中所有的1。</p>
+<h2 id="b.-pinball">B. Pinball</h2>
+<p><code>题意</code>：一个球在一个一维平面内滚动，每个位置表示球的滚动方向'&gt;'或者'&lt;'，滚动后这一位置会变化为反向，问从每个位置开始滚动需要多久才可以滚出去。</p>
+<p><code>题解</code>：手玩一下，球的运动路径就是沿着一个方向一直走，碰到反向前形成了一条反向的路径，反向后在另一个方向重复这个过程，实际上就是反向到球出发的距离和的两倍。因此，考虑一下球最后的落点，这个方向只会走一次，顺便维护一下左侧的'&gt;'和右侧的'&lt;'即可。</p>
+<h2 id="c.-pokémon-arena">C. Pokémon Arena</h2>
+<p><code>题意</code>：<span
+class="math inline">\(n\)</span>个人打比赛，每个人有<span
+class="math inline">\(m\)</span>维的属性和出场费<span
+class="math inline">\(c_{i}\)</span>，任何一个人只要某一维不低于对手就可以战胜他，初始1号在擂台上，战胜他就可以替代他守擂，你可以花费等量的钱来为任意选手永久提升任意的属性，求最小花费的方案使得第<span
+class="math inline">\(n\)</span>个人打上擂台。</p>
+<p><code>题解</code>：首先分析一下这个背景，可以得到两个结论：</p>
+<ul>
+<li>永久属性提升可以视作一次性提升：考虑你通过比较一个提升过的属性来攻擂，那么直接提升属性到攻擂者一定不会更差</li>
+<li>一位选手不会多次登台：既然可以看作一次性提升，那么如果出现选手两次攻擂，直接消除掉中间的过程答案一定更优</li>
+</ul>
+<p>然后发现就可以去掉dp的后效性了，直接做一个dp：f[i]表示第i人守擂的最小花费。可以发现dp的转移是不定向的，那么直接建图跑最短路。进而发现这个图边集是爆炸的，每个状态都有<span
+class="math inline">\(nm\)</span>个转移方式，那就要优化建图，直接拆点，把每个维度按照数值排序，只在相邻数值的点对间建边，那么就可以把边的数量压缩到<span
+class="math inline">\(nm\)</span>级别，最后跑一个最短路得到f[n]。</p>
+<h2 id="d.-bitwise-paradox">D. Bitwise Paradox</h2>
+<p><code>题意</code>：给定两个数组<span class="math inline">\(a,
+b\)</span>和一个常数<span
+class="math inline">\(v\)</span>，定义一个子区间<span
+class="math inline">\([l, r]\)</span>是好的，当满足<span
+class="math inline">\(b_{l} | ... | b_{r} \geq
+v\)</span>，定义区间得权值为<span class="math inline">\(max(a_{l}, ..,
+a_{r})\)</span>。支持两种操作，单点修改<span
+class="math inline">\(b\)</span>，区间查询好的子区间的权值中的最小值。</p>
+<p><code>题解</code>：看着就很像线段树，但是很难决定区间去维护什么，遇事不决就直接维护答案，考虑如何合并两个线段上的节点。父节点的答案取子节点的最小值，再考虑跨区间的情况.</p>
+<p>或操作从高位按位考虑，只考虑更高位是紧约束的情况，分情况讨论：</p>
+<ul>
+<li><p>如果<span
+class="math inline">\(v\)</span>这一位是0，那么跨区间如果取了1，低位再怎么取都没有约束了，直接按照取1带来的约束更新答案，如果跨区间取了0，相当于没有新的约束增加，继续枚举下一位。</p></li>
+<li><p>如果<span
+class="math inline">\(v\)</span>这一位是1，那么跨区间必须取1，更新约束继续。</p></li>
+</ul>
+<p>幸好权值为<span
+class="math inline">\(a\)</span>的区间最大值，因此取1带来的约束就是一次最大值的更新，不同位置的1带来的约束是互不影响的，可以按位独立考虑。那么如果要取1，如何能让跨区间的权值最小呢，那就是跨区间包含了左节点区间中最右侧的1，或者包含右节点区间中最左侧的1，那么额外维护一下这个信息就可以在<span
+class="math inline">\(O(logV)\)</span>时间内合并两个区间了。这里<span
+class="math inline">\(a\)</span>的区间最值需要用RMQ与处理一下，总复杂度为<span
+class="math inline">\(O(qlogNlogV)\)</span>。</p>
 ]]></content>
       <categories>
         <category>Codeforces</category>
@@ -472,12 +472,6 @@ class="math inline">\(p, m\)</span>的值。</p>
       <tags>
         <tag>Algorithm</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors</title>
-    <url>/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html</url>
-    <content><![CDATA[
-]]></content>
   </entry>
   <entry>
     <title>Keccak-256算法详解</title>
@@ -1211,6 +1205,127 @@ Search测试为例，使用ghOSt执行用户自定义的调度策略，可以看
       <tags>
         <tag>OS</tag>
         <tag>Scheduler</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors</title>
+    <url>/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html</url>
+    <content><![CDATA[<p>随着寄存器数量增加，处理器也由单发射架构转为多发射机构，但是受限制于数据竞争，内存读写，长周期指令等原因，顺序发射的数量存在瓶颈，因此引入了乱序发射。乱序发射的核心思想是
+latency
+hiding，当指令陷入停滞时允许后续的指令以乱序发射，继续执行，避免处理器的性能损失。</p>
+<h2 id="寄存器重命名">寄存器重命名</h2>
+<p>寄存器重命名则是解决了其中数据竞争的问题，在不考虑编译器优化的前提下，由于寄存器的数量有限，存在
+RAW，WAR，WAW
+三种类型的数据竞争（在乱序发射的情况下只要有写入的操作就可能存在竞争）。这一技术则是将物理寄存器映射到逻辑寄存器上，减少数据竞争的发生。汇编指令指代的为逻辑寄存器编号，根据具体的指令集可能存在不同的数量，而处理器将其映射到自身实际实现的物理寄存器上，并采取一定的映射策略，这样可以将数据竞争通过映射到不同寄存器的方法消除。</p>
+<p>实现寄存器重命名则需要维护 rename
+file，根据处理器的指令吞吐量有对应数量的读口和写口（RAM-like），而由于现代寄存器较多且多为64位宽，RAM
+的逻辑大小又呈读写口的平方的级别增长，rename file
+通常会占据较大的面积，并带来较大的功耗。</p>
+<h3 id="编译器的寄存器优化">编译器的寄存器优化</h3>
+<p>llvm的后端设计已经引入了寄存器逻辑编号的概念，在后端模型中有无数个可用的寄存器，在这个过程中编译器可以进行寄存器分配的优化，尽可能地减少寄存器数量限制带来的数据竞争。<strong>那为什么还需要硬件花费这么大的代价做寄存器的重命名呢？</strong>我认为一个可能的原因是：硬件在运行过程中的行为是一个不可预测的混沌系统，由中断、异常、分支预测、乱序发射带来的不确定性导致硬件重命名可以利用的动态信息大大超出编译器可利用的静态信息，优化效果自然更好，因此在编译器已经优化过的基础上，处理器仍然需要设计硬件的寄存器重命名结构。</p>
+<h3 id="基于映射表的简单实现">基于映射表的简单实现</h3>
+<p>最简单的实现方式是基于映射表，只需要在寄存器前维护一个映射关系表即可，这张表存储<strong>体系寄存器编号（即指令集对于寄存器的约定）</strong>到<strong>物理寄存器编号（处理器硬件实现）</strong>的映射关系。对于读请求，通过查询映射表返回物理寄存器的值，对于写请求，则维护一个可用映射的FIFO，每一次读请求都会建立一个新的逻辑寄存器到物理寄存器的映射关系，以消除
+WAW 和 WAR 竞争。</p>
+<p>为了解决 RAW
+竞争，表中还需要维护该逻辑寄存器的状态，每个逻辑寄存器只会被更新一次（即创建该映射的写操作），因此只需要一个位维护是否处于就绪状态，当指令所有需要的操作数都就绪后允许发射，另外在
+EX/WB
+段也需要相应的广播机制来更新状态和数据。这一机制也有效保证了乱序执行的正确性，所有具有依赖关系的指令都会被就绪状态控制发射。为了解决
+WAR 竞争，在 ISSUE
+段需要存储当前指令映射到的物理寄存器编号，作为指令的一部分随流水线逐级流动。（ISSUE
+QUEUE 的实现代价也是巨大的）</p>
+<p>需要考虑的是异常或者分支预测错误的情况，此时流水线中执行了错误的指令，因此需要回滚映射表的状态，这就需要进行状态储存，或者依赖于提交阶段的信息进行回滚。基于此一个常见的优化是通过流水线划分，将分支预测结果在跳转指令执行前得出，避免起引起对映射状态的修改。</p>
+<h3 id="基于保留站的寄存器重命名">基于保留站的寄存器重命名</h3>
+<p>Tomasulo 算法中引入了 保留站（Reservation
+station）和通用数据总线（Common Data
+Bus）的概念，在每一个功能单元中加入了保留站，进一步地拆分为逻辑控制部分和功能执行部分。</p>
+<p>指令首先由 instruction queue 进入到 issue queue
+中，如果对应的执行单元的保留站中有空余，则发射到保留站中。保留站中的每一项都是一条发射了但尚未执行的指令，在保留站中的操作数可以分为两种情况：若该操作数的数据就绪，则直接写入到保留站的数据域中；否则则使用一个占位符来表示该数据是由哪个保留站中的指令产生的，当该指令执行完毕后会广播至CDB中，此时保留站则会更新状态至第一种情况。具体来说保留站中的每一项中包含：</p>
+<ul>
+<li><span class="math inline">\(op\)</span>：表示操作的类型</li>
+<li><span class="math inline">\(Q_j, V_j, Q_k,
+V_k\)</span>：表示两个操作数的状态，<span
+class="math inline">\(Q\)</span>表示占位符编号，如果为0则表示数据已经就绪，<span
+class="math inline">\(V\)</span>表示具体的数据域</li>
+<li><span class="math inline">\(A\)</span>：内存读写操作的地址</li>
+<li><span
+class="math inline">\(busy\)</span>：表示该保留站标项的占用状态</li>
+</ul>
+<p>除此以外 register file
+中也需要增加一个新的域，表示该寄存器的逻辑编号，如果没有就绪那么由哪一个保留站产出，便与后续发射指令更新占位符状态。在功能单元完成一条指令后，其结果会被广播，寄存器堆如果匹配到对应的编逻辑编号（即这是最后一条对该寄存器进行的写操作），那么就会更新其中的值。也就是说，如果寄存器的值不断地被写入，那么寄存器堆中并不会存储它一整串过程中的中间值，因为每一次新的写入操作都会修改该物理寄存器对应的逻辑寄存器编号，过程中的值只会在保留站中不断传递，这也给精确异常的实现带来了较大的困难。</p>
+<p>为了实现精确异常，那么就需要保留一定的历史状态，首先一定要为乱序执行引入
+reordered buffer
+保证指令顺序入队，乱序发射，顺序提交，当发生投机失败或者异常中断时，可以根据
+buffer
+中的状态判断需要继续等待哪些指令完成，又有哪些状态需要回滚。而与之相对应的，需要讲
+register file 的功能一分为二，新增 future file 作为原来的 register file
+功能，而 register file
+本身则依赖于指令的提交进行更新，相当于不断更新的历史状态备份。当需要回滚状态时，可以等待需要执行的指令提交完毕，然后回滚到
+register file 的状态，重置所有的保留站状态。</p>
+<p>保留站相当于使用了保留站的编号作为寄存器重命名的逻辑编号，使用寄存器堆中额外的状态域作为映射表。相比于基于映射表的实现方式，由于每个功能单元的保留站项数有限且没有多口读写的依赖，其逻辑代价非常小，也在
+issue
+段拥有更优秀的时序，主要的压力转移到广播式的数据总线上，多个不同的功能单元都要使用总线广播结果，导致其成为设计的瓶颈。</p>
+<h2 id="clockshands-架构">clockshands 架构</h2>
+<h3 id="新的寄存器重命名尝试">新的寄存器重命名尝试</h3>
+<p>寄存器重命名无论采用何种实现方式都给硬件设计带来了巨大的逻辑复杂度和功耗压力，因此本篇文章尝试一种全新的架构解决这一问题。在这之前他们已经提出了一个叫做
+straight
+的指令集&amp;架构方案，指令集的操作数指明为是从该条指令向前数第几条指令产生的结果，相当于每一条指令都将结果写入一个新的寄存器，从编译器层面完成了寄存器重命名，同时规定一个最远限度<span
+class="math inline">\(M\)</span>，指令的引用不得超过<span
+class="math inline">\(M\)</span>条指令。在硬件方面，寄存器堆由一个 FIFO
+ring buffer 实现，只保留最近的<span
+class="math inline">\(M\)</span>个最近的寄存器结果，在消除了数据竞争的基础上，采用乱序多发射提高处理器性能，这样分支预测错误和异常都有较为简易地回滚方式。</p>
+<p>这个指令集要求编译器做出较大的改动，并且编译出来的程序会有明显的膨胀，具体来说作者总结了三个使代码量显著增加的因素，都是由于<span
+class="math inline">\(M\)</span>的限制引起：</p>
+<ol type="1">
+<li>循环变量保持：在多次循环中需要长期保持一些循环常量，这就要求编译器在其中添加大量的
+move 指令</li>
+<li>长生命周期变量：实际上也是和1情况类似，需要大量的 move 指令保持</li>
+<li>汇合点处理：在多个分支的汇合点上，不同分支的历史指令情况不同，需要添加额外的指令让所有分支的上下文一致</li>
+</ol>
+<p>根据其他研究，结果生命周期为<span
+class="math inline">\(x\)</span>的指令占比约为<span
+class="math inline">\(O(\frac{1}{x^2})\)</span>，需要的 move
+指令约为<span
+class="math inline">\(\frac{k}{M}\)</span>，那么额外的指令数量约为<span
+class="math inline">\(\sum_{1}^{P} O(\frac{1}{x^2}) * \frac{k}{M} =
+O(\frac{1}{M}
+lnP)\)</span>。实测下来至少有30%以上的代码行数增加，代价比较大。</p>
+<h3 id="clockhands-isa">clockhands ISA</h3>
+<p>clockhands 就是基于这个架构设计，为了解决指令数暴涨的问题，它基于
+straight 的结构扩展为多个不同 group 的 ring
+buffer，取操作数时需要指明是从哪一个组取最近<span
+class="math inline">\(M\)</span>条指令的结果，写回结果时要指明写入了哪一个组。因此可以通过多个组的利用解决
+straight
+指令数量增加的问题，可以使用一个组专门存储长生命周期变量，经过实验选取了4组寄存器，最大距离16的配置，在编译器灵活性和硬件复杂性间取到平衡，编译器对四组寄存器做了特化处理：</p>
+<ol type="1">
+<li>临时变量存储在 t 组</li>
+<li>长生命周期变量存储在 u 组</li>
+<li>循环变量存储在 v 组</li>
+<li>sp 寄存器专门放在 s 组，编译器优化只允许进行立即数加减</li>
+</ol>
+<p>因此硬件可以根据这一需求设计不同的寄存器组规格，例如增大 t
+组的大小，减少 s 组的大小，并且可以适当增大 v
+组的路径延时，在实际实现时并不会采用位移寄存器的方式移动组内所有的寄存器值，而是采用
+counter 计数器变化来索引。在多发射过程中，issue
+段就需要综合实际发射的指令数量动态变化距离，然后取到类似于保留站的占位符发射到功能单元中，在本文中作者添加了一个新的流水级来计算动态距离。对于乱序发射比较难办的错误恢复，clockhands
+则是指需要根据 ROB 恢复四个组的计数器即可，乍一想没有太大问题。</p>
+<h3 id="总结">总结</h3>
+<p>总的来说，clockhands
+这篇文章有点意思但是又感觉有意义的不多，这个架构确实可以解决寄存器重命名的设计缺点，但是对于整个生态架构的修改太大了，而且很难说这样修改后一定就能提升整体效率，因为非常多作用于传统架构的软硬件优化未必可以继续使用，而本文的实验又缺乏更大规模更大覆盖度的说服力，当个
+idea 看就可以了。</p>
+<p>参考链接</p>
+<ol type="1">
+<li><a href="https://en.wikipedia.org/wiki/Register_renaming">Register
+Renaming</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Tomasulo%27s_algorithm">Tomasulo
+Algorithm</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Architecture</category>
+      </categories>
+      <tags>
+        <tag>CPU</tag>
       </tags>
   </entry>
   <entry>
