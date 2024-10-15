@@ -6,7 +6,7 @@
   <link href="https://sunzhibo.github.io/atom.xml" rel="self"/>
   
   <link href="https://sunzhibo.github.io/"/>
-  <updated>2024-08-11T16:21:38.162Z</updated>
+  <updated>2024-10-15T07:30:04.089Z</updated>
   <id>https://sunzhibo.github.io/</id>
   
   <author>
@@ -15,6 +15,60 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CF Round#975 Div.2</title>
+    <link href="https://sunzhibo.github.io/posts/CF-Round-975-Div-2.html"/>
+    <id>https://sunzhibo.github.io/posts/CF-Round-975-Div-2.html</id>
+    <published>2024-10-14T04:53:15.000Z</published>
+    <updated>2024-10-15T07:30:04.089Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://codeforces.com/contest/2019">Codeforces Round#975Div2</a></p><h2 id="a.-max-plus-size">A. Max Plus Size</h2><p><code>题意</code>：给定<spanclass="math inline">\(n\)</span>个数，可以选任意数染色，但相邻两个数不能同时染色，最大化染色数量+染色最大值之和。</p><p><code>题解</code>：最大值一定会取，取最大值最多带来奇偶性导致的1的损失，考虑该损失是否可以避免，即n是否为偶数或者最大值存在在奇数位置上。</p><h2 id="b.-all-pairs-segments">B. All Pairs Segments</h2><p><code>题意</code>：给定<spanclass="math inline">\(n\)</span>个点，任意两点间都有一条线段，多次询问被覆盖<spanclass="math inline">\(k\)</span>次的点有多少个。</p><p><code>题解</code>：按坐标顺序模拟一下即可，更新覆盖的线段数量，注意一下边界。</p><h2 id="c.-cards-partition">C. Cards Partition</h2><p><code>题意</code>：卡片上写有1到n的数字，每种卡片有若干张，可以额外购买至多k张任意数字卡片，然后需要将所有卡片等分为若干堆，保证堆内没有相同数字的卡片，求这个堆的最大大小。</p><p><code>题解</code>：堆的大小不会超过n，从大到小枚举判断，首先保证可以按此大小等分不剩余，在这个前提下显然买的多结果不会更差，只需要判断堆的数量是否小于最多种类的卡片数量即可。</p><h2 id="d.-speedbreaker">D. Speedbreaker</h2><p><code>题意</code>：有<spanclass="math inline">\(n\)</span>个城市排成一列，时刻1可以从任意一个城市开始，每个时刻可以攻占已有城市相邻的任一城市。每个城市有一个时间要求<spanclass="math inline">\(a_i\)</span>，求有多少个城市可以作为起始城市使得每个城市都在其时间要求前被攻占。</p><p><code>题解</code>：</p><p>想了一下暴力怎么取judge，觉得这个题我一定是思路想歪了，于是去看了一下题解。题解判断合法的方式是对于一个时刻<spanclass="math inline">\(t\)</span>，所有时间要求小于等于<spanclass="math inline">\(t\)</span>的城市形成的区间不能长于<spanclass="math inline">\(t\)</span>，即不关注具体的攻占顺序而作出可行性的判断。</p><p>在这个基础上，起始城市相当于把某个城市的<spanclass="math inline">\(a_i\)</span>置为1，对于一个时刻<spanclass="math inline">\(t\)</span>对应的区间<spanclass="math inline">\([l, r]\)</span>，选择城市<spanclass="math inline">\(x\)</span>作为起始可能会导致区间发生变化，因此只需要枚举时间，考虑每个时刻对于<spanclass="math inline">\(x\)</span>的约束求并即可。</p><h2 id="e.-tree-pruning">E. Tree Pruning</h2><p><code>题意</code>：给出一棵树，操作是可以去掉一个叶子结点，求最少多少次操作可以让所有叶子结点深度相同。</p><p><code>题解</code>：枚举最优解中叶子的深度，对于一个深度<spanclass="math inline">\(d\)</span>，所有更深的点显然要被去掉，另外所有更浅的叶子也会带来一部分删除，这一部分对应的是最深子节点深度不到<spanclass="math inline">\(d\)</span>的所有节点，分开统计即可。</p><h2 id="f.-max-plus-min-plus-size">F. Max Plus Min Plus Size</h2><p><code>题意</code>：给定<spanclass="math inline">\(n\)</span>个数，可以选任意数染色，但相邻两个数不能同时染色，最大化染色数量+染色最大值+染色最小值之和。</p><p><code>题解</code>：借着第一题的思路，考虑枚举最小值，那么限制了所有更小的数不能选，转化为第一题的问题。从小到大枚举最小值，相当于不停地做区间割，在多个区间内完成A题，即维护是否存在区间可以在取最大值的情况下不损耗1即可。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://codeforces.com/contest/2019&quot;&gt;Codeforces Round#975
+Div2&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;a.-max-plus-size&quot;&gt;A. Max Plus Size&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;</summary>
+      
+    
+    
+    
+    <category term="Codeforces" scheme="https://sunzhibo.github.io/categories/Codeforces/"/>
+    
+    
+    <category term="Algorithm" scheme="https://sunzhibo.github.io/tags/Algorithm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《Computer Achitecture A Quantitative Approach》读书笔记</title>
+    <link href="https://sunzhibo.github.io/posts/%E3%80%8AComputer-Achitecture-A-Quantitative-Approach%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html"/>
+    <id>https://sunzhibo.github.io/posts/%E3%80%8AComputer-Achitecture-A-Quantitative-Approach%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html</id>
+    <published>2024-09-18T05:37:30.000Z</published>
+    <updated>2024-10-15T07:30:42.069Z</updated>
+    
+    <content type="html"><![CDATA[<h1id="chapter-1---fundamentals-of-quantitative-design-and-analysis">Chapter1 - Fundamentals of Quantitative Design and Analysis</h1><ul><li>Trends in Technology<ul><li>CPU的片上缓存是&lt;10ns级别的，而主存DRAM是数十ns级别的，网络接口是微秒级别的，而磁盘则是毫秒级别的，因此一次cache miss 就对应几十个甚至上百个周期的停滞。</li></ul></li><li>Trends in Power and Enenergy<ul><li>TDP 是 Thermal Design Power的缩写，不代表峰值功耗（可能为1.5倍TDP），也不是平均功耗（通常低于TDP），而是给予散热系统的指导数据。</li><li>CMOS 工艺芯片的主要功耗来自于晶体管状态的翻转，<spanclass="math inline">\(P_{dynamic} \propto fCV^{2}\)</span>，<spanclass="math inline">\(f\)</span>是时钟频率，<spanclass="math inline">\(C\)</span>是电容，<spanclass="math inline">\(V\)</span>是电压，而 CPU的时钟频率又往往与电压成正比，动态的功耗可能与电压呈三次方的线性关系。另一方面，随着晶体管数量的增加，静态的功耗也成为了较大的开销部分，即使晶体管没有翻转，仍然有电流通过，<spanclass="math inline">\(P_{static}=IV\)</span>。因此电源管理系统甚至直接关闭掉某一个区域的电源以节约功耗。</li></ul></li><li>Trends in Cost<ul><li>圆晶（wafer）是由硅单质生长出来的，受限于工艺为圆形，按照面积大小切割为die，圆晶上会有随机分布的缺陷存在，再结合数字电路的复杂度形成工艺良率。工业中往往会对memory 进行冗余设计，即通过冗余的 cell单元来避免良率带来的影响。芯片在切割后还要经过测试、封装、封装后测试等步骤，这都给芯片制造添加了额外的成本。</li></ul></li></ul><h2 id="quantitative-principles-of-computer-design">QuantitativePrinciples of Computer Design</h2>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1
+id=&quot;chapter-1---fundamentals-of-quantitative-design-and-analysis&quot;&gt;Chapter
+1 - Fundamentals of Quantitative Design and Analysis&lt;/h1&gt;
+&lt;ul&gt;</summary>
+      
+    
+    
+    
+    <category term="Book Note" scheme="https://sunzhibo.github.io/categories/Book-Note/"/>
+    
+    
+    <category term="Architecture" scheme="https://sunzhibo.github.io/tags/Architecture/"/>
+    
+  </entry>
   
   <entry>
     <title>CF Round#959 Div.1+Div.2</title>
@@ -75,7 +129,7 @@ Div2&lt;/a&gt;&lt;/p&gt;
     <link href="https://sunzhibo.github.io/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html"/>
     <id>https://sunzhibo.github.io/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html</id>
     <published>2024-08-01T14:38:59.000Z</published>
-    <updated>2024-09-17T07:36:54.820Z</updated>
+    <updated>2024-09-18T05:30:19.545Z</updated>
     
     <content type="html"><![CDATA[<p>随着寄存器数量增加，处理器也由单发射架构转为多发射机构，但是受限制于数据竞争，内存读写，长周期指令等原因，顺序发射的数量存在瓶颈，因此引入了乱序发射。乱序发射的核心思想是latencyhiding，当指令陷入停滞时允许后续的指令以乱序发射，继续执行，避免处理器的性能损失。</p><h2 id="寄存器重命名">寄存器重命名</h2><p>寄存器重命名则是解决了其中数据竞争的问题，在不考虑编译器优化的前提下，由于寄存器的数量有限，存在RAW，WAR，WAW三种类型的数据竞争（在乱序发射的情况下只要有写入的操作就可能存在竞争）。这一技术则是将物理寄存器映射到逻辑寄存器上，减少数据竞争的发生。汇编指令指代的为逻辑寄存器编号，根据具体的指令集可能存在不同的数量，而处理器将其映射到自身实际实现的物理寄存器上，并采取一定的映射策略，这样可以将数据竞争通过映射到不同寄存器的方法消除。</p><p>实现寄存器重命名则需要维护 renamefile，根据处理器的指令吞吐量有对应数量的读口和写口（RAM-like），而由于现代寄存器较多且多为64位宽，RAM的逻辑大小又呈读写口的平方的级别增长，rename file通常会占据较大的面积，并带来较大的功耗。</p><h3 id="编译器的寄存器优化">编译器的寄存器优化</h3><p>llvm的后端设计已经引入了寄存器逻辑编号的概念，在后端模型中有无数个可用的寄存器，在这个过程中编译器可以进行寄存器分配的优化，尽可能地减少寄存器数量限制带来的数据竞争。<strong>那为什么还需要硬件花费这么大的代价做寄存器的重命名呢？</strong>我认为一个可能的原因是：硬件在运行过程中的行为是一个不可预测的混沌系统，由中断、异常、分支预测、乱序发射带来的不确定性导致硬件重命名可以利用的动态信息大大超出编译器可利用的静态信息，优化效果自然更好，因此在编译器已经优化过的基础上，处理器仍然需要设计硬件的寄存器重命名结构。</p><h3 id="基于映射表的简单实现">基于映射表的简单实现</h3><p>最简单的实现方式是基于映射表，只需要在寄存器前维护一个映射关系表即可，这张表存储<strong>体系寄存器编号（即指令集对于寄存器的约定）</strong>到<strong>物理寄存器编号（处理器硬件实现）</strong>的映射关系。对于读请求，通过查询映射表返回物理寄存器的值，对于写请求，则维护一个可用映射的FIFO，每一次读请求都会建立一个新的逻辑寄存器到物理寄存器的映射关系，以消除WAW 和 WAR 竞争。</p><p>为了解决 RAW竞争，表中还需要维护该逻辑寄存器的状态，每个逻辑寄存器只会被更新一次（即创建该映射的写操作），因此只需要一个位维护是否处于就绪状态，当指令所有需要的操作数都就绪后允许发射，另外在EX/WB段也需要相应的广播机制来更新状态和数据。这一机制也有效保证了乱序执行的正确性，所有具有依赖关系的指令都会被就绪状态控制发射。为了解决WAR 竞争，在 ISSUE段需要存储当前指令映射到的物理寄存器编号，作为指令的一部分随流水线逐级流动。（ISSUEQUEUE 的实现代价也是巨大的）</p><p>需要考虑的是异常或者分支预测错误的情况，此时流水线中执行了错误的指令，因此需要回滚映射表的状态，这就需要进行状态储存，或者依赖于提交阶段的信息进行回滚。基于此一个常见的优化是通过流水线划分，将分支预测结果在跳转指令执行前得出，避免起引起对映射状态的修改。</p><h3 id="基于保留站的寄存器重命名">基于保留站的寄存器重命名</h3><p>Tomasulo 算法中引入了 保留站（Reservationstation）和通用数据总线（Common DataBus）的概念，在每一个功能单元中加入了保留站，进一步地拆分为逻辑控制部分和功能执行部分。</p><p>指令首先由 instruction queue 进入到 issue queue中，如果对应的执行单元的保留站中有空余，则发射到保留站中。保留站中的每一项都是一条发射了但尚未执行的指令，在保留站中的操作数可以分为两种情况：若该操作数的数据就绪，则直接写入到保留站的数据域中；否则则使用一个占位符来表示该数据是由哪个保留站中的指令产生的，当该指令执行完毕后会广播至CDB中，此时保留站则会更新状态至第一种情况。具体来说保留站中的每一项中包含：</p><ul><li><span class="math inline">\(op\)</span>：表示操作的类型</li><li><span class="math inline">\(Q_j, V_j, Q_k,V_k\)</span>：表示两个操作数的状态，<spanclass="math inline">\(Q\)</span>表示占位符编号，如果为0则表示数据已经就绪，<spanclass="math inline">\(V\)</span>表示具体的数据域</li><li><span class="math inline">\(A\)</span>：内存读写操作的地址</li><li><spanclass="math inline">\(busy\)</span>：表示该保留站标项的占用状态</li></ul><p>除此以外 register file中也需要增加一个新的域，表示该寄存器的逻辑编号，如果没有就绪那么由哪一个保留站产出，便与后续发射指令更新占位符状态。在功能单元完成一条指令后，其结果会被广播，寄存器堆如果匹配到对应的编逻辑编号（即这是最后一条对该寄存器进行的写操作），那么就会更新其中的值。也就是说，如果寄存器的值不断地被写入，那么寄存器堆中并不会存储它一整串过程中的中间值，因为每一次新的写入操作都会修改该物理寄存器对应的逻辑寄存器编号，过程中的值只会在保留站中不断传递，这也给精确异常的实现带来了较大的困难。</p><p>为了实现精确异常，那么就需要保留一定的历史状态，首先一定要为乱序执行引入reordered buffer保证指令顺序入队，乱序发射，顺序提交，当发生投机失败或者异常中断时，可以根据buffer中的状态判断需要继续等待哪些指令完成，又有哪些状态需要回滚。而与之相对应的，需要讲register file 的功能一分为二，新增 future file 作为原来的 register file功能，而 register file本身则依赖于指令的提交进行更新，相当于不断更新的历史状态备份。当需要回滚状态时，可以等待需要执行的指令提交完毕，然后回滚到register file 的状态，重置所有的保留站状态。</p><p>保留站相当于使用了保留站的编号作为寄存器重命名的逻辑编号，使用寄存器堆中额外的状态域作为映射表。相比于基于映射表的实现方式，由于每个功能单元的保留站项数有限且没有多口读写的依赖，其逻辑代价非常小，也在issue段拥有更优秀的时序，主要的压力转移到广播式的数据总线上，多个不同的功能单元都要使用总线广播结果，导致其成为设计的瓶颈。</p><h2 id="clockshands-架构">clockshands 架构</h2><h3 id="新的寄存器重命名尝试">新的寄存器重命名尝试</h3><p>寄存器重命名无论采用何种实现方式都给硬件设计带来了巨大的逻辑复杂度和功耗压力，因此本篇文章尝试一种全新的架构解决这一问题。在这之前他们已经提出了一个叫做straight的指令集&amp;架构方案，指令集的操作数指明为是从该条指令向前数第几条指令产生的结果，相当于每一条指令都将结果写入一个新的寄存器，从编译器层面完成了寄存器重命名，同时规定一个最远限度<spanclass="math inline">\(M\)</span>，指令的引用不得超过<spanclass="math inline">\(M\)</span>条指令。在硬件方面，寄存器堆由一个 FIFOring buffer 实现，只保留最近的<spanclass="math inline">\(M\)</span>个最近的寄存器结果，在消除了数据竞争的基础上，采用乱序多发射提高处理器性能，这样分支预测错误和异常都有较为简易地回滚方式。</p><p>这个指令集要求编译器做出较大的改动，并且编译出来的程序会有明显的膨胀，具体来说作者总结了三个使代码量显著增加的因素，都是由于<spanclass="math inline">\(M\)</span>的限制引起：</p><ol type="1"><li>循环变量保持：在多次循环中需要长期保持一些循环常量，这就要求编译器在其中添加大量的move 指令</li><li>长生命周期变量：实际上也是和1情况类似，需要大量的 move 指令保持</li><li>汇合点处理：在多个分支的汇合点上，不同分支的历史指令情况不同，需要添加额外的指令让所有分支的上下文一致</li></ol><p>根据其他研究，结果生命周期为<spanclass="math inline">\(x\)</span>的指令占比约为<spanclass="math inline">\(O(\frac{1}{x^2})\)</span>，需要的 move指令约为<spanclass="math inline">\(\frac{k}{M}\)</span>，那么额外的指令数量约为<spanclass="math inline">\(\sum_{1}^{P} O(\frac{1}{x^2}) * \frac{k}{M} =O(\frac{1}{M}lnP)\)</span>。实测下来至少有30%以上的代码行数增加，代价比较大。</p><h3 id="clockhands-isa">clockhands ISA</h3><p>clockhands 就是基于这个架构设计，为了解决指令数暴涨的问题，它基于straight 的结构扩展为多个不同 group 的 ringbuffer，取操作数时需要指明是从哪一个组取最近<spanclass="math inline">\(M\)</span>条指令的结果，写回结果时要指明写入了哪一个组。因此可以通过多个组的利用解决straight指令数量增加的问题，可以使用一个组专门存储长生命周期变量，经过实验选取了4组寄存器，最大距离16的配置，在编译器灵活性和硬件复杂性间取到平衡，编译器对四组寄存器做了特化处理：</p><ol type="1"><li>临时变量存储在 t 组</li><li>长生命周期变量存储在 u 组</li><li>循环变量存储在 v 组</li><li>sp 寄存器专门放在 s 组，编译器优化只允许进行立即数加减</li></ol><p>因此硬件可以根据这一需求设计不同的寄存器组规格，例如增大 t组的大小，减少 s 组的大小，并且可以适当增大 v组的路径延时，在实际实现时并不会采用位移寄存器的方式移动组内所有的寄存器值，而是采用counter 计数器变化来索引。在多发射过程中，issue段就需要综合实际发射的指令数量动态变化距离，然后取到类似于保留站的占位符发射到功能单元中，在本文中作者添加了一个新的流水级来计算动态距离。对于乱序发射比较难办的错误恢复，clockhands则是指需要根据 ROB 恢复四个组的计数器即可，乍一想没有太大问题。</p><h3 id="总结">总结</h3><p>总的来说，clockhands这篇文章有点意思但是又感觉有意义的不多，这个架构确实可以解决寄存器重命名的设计缺点，但是对于整个生态架构的修改太大了，而且很难说这样修改后一定就能提升整体效率，因为非常多作用于传统架构的软硬件优化未必可以继续使用，而本文的实验又缺乏更大规模更大覆盖度的说服力，当个idea 看就可以了。</p><p>参考链接</p><ol type="1"><li><a href="https://en.wikipedia.org/wiki/Register_renaming">RegisterRenaming</a></li><li><ahref="https://en.wikipedia.org/wiki/Tomasulo%27s_algorithm">TomasuloAlgorithm</a></li></ol>]]></content>
     
@@ -89,10 +143,12 @@ hiding，当指令陷入停滞时允许后续的指令以乱序发射，继续�
     
     
     
-    <category term="Architecture" scheme="https://sunzhibo.github.io/categories/Architecture/"/>
+    <category term="Paper Note" scheme="https://sunzhibo.github.io/categories/Paper-Note/"/>
     
     
     <category term="CPU" scheme="https://sunzhibo.github.io/tags/CPU/"/>
+    
+    <category term="Architecture" scheme="https://sunzhibo.github.io/tags/Architecture/"/>
     
   </entry>
   
