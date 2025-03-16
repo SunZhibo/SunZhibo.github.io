@@ -763,7 +763,7 @@ class="math inline">\(n\)</span>个数，可以选任意数染色，但相邻两
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-01-24 10:02:16" itemprop="dateModified" datetime="2025-01-24T10:02:16+08:00">2025-01-24</time>
+      <time title="修改时间：2025-03-16 16:34:39" itemprop="dateModified" datetime="2025-03-16T16:34:39+08:00">2025-03-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -788,6 +788,7 @@ class="math inline">\(n\)</span>个数，可以选任意数染色，但相邻两
           <h1
 id="chapter-1---fundamentals-of-quantitative-design-and-analysis">Chapter
 1 - Fundamentals of Quantitative Design and Analysis</h1>
+<h2 id="一些物理工艺相关的知识">一些物理/工艺相关的知识</h2>
 <ul>
 <li>Trends in Technology
 <ul>
@@ -816,6 +817,61 @@ memory 进行冗余设计，即通过冗余的 cell
 单元来避免良率带来的影响。芯片在切割后还要经过测试、封装、封装后测试等步骤，这都给芯片制造添加了额外的成本。</li>
 </ul></li>
 </ul>
+<h1 id="appendix-b---review-of-memory-hierarchy">Appendix B - Review of
+Memory Hierarchy</h1>
+<h2 id="introduction">Introduction</h2>
+<p>在评判存储体系设计时，考虑基础的单发射处理器模型，影响的指标有<strong>命中率</strong>、<strong>未命中惩罚</strong>和<strong>访存指令占比</strong>，三者综合可以计算出存储体系对于处理器性能的影响，进而评价其设计的好坏。但是随着现代处理器体系结构的发展，越来越多的因素需要被一并考虑进来：</p>
+<ul>
+<li><p>命中率基于数据统计，表示存储体系在面对随机访问时的命中概率，比较直观的定义是访存指令命中的概率，即命中次数除以执行的访存指令数量。但是在现代处理器中，投机执行策略可能会发射不会被提交的错误指令，错误的访存指令是否命中符合命中率的定义，然而却不直接影响性能。<strong>因此严格来说，从性能的角度考虑，应该使用命中次数除以实际提交的指令数量作为命中率，更能反应出存储体系设计对于性能的影响。</strong>同时，这也启发了进一步的设计思考：错误发射的访存指令是否应该影响存储体系的状态？</p></li>
+<li><p>未命中惩罚通常是基于多级Cache的延迟计算得出，进一步引出的思考是为什么往往采用串行方式逐级查询？在L1命中率较高的情况下，广播查询并设计逐级匹配的逻辑电路在功耗、性能上是不划算的。再继续考虑延迟的计算，在非阻塞缓存设计下，失配的查询会被暂存以继续提供服务，那么延迟代价就存在合并的可能性，在某个时间多条失配地址被一起发送到下级缓存查询。<strong>从准确的角度考虑，以硬件设计得到的失配延迟来计算是不准确的，需要根据实际数据对平均未命中惩罚进行计算。</strong>缓存、甚至是核内LSU的策略设计和微架构设计都会造成影响。</p></li>
+<li><p>访存指令占比则与指令集设计、编译器优化强相关，反而是与硬件设计技术无关。</p></li>
+</ul>
+<p>在了解一个未知的存储体系设计时，可以通过四个问题入手：block
+placement, block identification, block replacement, write
+strategy，这四个问题涵盖了大部分可能出现的情况，以基础的cache结构为例：</p>
+<ul>
+<li><p>block placement：描述数据如何确定放置的位置，也就是定位cache
+line。最简单的cache结构是direct mapped，根据数据地址的low
+bit写入相应的cache line。进一步的有set
+associative（组相连），每一个set里面可以含有k个cache
+line，就是k-路组相连，表示每一个block按照low
+bit放入对应的set中，可能有k个位置。全相连则表示任何block都可以放在任何位置。<strong>在真实世界中，较多使用的是2-way和4-way组相连。</strong></p></li>
+<li><p>block identification：描述如何确认cache
+line存储的就是要寻找的数据。low bit作block offset，用于在cache
+line内截取需要的数据，其余继续划分low
+bit作(set)index，剩下的为tag，比较的时候按照index定位set，再逐一比较tag。<strong>这里还要确认一下用于寻址的地址是physical还是virtual，转换的过程在哪里进行。</strong>在传统面试的计算题中，cache
+size描述的是配套的RAM的大小，所有其他信息都不包含在范围之内，用它除以cache
+line大小就可以算出cache line数目，再进一步根据组相连情况划分。</p></li>
+<li><p>block
+replacement：描述如何寻找换出的block。常见的思路有伪随机，LRU，FIFO，通常来说LRU表现效果最好，在硬件上通常使用Pseudo-LRU实现方式：</p>
+<ul>
+<li><p>树伪LRU：维护二叉树，每一个非叶子结点具有1bit，表示最近一次使用的cahce
+line位于左侧还是右侧，在每一个access过程更新路径上的bit，需要替换时按照指示即可寻找LRU近似，时间复杂度O(logN)。</p></li>
+<li><p>单位伪LRU：每个cache
+line一个bit，表示最近是否被访问过，当一次access后cache
+line中所有的bit都为1了，则重置这次访问以外的所有bit，需要替换时在bit为0的cache
+line中使用伪随机寻找，时间复杂度O(1)。</p></li>
+</ul></li>
+<li><p>write strategy：描述写入数据如何处理cache和low-level
+memory的关系。由于写的占比小于读，因此对于读的优化很重要，在读的过程中可以同时取数据和比较tag，在写的过程中CPU不需要等待操作完成。按照同步性可以分为两种：</p>
+<ul>
+<li><p>write-through &amp; no
+write-allocate：写入数据时同时修改cache和low-level
+memory的状态，当发生write
+miss时只修改low-level的数据。这样做的好处是不需要考虑多级存储之间的数据一致性问题，便于其他核心/设备读取。</p></li>
+<li><p>write-back &amp; write-allocate：写数据只修改在cache中，通过dirty
+bit记录状态，当数据换出cache时同步修改到low-level memory，当发生write
+miss时只影响cache内。这样做的好处是可以利用空间局部性减少miss，可以通过write
+buffer减少存储间通信的代价，并且统一了read miss &amp; write
+miss的行为模型，但是需要考虑多核情况下一致性的维护。一般来说还有一个优化，<strong>当发生read
+miss时，low-level memory的数据可以优先传递需要的8
+byte数据，尽量减少CPU等待时间，再传输cache
+line中的其他数据。</strong></p></li>
+</ul></li>
+</ul>
+<p>通常来说，cache会被划分为Icache和Dcache，其中Icache的miss率可以做到很低，这样划分后相比于unified
+cache在小规模上可以去的更低的失配率。</p>
+<h2 id="cache-performance">Cache Performance</h2>
 
       
     </div>
@@ -1894,7 +1950,7 @@ U500实现，采用了SPECCPU,Redis,RV8,Coremark测试集，与Linux（作为基
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-15 20:31:32" itemprop="dateModified" datetime="2025-03-15T20:31:32+08:00">2025-03-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1936,7 +1992,7 @@ Filter）的方式在内核态中执行经过审查的安全代码，即可以�
 <li><p>调度框架应该提供策略部署、升级、回滚甚至崩溃的支持</p></li>
 </ul>
 <h2 id="贡献">贡献</h2>
-<p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程卷国家，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p>
+<p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程框架，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p>
 <div style="width:70%;margin:auto">
 <img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png" class="" title="Centralized Model">
 </div>

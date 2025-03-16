@@ -1087,6 +1087,186 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
       </tags>
   </entry>
   <entry>
+    <title>ghOSt Fast &amp; Flexible User-Space Delegation of Linux Scheduling</title>
+    <url>/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling.html</url>
+    <content><![CDATA[<p>AOS课程选题。</p>
+<h2 id="背景">背景</h2>
+<p>定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。</p>
+<p>以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：</p>
+<ol type="1">
+<li><p>操作系统默认采取CFS（Complete Fair
+Schedule）算法进行线程的调度，内核中的调度模块允许用户通过设定线程的nice值来对调度策略提出建议，但是这存在着不足。首先，用户只能在一定程度上提供建议，调度模块并不保证完全按照用户的建议进行调度。另外，用户无法突破CFS调度算法的框架，无法采用一些复杂的动态调度算法，如监测关键请求发生。因此Linux操作系统目前还不能支持用户执行自定义的调度策略。</p></li>
+<li><p>如果由用户重写内核调度模块的话，一方面用户需要掌握大量的汇编、C语言、内核知识，需要进行大量的开发工作，另一方面内核模块的bug会直接导致操作系统的崩溃，考虑在用户自定义策略需求旺盛的云端，一段时间的机器崩溃和修复往往是厂商或用户不可承受的巨大成本。</p></li>
+<li><p>目前用户可以通过eBPF（Extended Berkeley Packet
+Filter）的方式在内核态中执行经过审查的安全代码，即可以用这种方式实现用户自定义的调度策略。但是eBPF的速度较慢，可执行指令数具有上限，可访问的内核数据有限，不符合调度线程的需求。</p></li>
+</ol>
+<p>因此出现了对于可自定义调度策略调度框架的需求。ghOSt框架基于上述实现用户自定义调度策略的问题，在设计时便列出了以下目标：</p>
+<ul>
+<li><p>调度策略应易于实现和测试，减轻用户的开发使用难度</p></li>
+<li><p>调度框架应注重于性能和效率，实现微妙级别的调度并保持调度策略的效率</p></li>
+<li><p>调度框架应支持现代的调度模型，支持细粒度的调度单位，适应现代的计算集群</p></li>
+<li><p>调度框架应该支持多种调度策略并行互不干扰</p></li>
+<li><p>调度框架应该提供策略部署、升级、回滚甚至崩溃的支持</p></li>
+</ul>
+<h2 id="贡献">贡献</h2>
+<p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程框架，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p>
+<div style="width:70%;margin:auto">
+<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png" class="" title="Centralized Model">
+</div>
+<h2 id="原理">原理</h2>
+<p>ghOSt由内核态和用户态两部分组成，内核态利用权限向用户态提供内核中的线程信息，而用户态则接受内核态的信息，执行用户编程的调度策略，将调度结果发还给内核态予以执行。由此ghOSt便支持了用户自定义调度策略的部署和执行，基本满足了框架的设计目标。</p>
+<div style="width:70%;margin:auto">
+<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/architecture.png" class="" title="ghOSt architecture">
+</div>
+<h3 id="内核态向用户态通信">内核态向用户态通信</h3>
+<p>内核态负责向用户态提供必要的调度信息，将线程信息如task_struct发给用户态辅助调度策略执行。因此用户态可以使用任何语言实现，只需要接受给定的信息，生成相应格式的调度结果即可，这便减轻了用户的开发负担，不必深入汇编，内核等相对底层的实现。</p>
+<p>内核态通过消息队列的方式向发送信息，其中包括了像线程创建，线程唤醒等信息，以支持用户态编写较为复杂的实时动态调度算法，以服务器场景为例，用户自定义调度策略可以监测关键请求的来临，通过针对分配资源的方式降低服务的尾延迟。</p>
+<p>在用户态收到了内核信息后，执行用户编写的调度策略，得到调度结果后发送中断以切换到待执行的线程。ghOSt框架也为用户态提供了相应的syscall
+API来支持消息队列的操作，在多CPU模型中，可以通过这些接口实现CPU间线程的迁移和管理。</p>
+<h3 id="用户态向内核态通信">用户态向内核态通信</h3>
+<p>用户态对应着一个或多个的处理器，用户态中包含用户所编写的调度策略，在收到内核态发送的线程信息后执行用户调度策略，将生成的结果回发至内核态，并通过syscall引发中断，调度到待执行的线程。</p>
+<p>在调度开始后，调度器作为一个线程就让渡了自身的执行权，这时用户态是处于等待执行的状态，如果此时内核态更新了线程的状态信息，例如一个被策略标记为关键的线程开始执行了，此时就应该改变调度策略。为了支持复杂的动态的调度策略，ghOSt框架借鉴了分布式系统的设计，在消息中加入了时间戳。内核态向用户态发送的信息具有自增的序列号，而用户态回复的调度结果也需要带有此信息号，只有内核态收到的事务序列号等同于发出的消息序列号时才会视为一次交互，否则会返回错误令用户态重新生成调度策略。这样就为调度策略的设计提供了较为灵活的动态性，可以根据情况灵活地调整。</p>
+<h2 id="实现">实现</h2>
+<h3 id="错误容忍技术">错误容忍技术</h3>
+<p>飞地（Enclave）是指一个隔离的线程运行环境，是由硬件支撑的隔离技术。ghOSt框架使用了飞地技术，每个用户端与他们所负责调度的程序运行在同一个飞地当中。由此，ghOSt框架就可以大幅降低用户开发，部署，测试的难度，即使用户编写了错误的调度算法也不会影响到其他飞地以及内核的正常运行，即使发生了崩溃也只是导致这一飞地中的线程组出现调度问题。另外，多个互不干扰的飞地可以让ghOSt框架支持多种调度策略并行，不同的线程组使用不同的调度策略。</p>
+<p>从设计的角度说，ghOSt也为调度崩溃留有冗余机制，ghOSt的调度类实现为了系统调度的低优先级调度类，当ghOSt行为发生异常后将会自动转交给默认的调度器进行调度，实现了较强的错误容忍机制。ghOSt也实现了更新机制，当用户端的策略需要进行调整时，会拉起一个新的用户端，直至新的用户端完成交互后，旧的客户端将结束。</p>
+<h3 id="中心化模型">中心化模型</h3>
+<p>为了满足中心化模型下多处理器调度场景，ghOSt框架需要管理本地或远程的多计算集群，由一个全局的用户态调度多个计算集群或CPU执行任务，控制各计算群调度策略以及计算群间的任务调度。在这种场景下就要仔细地考虑每个计算群的执行状态，因此ghOSt借鉴了数据库的概念，采用了transaction(事务)的方式来确认用户态发给内核态的信息，用户态产生的调度结果通过事务发送给内核态，在事务提交后才视为一次有效的调度，如果远程计算集群无法立即回应调度，那么事务不会被确认提交，内核态调度程序发现这一情况可以进行处理，重新发送调度要求或者转交由其他处理器执行。考虑到调度框架的性能要求，事务模型采用共享内存的方式实现以加快速度。</p>
+<p>在中心化模型中，ghOSt框架会维护一个全局的用户态程序，全局的用户态程序会接受多个调度请求，然后将涉及的中断打包发给处理器，以减少信息传递的代价，这里利用了处理器硬件支持的batch
+interrupt功能。在涉及到计算集群间的任务迁移时，全局的用户态程序会发送IPI（Inter
+Processer Interrupt），触发迁移目的地集群中断实现。</p>
+<h2 id="实验">实验</h2>
+<p>ghOSt是一个用户自定义调度策略执行框架，因此本文的实验评估基于以下三个方面开展：</p>
+<ol type="1">
+<li>ghOSt框架带来的额外开销有多大？</li>
+<li>ghOSt框架执行自定义策略调度效果如何？</li>
+<li>ghOSt框架是否具有实用性？</li>
+</ol>
+<h3 id="性能与效率">性能与效率</h3>
+<p>经过测试，ghOSt框架的调度开销是微秒级别，相比于内核原生的调度器并没有添加过于沉重的开销。在中心化模型下，较大的开销是在remote
+schedule上，对多个处理器进行调度并通过处理器间中断（IPI）的方式进行调度。</p>
+<p>同时作者也比较了使用ghOSt执行调度策略和定制的调度器之间的差距，实验表明ghOSt几乎可以达到定制调度器的调度效果，但是当然在性能上有所不足，这也是灵活性与性能的取舍。</p>
+<div style="width:70%;margin:auto">
+<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/time.png" class="" title="time consumption">
+</div>
+<h3 id="实际场景应用">实际场景应用</h3>
+<p>作者选取了Google Snap 和 Google
+Search任务来模拟真实的云端使用场景，以说明ghOSt框架的可用性。这里以Google
+Search测试为例，使用ghOSt执行用户自定义的调度策略，可以看到整体的吞吐量相矫CFS没有明显变化，但是自定义策略在AB两个案例中可以显著的降低尾延迟。这说明了ghOSt框架在真实场景下是可用的，可以大幅度提升处理效率。这里的实验C作者分析是由于定制策略还有待改进，使得提升效果不明显。</p>
+<div style="width:70%;margin:auto">
+<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/latency.png" class="" title="latency">
+</div>
+<h2 id="总结">总结</h2>
+<p>ghOSt框架实现对了用户自定义策略的支持，将调度任务又内核态委托给了用户态执行，简化了用户开发、测试、部署的流程，在几乎不增加调度性能开销的基础上实现了功能强大的调度框架支持，为多调度策略，中心化模型提供了良好的支持。</p>
+<p>通过ghOSt框架的实验测试，在云端等场景下存在着巨量的通过改进调度策略而提升执行效率的空间，这也为调度方向后续的研究提供了参考。</p>
+]]></content>
+      <categories>
+        <category>Paper Note</category>
+      </categories>
+      <tags>
+        <tag>OS</tag>
+        <tag>Scheduler</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《Computer Achitecture A Quantitative Approach》读书笔记</title>
+    <url>/posts/%E3%80%8AComputer-Achitecture-A-Quantitative-Approach%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html</url>
+    <content><![CDATA[<h1
+id="chapter-1---fundamentals-of-quantitative-design-and-analysis">Chapter
+1 - Fundamentals of Quantitative Design and Analysis</h1>
+<h2 id="一些物理工艺相关的知识">一些物理/工艺相关的知识</h2>
+<ul>
+<li>Trends in Technology
+<ul>
+<li>CPU
+的片上缓存是&lt;10ns级别的，而主存DRAM是数十ns级别的，网络接口是微秒级别的，而磁盘则是毫秒级别的，因此一次
+cache miss 就对应几十个甚至上百个周期的停滞。</li>
+</ul></li>
+<li>Trends in Power and Enenergy
+<ul>
+<li>TDP 是 Thermal Design Power
+的缩写，不代表峰值功耗（可能为1.5倍TDP），也不是平均功耗（通常低于TDP），而是给予散热系统的指导数据。</li>
+<li>CMOS 工艺芯片的主要功耗来自于晶体管状态的翻转，<span
+class="math inline">\(P_{dynamic} \propto fCV^{2}\)</span>，<span
+class="math inline">\(f\)</span>是时钟频率，<span
+class="math inline">\(C\)</span>是电容，<span
+class="math inline">\(V\)</span>是电压，而 CPU
+的时钟频率又往往与电压成正比，动态的功耗可能与电压呈三次方的线性关系。另一方面，随着晶体管数量的增加，静态的功耗也成为了较大的开销部分，即使晶体管没有翻转，仍然有电流通过，<span
+class="math inline">\(P_{static}=IV\)</span>。因此电源管理系统甚至直接关闭掉某一个区域的电源以节约功耗。</li>
+</ul></li>
+<li>Trends in Cost
+<ul>
+<li>圆晶（wafer）是由硅单质生长出来的，受限于工艺为圆形，按照面积大小切割为
+die
+，圆晶上会有随机分布的缺陷存在，再结合数字电路的复杂度形成工艺良率。工业中往往会对
+memory 进行冗余设计，即通过冗余的 cell
+单元来避免良率带来的影响。芯片在切割后还要经过测试、封装、封装后测试等步骤，这都给芯片制造添加了额外的成本。</li>
+</ul></li>
+</ul>
+<h1 id="appendix-b---review-of-memory-hierarchy">Appendix B - Review of
+Memory Hierarchy</h1>
+<h2 id="introduction">Introduction</h2>
+<p>在评判存储体系设计时，考虑基础的单发射处理器模型，影响的指标有<strong>命中率</strong>、<strong>未命中惩罚</strong>和<strong>访存指令占比</strong>，三者综合可以计算出存储体系对于处理器性能的影响，进而评价其设计的好坏。但是随着现代处理器体系结构的发展，越来越多的因素需要被一并考虑进来：</p>
+<ul>
+<li><p>命中率基于数据统计，表示存储体系在面对随机访问时的命中概率，比较直观的定义是访存指令命中的概率，即命中次数除以执行的访存指令数量。但是在现代处理器中，投机执行策略可能会发射不会被提交的错误指令，错误的访存指令是否命中符合命中率的定义，然而却不直接影响性能。<strong>因此严格来说，从性能的角度考虑，应该使用命中次数除以实际提交的指令数量作为命中率，更能反应出存储体系设计对于性能的影响。</strong>同时，这也启发了进一步的设计思考：错误发射的访存指令是否应该影响存储体系的状态？</p></li>
+<li><p>未命中惩罚通常是基于多级Cache的延迟计算得出，进一步引出的思考是为什么往往采用串行方式逐级查询？在L1命中率较高的情况下，广播查询并设计逐级匹配的逻辑电路在功耗、性能上是不划算的。再继续考虑延迟的计算，在非阻塞缓存设计下，失配的查询会被暂存以继续提供服务，那么延迟代价就存在合并的可能性，在某个时间多条失配地址被一起发送到下级缓存查询。<strong>从准确的角度考虑，以硬件设计得到的失配延迟来计算是不准确的，需要根据实际数据对平均未命中惩罚进行计算。</strong>缓存、甚至是核内LSU的策略设计和微架构设计都会造成影响。</p></li>
+<li><p>访存指令占比则与指令集设计、编译器优化强相关，反而是与硬件设计技术无关。</p></li>
+</ul>
+<p>在了解一个未知的存储体系设计时，可以通过四个问题入手：block
+placement, block identification, block replacement, write
+strategy，这四个问题涵盖了大部分可能出现的情况，以基础的cache结构为例：</p>
+<ul>
+<li><p>block placement：描述数据如何确定放置的位置，也就是定位cache
+line。最简单的cache结构是direct mapped，根据数据地址的low
+bit写入相应的cache line。进一步的有set
+associative（组相连），每一个set里面可以含有k个cache
+line，就是k-路组相连，表示每一个block按照low
+bit放入对应的set中，可能有k个位置。全相连则表示任何block都可以放在任何位置。<strong>在真实世界中，较多使用的是2-way和4-way组相连。</strong></p></li>
+<li><p>block identification：描述如何确认cache
+line存储的就是要寻找的数据。low bit作block offset，用于在cache
+line内截取需要的数据，其余继续划分low
+bit作(set)index，剩下的为tag，比较的时候按照index定位set，再逐一比较tag。<strong>这里还要确认一下用于寻址的地址是physical还是virtual，转换的过程在哪里进行。</strong>在传统面试的计算题中，cache
+size描述的是配套的RAM的大小，所有其他信息都不包含在范围之内，用它除以cache
+line大小就可以算出cache line数目，再进一步根据组相连情况划分。</p></li>
+<li><p>block
+replacement：描述如何寻找换出的block。常见的思路有伪随机，LRU，FIFO，通常来说LRU表现效果最好，在硬件上通常使用Pseudo-LRU实现方式：</p>
+<ul>
+<li><p>树伪LRU：维护二叉树，每一个非叶子结点具有1bit，表示最近一次使用的cahce
+line位于左侧还是右侧，在每一个access过程更新路径上的bit，需要替换时按照指示即可寻找LRU近似，时间复杂度O(logN)。</p></li>
+<li><p>单位伪LRU：每个cache
+line一个bit，表示最近是否被访问过，当一次access后cache
+line中所有的bit都为1了，则重置这次访问以外的所有bit，需要替换时在bit为0的cache
+line中使用伪随机寻找，时间复杂度O(1)。</p></li>
+</ul></li>
+<li><p>write strategy：描述写入数据如何处理cache和low-level
+memory的关系。由于写的占比小于读，因此对于读的优化很重要，在读的过程中可以同时取数据和比较tag，在写的过程中CPU不需要等待操作完成。按照同步性可以分为两种：</p>
+<ul>
+<li><p>write-through &amp; no
+write-allocate：写入数据时同时修改cache和low-level
+memory的状态，当发生write
+miss时只修改low-level的数据。这样做的好处是不需要考虑多级存储之间的数据一致性问题，便于其他核心/设备读取。</p></li>
+<li><p>write-back &amp; write-allocate：写数据只修改在cache中，通过dirty
+bit记录状态，当数据换出cache时同步修改到low-level memory，当发生write
+miss时只影响cache内。这样做的好处是可以利用空间局部性减少miss，可以通过write
+buffer减少存储间通信的代价，并且统一了read miss &amp; write
+miss的行为模型，但是需要考虑多核情况下一致性的维护。一般来说还有一个优化，<strong>当发生read
+miss时，low-level memory的数据可以优先传递需要的8
+byte数据，尽量减少CPU等待时间，再传输cache
+line中的其他数据。</strong></p></li>
+</ul></li>
+</ul>
+<p>通常来说，cache会被划分为Icache和Dcache，其中Icache的miss率可以做到很低，这样划分后相比于unified
+cache在小规模上可以去的更低的失配率。</p>
+<h2 id="cache-performance">Cache Performance</h2>
+]]></content>
+      <categories>
+        <category>Book Note</category>
+      </categories>
+      <tags>
+        <tag>Architecture</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Why and How zk-SNARK Works: Definitive Explanation</title>
     <url>/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html</url>
     <content><![CDATA[<p>零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。</p>
@@ -1235,130 +1415,6 @@ Knowledge Proof</a></li>
         <tag>Crypto</tag>
         <tag>Zero Knowledge Proof</tag>
         <tag>Study</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ghOSt Fast &amp; Flexible User-Space Delegation of Linux Scheduling</title>
-    <url>/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling.html</url>
-    <content><![CDATA[<p>AOS课程选题。</p>
-<h2 id="背景">背景</h2>
-<p>定制的调度策略可以提高许多关键指标，较重要的有延迟、吞吐量、实时性，能耗，缓存干扰，安全性等。但是一方面定制的调度策略本身不具备普适性，需要对具体情况进行分析，另一方面硬件的发展如多核，异构计算等，也对调度程序和调度模型提出了挑战。</p>
-<p>以Linux操作系统举例分析，目前的调度算法和策略存在以下问题：</p>
-<ol type="1">
-<li><p>操作系统默认采取CFS（Complete Fair
-Schedule）算法进行线程的调度，内核中的调度模块允许用户通过设定线程的nice值来对调度策略提出建议，但是这存在着不足。首先，用户只能在一定程度上提供建议，调度模块并不保证完全按照用户的建议进行调度。另外，用户无法突破CFS调度算法的框架，无法采用一些复杂的动态调度算法，如监测关键请求发生。因此Linux操作系统目前还不能支持用户执行自定义的调度策略。</p></li>
-<li><p>如果由用户重写内核调度模块的话，一方面用户需要掌握大量的汇编、C语言、内核知识，需要进行大量的开发工作，另一方面内核模块的bug会直接导致操作系统的崩溃，考虑在用户自定义策略需求旺盛的云端，一段时间的机器崩溃和修复往往是厂商或用户不可承受的巨大成本。</p></li>
-<li><p>目前用户可以通过eBPF（Extended Berkeley Packet
-Filter）的方式在内核态中执行经过审查的安全代码，即可以用这种方式实现用户自定义的调度策略。但是eBPF的速度较慢，可执行指令数具有上限，可访问的内核数据有限，不符合调度线程的需求。</p></li>
-</ol>
-<p>因此出现了对于可自定义调度策略调度框架的需求。ghOSt框架基于上述实现用户自定义调度策略的问题，在设计时便列出了以下目标：</p>
-<ul>
-<li><p>调度策略应易于实现和测试，减轻用户的开发使用难度</p></li>
-<li><p>调度框架应注重于性能和效率，实现微妙级别的调度并保持调度策略的效率</p></li>
-<li><p>调度框架应支持现代的调度模型，支持细粒度的调度单位，适应现代的计算集群</p></li>
-<li><p>调度框架应该支持多种调度策略并行互不干扰</p></li>
-<li><p>调度框架应该提供策略部署、升级、回滚甚至崩溃的支持</p></li>
-</ul>
-<h2 id="贡献">贡献</h2>
-<p>在本文中我们提出了ghOSt，它是一个原生的系统调度线程卷国家，将执行策略委托给了用户态程序执行。ghOSt的目标是从根本上改变调度策略被设计，应用和部署的流程，与此同时ghOSt提供了便捷的使用和简易的部署支持，能实现微妙级别的调度，支持多种调度策略并行互不干扰。通过ghOSt，用户可以轻松地实现自定义的调度策略，并快捷安全地部署在任何场景，并且几乎不添加额外的开销。在本文中我们还提出了中心化的调度模型，相比于传统的CPU调度模型，中心化模型更加符合现实应用场景，ghOSt框架对二者都做出了支持。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/centralized.png" class="" title="Centralized Model">
-</div>
-<h2 id="原理">原理</h2>
-<p>ghOSt由内核态和用户态两部分组成，内核态利用权限向用户态提供内核中的线程信息，而用户态则接受内核态的信息，执行用户编程的调度策略，将调度结果发还给内核态予以执行。由此ghOSt便支持了用户自定义调度策略的部署和执行，基本满足了框架的设计目标。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/architecture.png" class="" title="ghOSt architecture">
-</div>
-<h3 id="内核态向用户态通信">内核态向用户态通信</h3>
-<p>内核态负责向用户态提供必要的调度信息，将线程信息如task_struct发给用户态辅助调度策略执行。因此用户态可以使用任何语言实现，只需要接受给定的信息，生成相应格式的调度结果即可，这便减轻了用户的开发负担，不必深入汇编，内核等相对底层的实现。</p>
-<p>内核态通过消息队列的方式向发送信息，其中包括了像线程创建，线程唤醒等信息，以支持用户态编写较为复杂的实时动态调度算法，以服务器场景为例，用户自定义调度策略可以监测关键请求的来临，通过针对分配资源的方式降低服务的尾延迟。</p>
-<p>在用户态收到了内核信息后，执行用户编写的调度策略，得到调度结果后发送中断以切换到待执行的线程。ghOSt框架也为用户态提供了相应的syscall
-API来支持消息队列的操作，在多CPU模型中，可以通过这些接口实现CPU间线程的迁移和管理。</p>
-<h3 id="用户态向内核态通信">用户态向内核态通信</h3>
-<p>用户态对应着一个或多个的处理器，用户态中包含用户所编写的调度策略，在收到内核态发送的线程信息后执行用户调度策略，将生成的结果回发至内核态，并通过syscall引发中断，调度到待执行的线程。</p>
-<p>在调度开始后，调度器作为一个线程就让渡了自身的执行权，这时用户态是处于等待执行的状态，如果此时内核态更新了线程的状态信息，例如一个被策略标记为关键的线程开始执行了，此时就应该改变调度策略。为了支持复杂的动态的调度策略，ghOSt框架借鉴了分布式系统的设计，在消息中加入了时间戳。内核态向用户态发送的信息具有自增的序列号，而用户态回复的调度结果也需要带有此信息号，只有内核态收到的事务序列号等同于发出的消息序列号时才会视为一次交互，否则会返回错误令用户态重新生成调度策略。这样就为调度策略的设计提供了较为灵活的动态性，可以根据情况灵活地调整。</p>
-<h2 id="实现">实现</h2>
-<h3 id="错误容忍技术">错误容忍技术</h3>
-<p>飞地（Enclave）是指一个隔离的线程运行环境，是由硬件支撑的隔离技术。ghOSt框架使用了飞地技术，每个用户端与他们所负责调度的程序运行在同一个飞地当中。由此，ghOSt框架就可以大幅降低用户开发，部署，测试的难度，即使用户编写了错误的调度算法也不会影响到其他飞地以及内核的正常运行，即使发生了崩溃也只是导致这一飞地中的线程组出现调度问题。另外，多个互不干扰的飞地可以让ghOSt框架支持多种调度策略并行，不同的线程组使用不同的调度策略。</p>
-<p>从设计的角度说，ghOSt也为调度崩溃留有冗余机制，ghOSt的调度类实现为了系统调度的低优先级调度类，当ghOSt行为发生异常后将会自动转交给默认的调度器进行调度，实现了较强的错误容忍机制。ghOSt也实现了更新机制，当用户端的策略需要进行调整时，会拉起一个新的用户端，直至新的用户端完成交互后，旧的客户端将结束。</p>
-<h3 id="中心化模型">中心化模型</h3>
-<p>为了满足中心化模型下多处理器调度场景，ghOSt框架需要管理本地或远程的多计算集群，由一个全局的用户态调度多个计算集群或CPU执行任务，控制各计算群调度策略以及计算群间的任务调度。在这种场景下就要仔细地考虑每个计算群的执行状态，因此ghOSt借鉴了数据库的概念，采用了transaction(事务)的方式来确认用户态发给内核态的信息，用户态产生的调度结果通过事务发送给内核态，在事务提交后才视为一次有效的调度，如果远程计算集群无法立即回应调度，那么事务不会被确认提交，内核态调度程序发现这一情况可以进行处理，重新发送调度要求或者转交由其他处理器执行。考虑到调度框架的性能要求，事务模型采用共享内存的方式实现以加快速度。</p>
-<p>在中心化模型中，ghOSt框架会维护一个全局的用户态程序，全局的用户态程序会接受多个调度请求，然后将涉及的中断打包发给处理器，以减少信息传递的代价，这里利用了处理器硬件支持的batch
-interrupt功能。在涉及到计算集群间的任务迁移时，全局的用户态程序会发送IPI（Inter
-Processer Interrupt），触发迁移目的地集群中断实现。</p>
-<h2 id="实验">实验</h2>
-<p>ghOSt是一个用户自定义调度策略执行框架，因此本文的实验评估基于以下三个方面开展：</p>
-<ol type="1">
-<li>ghOSt框架带来的额外开销有多大？</li>
-<li>ghOSt框架执行自定义策略调度效果如何？</li>
-<li>ghOSt框架是否具有实用性？</li>
-</ol>
-<h3 id="性能与效率">性能与效率</h3>
-<p>经过测试，ghOSt框架的调度开销是微秒级别，相比于内核原生的调度器并没有添加过于沉重的开销。在中心化模型下，较大的开销是在remote
-schedule上，对多个处理器进行调度并通过处理器间中断（IPI）的方式进行调度。</p>
-<p>同时作者也比较了使用ghOSt执行调度策略和定制的调度器之间的差距，实验表明ghOSt几乎可以达到定制调度器的调度效果，但是当然在性能上有所不足，这也是灵活性与性能的取舍。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/time.png" class="" title="time consumption">
-</div>
-<h3 id="实际场景应用">实际场景应用</h3>
-<p>作者选取了Google Snap 和 Google
-Search任务来模拟真实的云端使用场景，以说明ghOSt框架的可用性。这里以Google
-Search测试为例，使用ghOSt执行用户自定义的调度策略，可以看到整体的吞吐量相矫CFS没有明显变化，但是自定义策略在AB两个案例中可以显著的降低尾延迟。这说明了ghOSt框架在真实场景下是可用的，可以大幅度提升处理效率。这里的实验C作者分析是由于定制策略还有待改进，使得提升效果不明显。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/ghOSt-Fast-Flexible-User-Space-Delegation-of-Linux-Scheduling/latency.png" class="" title="latency">
-</div>
-<h2 id="总结">总结</h2>
-<p>ghOSt框架实现对了用户自定义策略的支持，将调度任务又内核态委托给了用户态执行，简化了用户开发、测试、部署的流程，在几乎不增加调度性能开销的基础上实现了功能强大的调度框架支持，为多调度策略，中心化模型提供了良好的支持。</p>
-<p>通过ghOSt框架的实验测试，在云端等场景下存在着巨量的通过改进调度策略而提升执行效率的空间，这也为调度方向后续的研究提供了参考。</p>
-]]></content>
-      <categories>
-        <category>Paper Note</category>
-      </categories>
-      <tags>
-        <tag>OS</tag>
-        <tag>Scheduler</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《Computer Achitecture A Quantitative Approach》读书笔记</title>
-    <url>/posts/%E3%80%8AComputer-Achitecture-A-Quantitative-Approach%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html</url>
-    <content><![CDATA[<h1
-id="chapter-1---fundamentals-of-quantitative-design-and-analysis">Chapter
-1 - Fundamentals of Quantitative Design and Analysis</h1>
-<ul>
-<li>Trends in Technology
-<ul>
-<li>CPU
-的片上缓存是&lt;10ns级别的，而主存DRAM是数十ns级别的，网络接口是微秒级别的，而磁盘则是毫秒级别的，因此一次
-cache miss 就对应几十个甚至上百个周期的停滞。</li>
-</ul></li>
-<li>Trends in Power and Enenergy
-<ul>
-<li>TDP 是 Thermal Design Power
-的缩写，不代表峰值功耗（可能为1.5倍TDP），也不是平均功耗（通常低于TDP），而是给予散热系统的指导数据。</li>
-<li>CMOS 工艺芯片的主要功耗来自于晶体管状态的翻转，<span
-class="math inline">\(P_{dynamic} \propto fCV^{2}\)</span>，<span
-class="math inline">\(f\)</span>是时钟频率，<span
-class="math inline">\(C\)</span>是电容，<span
-class="math inline">\(V\)</span>是电压，而 CPU
-的时钟频率又往往与电压成正比，动态的功耗可能与电压呈三次方的线性关系。另一方面，随着晶体管数量的增加，静态的功耗也成为了较大的开销部分，即使晶体管没有翻转，仍然有电流通过，<span
-class="math inline">\(P_{static}=IV\)</span>。因此电源管理系统甚至直接关闭掉某一个区域的电源以节约功耗。</li>
-</ul></li>
-<li>Trends in Cost
-<ul>
-<li>圆晶（wafer）是由硅单质生长出来的，受限于工艺为圆形，按照面积大小切割为
-die
-，圆晶上会有随机分布的缺陷存在，再结合数字电路的复杂度形成工艺良率。工业中往往会对
-memory 进行冗余设计，即通过冗余的 cell
-单元来避免良率带来的影响。芯片在切割后还要经过测试、封装、封装后测试等步骤，这都给芯片制造添加了额外的成本。</li>
-</ul></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Book Note</category>
-      </categories>
-      <tags>
-        <tag>Architecture</tag>
       </tags>
   </entry>
   <entry>
