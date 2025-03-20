@@ -22,12 +22,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":"default","style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta property="og:type" content="website">
+    <meta name="description" content="personal blog of computer science">
+<meta property="og:type" content="website">
 <meta property="og:title" content="Hexo Blog">
 <meta property="og:url" content="https://sunzhibo.github.io/archives/page/2/index.html">
 <meta property="og:site_name" content="Hexo Blog">
+<meta property="og:description" content="personal blog of computer science">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="SunZhibo">
+<meta property="article:tag" content="computer science, paper note, book note">
 <meta name="twitter:card" content="summary">
 
 
@@ -72,7 +75,7 @@
       <h1 class="site-title">Hexo Blog</h1>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">record</p>
+      <p class="site-subtitle" itemprop="description">record myself</p>
   </div>
 
   <div class="site-nav-right">
@@ -148,7 +151,7 @@
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">SunZhibo</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">personal blog of computer science</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -197,7 +200,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/1b64dd1.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -206,7 +209,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -215,7 +218,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html" class="post-title-link" itemprop="url">Keccak-256算法详解</a>
+          <a href="/posts/1b64dd1.html" class="post-title-link" itemprop="url">Keccak-256算法详解</a>
         </h2>
 
         <div class="post-meta-container">
@@ -233,7 +236,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -271,7 +274,7 @@ M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了
 <p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
 <p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
+<img src="/posts/1b64dd1/keccak.png" class="" title="keccak work process">
 </div>
 <p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
 class="math inline">\(x, y \in [0, 5), z \in
@@ -341,7 +344,7 @@ website</a></li>
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/10fe4eb6.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -350,7 +353,7 @@ website</a></li>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -359,7 +362,7 @@ website</a></li>
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html" class="post-title-link" itemprop="url">《Mastering Ethereum》读书笔记</a>
+          <a href="/posts/10fe4eb6.html" class="post-title-link" itemprop="url">《Mastering Ethereum》读书笔记</a>
         </h2>
 
         <div class="post-meta-container">
@@ -377,7 +380,7 @@ website</a></li>
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -472,15 +475,15 @@ class="math inline">\(S\)</span>的末尾，按照11比特一组分为<span
 class="math inline">\(3S/32\)</span>组，在预先选取出的2048个简单英文单词中进行映射，形成助记词组。若用户忘记了钱包的密码，可以通过助记词可以恢复出钱包生成的随机数。分层确定性钱包（HD）由一个512比特的种子密钥开始生成，使用助记词组作为第一个参数，可选的盐（默认为"mnemonic"，可以在后附加用户指定的密码）作为第二个参数，使用密钥扩展算法PBKDF2进行2048轮HMAC-SHA512哈希运算得到。<strong>需要特别注意的是</strong>此处的密码与设立钱包时要求用户填写的密码不同，若设立时的密码丢失，可以通过助记词进行恢复，这也说明了这个密码仅作钱包的登录使用，并不参与到后续种子密钥的生成过程。</p>
 <p>有了钱包的种子密钥后就可以根据曾几时确定性钱包标准（BIP-32）进行密钥的派生了，其中种子的左256位为根私钥，右256位为根链码，扩展派生出的密钥形成树形结构，根据扩展时使用的索引进行编码，不同的层级间用<code>/</code>隔开，如下图所示。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/BIP-32.png" class="" title="BIP-32 Standard">
+<img src="/posts/10fe4eb6/BIP-32.png" class="" title="BIP-32 Standard">
 </div>
 <p>比较直观的派生过程如下图所示，将父公钥，父链码和索引作为哈希函数的输入，得到的512位哈希输出分为左右两部分，分别记为<code>l, r</code>，<code>l</code>与父私钥<code>p</code>相加得到子私钥<code>c=l+p</code>，<code>r</code>作为子链码用于下一级密钥的派生。为了方便钱包间的导入导出，将密钥与对应的链码结合起来称为扩展密钥，使用Base58Check进行编码，其中扩展私钥以<code>xpriv</code>开头，扩展公钥以<code>xpub</code>开头。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Private.png" class="" title="Parent Private Key">
+<img src="/posts/10fe4eb6/derive-Private.png" class="" title="Parent Private Key">
 </div>
 <p>为了在不可信赖环境下进行部署，利用椭圆曲线运算上的结合律，可以不经过父私钥，只通过父扩展公钥生成子公钥。因为生成方法为<code>c=l+p</code>，根据公钥生成方式有<code>C=G*c, P=G*p</code>，因此有<code>C=G*(l+p)=G(l)+P</code>，将生成点与哈希结果的左半部分相乘，再加上父公钥即可得到派生出的子公钥，这样就避免了私钥的部署。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Public.png" class="" title="Parent Public Key">
+<img src="/posts/10fe4eb6/derive-Public.png" class="" title="Parent Public Key">
 </div>
 <p>考虑如果某一个子私钥发生了泄露，在父扩展公钥暴露的情况下，可以对索引进行暴力破解，从而根据<code>c=l+p</code>的逆运算得到父私钥，使得由该父节点派生的所有密钥发生泄漏。为此引入了增强派生算法，由父私钥，父链码和索引生成子一级的私钥和链码，由于私钥不会被部署也就隔断了子一级向上推断的可能，当然缺点是私钥无法像公钥一样部署在服务器上，因此通常在最根一级使用增强派生算法，或在需要隔绝父子间推导关系的场景使用，以增强钱包的安全性。</p>
 <p>为了区别两种派生方法，规定索引最高位为0代表普通派生方法，为1代表增强派生算法，特别地在表示时，<code>m/x/y</code>为密钥<code>m</code>派生的第<code>x</code>个子密钥的第<code>y</code>个子密钥，<code>m/x'/y</code>表示密钥<code>m</code>派生的第<code>x+0x80000000</code>个增强密钥的第<code>y</code>个子密钥。</p>

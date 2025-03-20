@@ -25,26 +25,26 @@
     <meta name="description" content="VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。 Introduction SGX是Intel提出的TEE解决方案，可以保护敏感信息的CIA（Confidentiality, Integrity, Authentication），在内存保护方面，SGX可以保护敏感页内存的安全性。SGX讲内存划分为两个区域，EPC（Enclave Page Cache）区域存放敏感页内存数据，实">
 <meta property="og:type" content="article">
 <meta property="og:title" content="VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures">
-<meta property="og:url" content="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html">
+<meta property="og:url" content="https://sunzhibo.github.io/posts/7870c3f8.html">
 <meta property="og:site_name" content="Hexo Blog">
 <meta property="og:description" content="VAULT是基于SGX的改进工作，主要关注于隔离内存产生的额外开销。 Introduction SGX是Intel提出的TEE解决方案，可以保护敏感信息的CIA（Confidentiality, Integrity, Authentication），在内存保护方面，SGX可以保护敏感页内存的安全性。SGX讲内存划分为两个区域，EPC（Enclave Page Cache）区域存放敏感页内存数据，实">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/VAULT.png">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/VAULT.png">
+<meta property="og:image" content="https://sunzhibo.github.io/posts/7870c3f8/VAULT.png">
+<meta property="og:image" content="https://sunzhibo.github.io/posts/7870c3f8/VAULT.png">
 <meta property="article:published_time" content="2023-06-07T14:12:42.000Z">
-<meta property="article:modified_time" content="2024-06-15T07:23:37.516Z">
+<meta property="article:modified_time" content="2025-03-20T08:37:47.834Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="TEE">
 <meta property="article:tag" content="SGX">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/VAULT.png">
+<meta name="twitter:image" content="https://sunzhibo.github.io/posts/7870c3f8/VAULT.png">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html">
+<link rel="canonical" href="https://sunzhibo.github.io/posts/7870c3f8.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html","path":"posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html","title":"VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/7870c3f8.html","path":"posts/7870c3f8.html","title":"VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>VAULT:Reducing Paging Overheads in SGX with Efficient Integrity Verification Structures | Hexo Blog</title>
@@ -81,7 +81,7 @@
       <p class="site-title">Hexo Blog</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">record</p>
+      <p class="site-subtitle" itemprop="description">record myself</p>
   </div>
 
   <div class="site-nav-right">
@@ -160,7 +160,7 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">SunZhibo</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">personal blog of computer science</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -210,7 +210,7 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/7870c3f8.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -219,7 +219,7 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -246,7 +246,7 @@ Unified enctypted-LeafTree(VAULT)</span></a></li><li class="nav-item nav-level-3
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -334,13 +334,13 @@ line的大小进行设计，每个节点固定拥有一个64bit-HASH用来保护
 global
 counter记录溢出次数，还剩下448bit可控使用。在叶子节点，分配为64个6bit-counter，在倒数第二层分配为32个12bit-counter，再上层为16个24bit-counter。</p>
 <div style="width:80%;margin:auto">
-<img src="/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/VAULT.png" class="" title="VAUT">
+<img src="/posts/7870c3f8/VAULT.png" class="" title="VAUT">
 </div>
 <p>相比于BMT，在非叶子节点也采用了计数器，相比于SIT，可变的counter长度以及global
 counter使用让VAUT在使用同样大小空间保护更大的安全区域，并且具有更小的刷新代价。以64GB地址空间为例，采用BMT需要9层树深，SIT需要10层树深，而VAUT只需要7层，需要的时间代价和空间代价都小于二者。</p>
 <p>VAUT看着很美好，同样的空间内容纳更多的counter并且也减少了刷新带来的重加密开销，但是代价是作为叶子节点，每个block只能分到6bit的计数器，会导致叶节点的刷新次数增大，这是不可避免的问题，计数器更宽对应更少的刷新和更小的覆盖面积。为了缓解这一问题，VAULT在VAUT的基础上引入了对叶子结点的加密，即对叶子节点采用父节点对应的64+12bit计数器作为密钥加密，从而省去叶子结点的HASH值建立其父子节点间的关系，省去的HASH值平分到计数器的宽度上，变为7bit计数器，减少了一倍的溢出可能。但是显然这会带来额外的时间开销，访问叶子节点数据还需要先访问父节点的数据，因此这一方法本质上是在<strong>牺牲动态时间换静态时间</strong>。</p>
 <div style="width:80%;margin:auto">
-<img src="/posts/VAULT-Reducing-Paging-Overheads-in-SGX-with-Efficient-Integrity-Verification-Structures/VAULT.png" class="" title="VAUT">
+<img src="/posts/7870c3f8/VAULT.png" class="" title="VAUT">
 </div>
 <p>VAULT的改动整体是围绕着counter的宽度和数量进行设计的，作为宽度的取舍，VAULT可以轻易地覆盖较大范围的地址空间，但是会有相对更多的计数器溢出刷新次数（变宽计数器设计只能一定程度上缓解这一问题），而叶子结点的加密也引入了访问内存时新的关键路径。</p>
 <p>如果仅仅看这一设计，保护同样大小空间的空间代价和时间代价肯定都是更小的，层数更少带来较大的优势，但是同样需要考虑减少计数器宽度对刷新代价造成的影响，具体的提升还需要实验去验证。也正是因为VAULT的优势是保护更大的空间，才有上一节对于EPC空间概念泛化的讨论。</p>
@@ -367,12 +367,12 @@ Allocation(ODMA)，也就是按需分配MAC，不敏感不关键的数据就不�
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/Scalable-Memory-Protection-in-the-PENGLAI-Enclave.html" rel="prev" title="Scalable Memory Protection in the PENGLAI Enclave">
+                <a href="/posts/ea6bfb20.html" rel="prev" title="Scalable Memory Protection in the PENGLAI Enclave">
                   <i class="fa fa-chevron-left"></i> Scalable Memory Protection in the PENGLAI Enclave
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94.html" rel="next" title="Risc Zero项目调研">
+                <a href="/posts/162bc2fd.html" rel="next" title="Risc Zero项目调研">
                   Risc Zero项目调研 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>

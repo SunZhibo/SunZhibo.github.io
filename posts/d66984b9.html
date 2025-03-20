@@ -25,12 +25,12 @@
     <meta name="description" content="零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。 零知识证明算法概览 零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，不泄露任何信息。在零知识证明系统中，有Prover, Verifier两个角色，针对需要验证的知识，生成对应的Circuit（逻辑电路），这里的Circuit指的是知识需要符合的逻辑（亦或">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Why and How zk-SNARK Works: Definitive Explanation">
-<meta property="og:url" content="https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html">
+<meta property="og:url" content="https://sunzhibo.github.io/posts/d66984b9.html">
 <meta property="og:site_name" content="Hexo Blog">
 <meta property="og:description" content="零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。 零知识证明算法概览 零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，不泄露任何信息。在零知识证明系统中，有Prover, Verifier两个角色，针对需要验证的知识，生成对应的Circuit（逻辑电路），这里的Circuit指的是知识需要符合的逻辑（亦或">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-06-30T06:29:29.000Z">
-<meta property="article:modified_time" content="2024-07-21T07:19:08.770Z">
+<meta property="article:modified_time" content="2025-03-20T08:37:47.835Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Ethereum">
 <meta property="article:tag" content="Crypto">
@@ -39,11 +39,11 @@
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html">
+<link rel="canonical" href="https://sunzhibo.github.io/posts/d66984b9.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html","path":"posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html","title":"Why and How zk-SNARK Works: Definitive Explanation"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/d66984b9.html","path":"posts/d66984b9.html","title":"Why and How zk-SNARK Works: Definitive Explanation"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>Why and How zk-SNARK Works: Definitive Explanation | Hexo Blog</title>
@@ -80,7 +80,7 @@
       <p class="site-title">Hexo Blog</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">record</p>
+      <p class="site-subtitle" itemprop="description">record myself</p>
   </div>
 
   <div class="site-nav-right">
@@ -150,14 +150,14 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%B6%E7%9F%A5%E8%AF%86%E8%AF%81%E6%98%8E%E7%AE%97%E6%B3%95%E6%A6%82%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">零知识证明算法概览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kzg%E5%A4%9A%E9%A1%B9%E5%BC%8F%E6%89%BF%E8%AF%BA%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">KZG多项式承诺系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AC%E5%BC%80%E5%8F%82%E6%95%B0%E4%BF%9D%E6%8A%A4"><span class="nav-number">2.1.</span> <span class="nav-text">公开参数保护</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E8%AE%A1%E7%AE%97%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.2.</span> <span class="nav-text">多项式计算约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E7%9F%A5%E8%AF%86%E4%BF%9D%E6%8A%A4"><span class="nav-number">2.3.</span> <span class="nav-text">零知识保护</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%98%A0%E5%B0%84"><span class="nav-number">2.4.</span> <span class="nav-text">双线性映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E4%BF%A1%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.5.</span> <span class="nav-text">可信初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%BD%AC%E6%8D%A2%E4%B8%8E%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">知识系统的转换与构建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rank-1-constraints-system"><span class="nav-number">3.1.</span> <span class="nav-text">Rank-1 Constraints System</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#qap-linear-pcp"><span class="nav-number">3.2.</span> <span class="nav-text">QAP &amp; Linear PCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E7%9F%A5%E8%AF%86%E8%AF%81%E6%98%8E%E7%AE%97%E6%B3%95%E6%A6%82%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">零知识证明算法概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kzg%E5%A4%9A%E9%A1%B9%E5%BC%8F%E6%89%BF%E8%AF%BA%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">KZG多项式承诺系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E5%BC%80%E5%8F%82%E6%95%B0%E4%BF%9D%E6%8A%A4"><span class="nav-number">2.1.</span> <span class="nav-text">公开参数保护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E8%AE%A1%E7%AE%97%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.2.</span> <span class="nav-text">多项式计算约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B6%E7%9F%A5%E8%AF%86%E4%BF%9D%E6%8A%A4"><span class="nav-number">2.3.</span> <span class="nav-text">零知识保护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%98%A0%E5%B0%84"><span class="nav-number">2.4.</span> <span class="nav-text">双线性映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E4%BF%A1%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.5.</span> <span class="nav-text">可信初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%BD%AC%E6%8D%A2%E4%B8%8E%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">知识系统的转换与构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#rank-1-constraints-system"><span class="nav-number">3.1.</span> <span class="nav-text">Rank-1 Constraints System</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qap-linear-pcp"><span class="nav-number">3.2.</span> <span class="nav-text">QAP &amp; Linear PCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">SunZhibo</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">personal blog of computer science</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -207,7 +207,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/Why-and-How-zk-SNARK-Works-Definitive-Explanation.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/d66984b9.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -216,7 +216,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -243,7 +243,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-07-21 15:19:08" itemprop="dateModified" datetime="2024-07-21T15:19:08+08:00">2024-07-21</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -266,7 +266,7 @@
     
     <div class="post-body" itemprop="articleBody">
         <p>零知识证明方案是目前的以太坊扩容主流解决方案，因此通过这篇论文学习零知识证明的数学原理。</p>
-<h1 id="零知识证明算法概览">零知识证明算法概览</h1>
+<h2 id="零知识证明算法概览">零知识证明算法概览</h2>
 <p>零知识证明是指是一方（证明者）向另一方（检验者）证明某命题的方法，特点是过程中除“该命题为真”之事外，不泄露任何信息。在零知识证明系统中，有Prover,
 Verifier两个角色，针对需要验证的知识，生成对应的Circuit（逻辑电路），这里的Circuit指的是知识需要符合的逻辑（亦或称之为待证明的知识本身），即一个逻辑系统，使用数学语言的方式进行描述，而并非指代数字电路。在以太坊目前的L2扩容方案中，链下节点作为证明者，通过零知识证明方案证明L2中合约被正确执行，因此L1网络可以在校验的基础上不经过再次执行，直接采纳L2的执行结果提交至L1网络。</p>
 <p>零知识证明目前有多种不同的实现方案，依赖于不同的密码学问题，也有不同的实现方法，其中比较常用的一类叫做ZK-SNARK（Zero-Knowledge
@@ -281,7 +281,7 @@ mapping和多项式承诺来完成零知识证明，它可以对不同的Circuit
 <li><p>ZK-STARK：也有人称其为SNARK的一种，不需要可信初始化，验证随数据规模变化较严重，适合于小数据的快速验证。</p></li>
 </ul>
 <p>本文主要参考了标题同名文章，其中重点介绍了KZG系统在零知识证明中的原理和使用。</p>
-<h1 id="kzg多项式承诺系统">KZG多项式承诺系统</h1>
+<h2 id="kzg多项式承诺系统">KZG多项式承诺系统</h2>
 <p>让我们假设一个场景，Prover想向Verifier证明他知道一个多项式形式的知识（自然Verifier也需要知道该多项式），这个待证明的多项式记为<span
 class="math inline">\(t(x)\)</span>，而证明者为了不泄漏<span
 class="math inline">\(t(x)\)</span>，则构造一个多项式<span
@@ -292,7 +292,7 @@ class="math inline">\(t(x)\)</span>这一知识。这就是多项式承诺系统
 class="math inline">\(r\)</span>，证明者计算出<span
 class="math inline">\(p(r), h(r)\)</span>发给验证者，如果满足<span
 class="math inline">\(t(r)=\frac{p(r)}{h(r)}\)</span>则以较大的概率相信证明者。这是最简单直观的交互式多项式承诺系统。</p>
-<h2 id="公开参数保护">公开参数保护</h2>
+<h3 id="公开参数保护">公开参数保护</h3>
 <p>如果想构造一个非交互式的零知识证明系统，那么就需要把一些参数预先公开发布，例如多项式的度数上限<span
 class="math inline">\(d\)</span>（如果没有度数上限，那么可能会通过对大量数据的收集进行插值构造），随机数<span
 class="math inline">\(r\)</span>，包括下文即将提到的位移参数<span
@@ -309,7 +309,7 @@ class="math inline">\(r\)</span>，即采用同态加密的方式，以上述方
 class="math inline">\(g^{r^{1}}, g^{r^{2}} ...
 g^{r^{d}}\)</span>，这样就可以防止攻击者根据<span
 class="math inline">\(r\)</span>去泄漏额外的知识，或伪造多项式通过验证，证明者和验证者都通过这些随机数的若干次幂在有限循环域上计算，并不影响证明过程。（计算多项式只需要加法和乘法操作）</p>
-<h2 id="多项式计算约束">多项式计算约束</h2>
+<h3 id="多项式计算约束">多项式计算约束</h3>
 <p>证明者理论上应该利用公开的<span
 class="math inline">\(g\)</span>的幂去计算多项式的值，但是如果恶意证明者使用了其他方法想要通过概率碰撞的方式通过证明，或者以其他运算方式生成多项式的结果，会存在较低的概率被破解。为了解决这一问题，就需要证明Prover真的是用了这些值进行了加法和乘法运算。</p>
 <p>以上述同态加密方法为例，使用KEA（Knowledge-of-Exponent
@@ -321,7 +321,7 @@ class="math inline">\(g^{\alpha
 t(r)}\)</span>。公开的参数为两组不同的基，要求验证者使用两组基做完全相同的运算操作，只有当验证者没有欺骗时才能满足<span
 class="math inline">\(g^{\alpha t(r)} = g^{t(\alpha
 r)}\)</span>，以保证证明者式通过多项式的基产生的证明。</p>
-<h2 id="零知识保护">零知识保护</h2>
+<h3 id="零知识保护">零知识保护</h3>
 <p>进一步地进行零知识的保护，观察目前的方案：记证明者使用基计算出的值为<span
 class="math inline">\(g^{h}, g^{p}\)</span>，使用位移基计算出的值为<span
 class="math inline">\(g^{p&#39;}\)</span>，验证者需要验证以下等式：
@@ -335,7 +335,7 @@ g^{p&#39;} &amp;= (g^{p})^{\alpha}
 class="math inline">\(\delta\)</span>，提供新的证明参数<span
 class="math inline">\(((g^{p})^{\delta}, (g^{h})^{\delta},
 (g^{p&#39;})^{\delta})\)</span>，仍然满足需要检验的约束条件，并且不会泄漏验证值的具体信息。</p>
-<h2 id="双线性映射">双线性映射</h2>
+<h3 id="双线性映射">双线性映射</h3>
 <p>截止到目前为止仍然存在一个问题，为了支持任意验证者对证明进行验证，公开的参数CSR（Common
 Reference String）中含有了验证需要的<span
 class="math inline">\(g^{\alpha},g^{t(r)}\)</span>，那么验证者可以从这个值入手构造证明，只要通过上述等式就可以伪造。</p>
@@ -351,11 +351,11 @@ e(g^{p&#39;}, g) &amp;= e(g^{p}, g^{\alpha})
 \end{aligned}
 \end{equation}\]</span></p>
 <p>这样证明者无法通过值简单地进行构造，就可以将参数直接公开，允许任意的验证者对证明进行验证。</p>
-<h2 id="可信初始化">可信初始化</h2>
+<h3 id="可信初始化">可信初始化</h3>
 <p>现在一个完备的ZK-SNARK系统已经建立完毕，补充说明一下可信初始化的过程。显然，几个关键参数包括基、随机数、位移参数等是非常重要的安全参数，在生成后必须销毁，因此KZG系统需要一个可信的初始化过程，在生成后进行销毁。借助目前的多方可信计算技术，可以做到多人共同参与参数的生成，只要至少一个参与者销毁了自己的参数，就可以保证该参数不可被重新生成，这就是KZG系统的最小可信需求。</p>
-<h1 id="知识系统的转换与构建">知识系统的转换与构建</h1>
+<h2 id="知识系统的转换与构建">知识系统的转换与构建</h2>
 <p>基于一个多项式，我们已经有了一个承诺系统，那么如何将一个实际问题转换为多项式呢？知识系统可以由多个不同的方法进行构建，下面介绍一种构建方式。</p>
-<h2 id="rank-1-constraints-system">Rank-1 Constraints System</h2>
+<h3 id="rank-1-constraints-system">Rank-1 Constraints System</h3>
 <p>首先要明确的是并不是任意问题都可以构造出知识系统，这里有相对严格的数学证明（想要继续了解的可以去进一步学习），这里以参考链接中给出的例子说明，Prover需要证明它知道<span
 class="math inline">\(x^3 + x + 5 =
 35\)</span>，因此可以构建出一个简单的逻辑关系表：</p>
@@ -381,7 +381,7 @@ class="math inline">\(m\)</span>个参数，那么就可以向量<span
 class="math inline">\(a, b, c\)</span>将含有<span
 class="math inline">\(n\)</span>行<span
 class="math inline">\(m\)</span>列，每一列都代表着一个不同的约束条件。</p>
-<h2 id="qap-linear-pcp">QAP &amp; Linear PCP</h2>
+<h3 id="qap-linear-pcp">QAP &amp; Linear PCP</h3>
 <p>为了保证零知识性，下一步需要对向量<span class="math inline">\(a, b,
 c\)</span>进行模糊处理，首先对向量进行随机扩展（不改变已经产生的值），之后通过拉格朗日插值法将向量转换为多项式，保证在<span
 class="math inline">\(x=i\)</span>的取值上可以得到<span
@@ -390,7 +390,7 @@ c_i\)</span>。这样原始向量就被保护起来，并且验证者可以通�
 class="math inline">\(x\)</span>，使用解向量在多项式的某一点进行验证，是否真的满足<span
 class="math inline">\(sa_i * sb_i - sc_i =
 0\)</span>，这一验证过程由于可以合并多项式，具有非常低的时间复杂度，符合ZK-SNARK的代价需求。就由此，我们就完成了知识系统的转换与构建。</p>
-<h1 id="补充">补充</h1>
+<h2 id="补充">补充</h2>
 <p>在了解零知识证明体系的过程中，我也了解到很多本文未涉及的密码学算法，包括将交互式证明转为非交互式的Fiat-Shamir协议（涉及随机预言机）等。我对这部分知识的了解并不深入，感兴趣的同学可以继续学习。</p>
 <p>参考链接：</p>
 <ol type="1">
@@ -421,12 +421,12 @@ Knowledge Proof</a></li>
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/RISC-Zero%E9%A1%B9%E7%9B%AE%E8%B0%83%E7%A0%94.html" rel="prev" title="Risc Zero项目调研">
+                <a href="/posts/162bc2fd.html" rel="prev" title="Risc Zero项目调研">
                   <i class="fa fa-chevron-left"></i> Risc Zero项目调研
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/Clockhands-Rename-free-Instruction-Set-Architecture-for-Out-of-order-Processors.html" rel="next" title="Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors">
+                <a href="/posts/82c52e88.html" rel="next" title="Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors">
                   Clockhands: Rename-free Instruction Set Architecture for Out-of-order Processors <i class="fa fa-chevron-right"></i>
                 </a>
             </div>

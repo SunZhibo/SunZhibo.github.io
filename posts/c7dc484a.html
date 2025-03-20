@@ -22,31 +22,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"sunzhibo.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":"default","style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="keccak-256 keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在padding方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。 keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：  r：bitrate，表示加密时每一轮输入的数据比特数，">
+    <meta name="description" content="最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。 Introduction 以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的CPU敏感型指令进行了系统性的分析测试。 Desig">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Keccak-256算法详解">
-<meta property="og:url" content="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html">
+<meta property="og:title" content="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code">
+<meta property="og:url" content="https://sunzhibo.github.io/posts/c7dc484a.html">
 <meta property="og:site_name" content="Hexo Blog">
-<meta property="og:description" content="keccak-256 keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在padding方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。 keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：  r：bitrate，表示加密时每一轮输入的数据比特数，">
+<meta property="og:description" content="最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。 Introduction 以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的CPU敏感型指令进行了系统性的分析测试。 Desig">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png">
-<meta property="article:published_time" content="2022-08-31T06:37:01.000Z">
-<meta property="article:modified_time" content="2024-06-15T07:23:37.512Z">
+<meta property="article:published_time" content="2022-12-22T02:36:53.000Z">
+<meta property="article:modified_time" content="2025-03-20T08:37:47.832Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Ethereum">
-<meta property="article:tag" content="Keccak-256">
+<meta property="article:tag" content="TestBench">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html">
+<link rel="canonical" href="https://sunzhibo.github.io/posts/c7dc484a.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html","path":"posts/Keccak-256算法详解.html","title":"Keccak-256算法详解"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/c7dc484a.html","path":"posts/c7dc484a.html","title":"OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Keccak-256算法详解 | Hexo Blog</title>
+<title>OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code | Hexo Blog</title>
   
 
 
@@ -80,7 +78,7 @@
       <p class="site-title">Hexo Blog</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">record</p>
+      <p class="site-subtitle" itemprop="description">record myself</p>
   </div>
 
   <div class="site-nav-right">
@@ -150,14 +148,14 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#keccak-256"><span class="nav-number">1.</span> <span class="nav-text">keccak-256</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keccak-256%E7%AE%97%E6%B3%95%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">keccak-256算法的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#design-of-opbench-system"><span class="nav-number">2.</span> <span class="nav-text">Design of OpBench System</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#result"><span class="nav-number">3.</span> <span class="nav-text">Result</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">SunZhibo</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">personal blog of computer science</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -207,7 +205,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/c7dc484a.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -216,16 +214,16 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Keccak-256算法详解 | Hexo Blog">
+      <meta itemprop="name" content="OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code | Hexo Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Keccak-256算法详解
+          OpBench: A CPU Performance Benchmark for Ethereum Smart Contract Operation Code
         </h1>
 
         <div class="post-meta-container">
@@ -236,14 +234,14 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2022-08-31 14:37:01" itemprop="dateCreated datePublished" datetime="2022-08-31T14:37:01+08:00">2022-08-31</time>
+      <time title="创建时间：2022-12-22 10:36:53" itemprop="dateCreated datePublished" datetime="2022-12-22T10:36:53+08:00">2022-12-22</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -251,7 +249,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Crypto/" itemprop="url" rel="index"><span itemprop="name">Crypto</span></a>
+          <a href="/categories/Study/" itemprop="url" rel="index"><span itemprop="name">Study</span></a>
         </span>
     </span>
 
@@ -265,66 +263,36 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="keccak-256">keccak-256</h2>
-<p>keccak-256是以太坊采用的哈希加密函数，其与标准的SHA3-256仅仅在<code>padding</code>方式上有所不同，但是产生的结果是完全不一样的，我们主要关注以太坊使用的keccak-256。</p>
-<p>keccak函数族采用了海绵结构，可以接受任意长度的输入，也可以提供任意长度的输出。keccak函数有两个用以描述其加密难度的参数：</p>
-<ul>
-<li>r：bitrate，表示加密时每一轮输入的数据比特数，决定了数据输入的长度</li>
-<li>c：capacity，表示加密时数据的额外比特数，与参数r共同决定了哈希操作的数据长度<code>b=r+c</code></li>
-</ul>
-<p>keccak函数工作可以分为输入和输出两个主要的阶段，每个阶段都依赖于海绵结构，海绵结构中具有<code>b</code>比特的数据。（要求<span
-class="math inline">\(b=25*2^{l}\)</span>，其中<span
-class="math inline">\(l \in [0, 6]\)</span>）</p>
-<p>在哈希函数工作前，首先按照比特率<code>r</code>对数据进行<code>padding</code>对齐，实现的方法为在数据后添加最少数量的<code>10*1</code>，使数据的长度为<code>r</code>的倍数，记得到的新数据<span
-class="math inline">\(P =
-M||pad[r]\)</span>。（标准的SHA3-256唯一不同的地方在于其修改了<code>padding</code>的方式，这导致了哈希结果巨大的差异）</p>
-<p>在输入阶段，海绵结构在初始状态下是全0的<code>b</code>比特数据。依次向“海绵”中输入<code>r</code>比特的待加密数据，与海绵结构的前<code>r</code>比特进行异或，再通过加密函数<code>f()</code>得到新的海绵结构。不断重复上述过程直至对齐后的待加密数据全部输入海绵结构。</p>
-<p>在输出过程中，依次从“海绵”中取出前<code>r</code>比特数据作为输出，如果长度小于要求的输出长度，则再通过加密函数<code>f()</code>得到新的海绵结构，重复取出前<code>r</code>比特数据直至长度大于等于要求。取得到的数据的前<code>n</code>位作为输出，即是<code>keccak-n</code>算法的哈希结果。</p>
-<div style="width:70%;margin:auto">
-<img src="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/keccak.png" class="" title="keccak work process">
-</div>
-<p>接下来的重点是加密函数<code>f()</code>，这是<code>keccak</code>函数族更新海绵结构的核心，<code>f()</code>函数以<code>b</code>比特数据作为输入，以<code>b</code>比特数据作为输出。将<code>b</code>比特的数据排列为一个三维矩阵，将其中的一个元素记为<code>a[x][y][z]</code>，<span
-class="math inline">\(x, y \in [0, 5), z \in
-2^{l}\)</span>，特别地当<code>b=1600</code>时，可以将<code>a[x][y]</code>视为一个5x5的64位整型数组。<code>f()</code>函数会执行<code>n_&#123;r&#125;=12+2l</code>轮加密，每一轮加密由五个部分组成，接下来按照顺序依次介绍这五个部分。</p>
-<p>需要补充的是以下的运算都定义在<code>GF(2)</code>上，加法即为异或操作，乘法即为与操作。</p>
-<p><span class="math inline">\(\theta: a[x][y][z] = a[x][y][z] +
-\sum_{y&#39;=0}^{4} a[x-1][y&#39;][z] +
-\sum_{y&#39;=0}^{4}a[x+1][y&#39;][z-1]\)</span>。直观地理解<span
-class="math inline">\(\theta\)</span>操作，将矩阵a的每一行与上一行，下一行进行异或操作，其中下一行需要进行循环左移一位。</p>
-<p><span class="math inline">\(\rho: a[x][y][z] =
-a[x][y][z-(t+1)(t+2)/2]\)</span>，其中<span class="math inline">\(t \in
-[0, 24)\)</span>并且在<code>GF(5)</code>域中满足<span
-class="math inline">\(\begin{pmatrix} 0 &amp; 1 \\ 2 &amp; 3
-\end{pmatrix}^{t} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix}
-x \\ y \end{pmatrix}\)</span>，特殊地当<span
-class="math inline">\(x=y=0\)</span>时，令<span
-class="math inline">\(t=-1\)</span>。<span
-class="math inline">\(\rho\)</span>操作只对每个整形内部的比特顺序进行调整。</p>
-<p><span class="math inline">\(\pi: a[x][y] = a[x&#39;][y&#39;],
-\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} 0 &amp; 1 \\ 2
-&amp; 3\end{pmatrix} \begin{pmatrix} x&#39; \\
-y&#39;\end{pmatrix}\)</span>。 <span
-class="math inline">\(\pi\)</span>操作只改变整形间的顺序。</p>
-<p><span class="math inline">\(\chi: a[x] = a[x] + (a[x+1] +
-1)a[x+2]\)</span>。<span
-class="math inline">\(\chi\)</span>操作对行间进行操作，对数据进行杂凑加密。</p>
-<p><span class="math inline">\(\iota: a = a + RC[i_{r}]\)</span>。<span
-class="math inline">\(\iota\)</span>操作异或上轮常数进行混淆，其中轮常数只有64位，因此值改变了<code>a[0][0]</code>的值。</p>
-<p>在实际实现中，可以通过预先计算好的常数对<span
-class="math inline">\(\rho, \pi\)</span>操作优化加速。</p>
-<h2 id="keccak-256算法的实现">keccak-256算法的实现</h2>
-<h2 id="参考链接">参考链接</h2>
+        <p>最近正好在开发HardwareEVM，需要寻找一个测试集做性能测试。</p>
+<h2 id="introduction">Introduction</h2>
+<p>以太坊区块链的功能依靠矿工挖掘产生，而矿工执行智能合约获得对应的费用，如果执行需要的代价和获得奖励不匹配，则很容易被利用或者被选择性执行，造成对区块链网络的危害。因此本文对指令执行需要的资源以及获得的奖励进行了比较，提出了OpBench测试集，对所有的<strong>CPU敏感型指令</strong>进行了系统性的分析测试。</p>
+<h2 id="design-of-opbench-system">Design of OpBench System</h2>
+<p>OpBench的使用分为四个阶段：</p>
 <ol type="1">
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ucw5ZW291V0">Learn
-Keccak-256 on Youtube</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/files/Keccak-reference-3.0.pdf">Keccak-reference-3.0</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/files/Keccak-implementation-3.2.pdf">Keccak-implementation-3.2</a></li>
-<li><a
-target="_blank" rel="noopener" href="https://keccak.team/keccak_specs_summary.html">Keccak-Official
-website</a></li>
+<li><p>通过PyEthApp来获取获取所有opcode的信息，包括参数数量，花费。</p></li>
+<li><p>对于每一条opcode，生成一个对应的合约，其中重复调用该条指令，也包括必要的PUSH和POP指令以避免栈溢出。这个合约也会带有模拟的信息（如账户余额，时间戳，块信息）。一些指令的执行时间可能也受操作数的位宽影响（如ADD指令），对于此类指令，按照64,
+128, 256位的情况分别生成测试。</p></li>
+<li><p>将合约部署在测试链上并执行。</p></li>
+<li><p>计算统计执行花费的时间，需要多次实验取均值，并得到数据的置信度。</p></li>
 </ol>
+<p>对于一部分Formula-based的指令，它们具有动态的开销，共有6条，分别对它们采取了不同的测试集。</p>
+<ol type="1">
+<li><p>EXP指令，开销与指数位宽有关，测试时根据指数位数不同，从64bit到256bit分别进行了测试。</p></li>
+<li><p>SHA指令，开销与加密数据长有关，测试时选取1，2，3，4word分别测试。</p></li>
+<li><p>SSTORE指令，开销与slot中的数据是否已经存在有关，测试时重复模拟了从0到非0，非0的修改。</p></li>
+<li><p>CALLDATACOPY &amp;
+CODECOPY指令，开销与拷贝的数据长有关，测试时选用了1，2word两种情况进行测试。</p></li>
+<li><p>EXTCODECOPY指令，同类型4，但是选用了1，2，3word情况进行测试。</p></li>
+</ol>
+<p>在测试后还需要排除所使用的PUSH和POP语句对应的时间。</p>
+<h2 id="result">Result</h2>
+<p>在PyEthApp的测试中，指令重复执行100k次。而在Geth的测试中，所有指令重复执行1s，得到的结论如下：</p>
+<ul>
+<li><p>go客户端的性能更好。</p></li>
+<li><p>客户端和系统共同影响着性能。</p></li>
+<li><p>不同的指令单位CPU时间付出的费用是不同的。</p></li>
+<li><p>python客户端在运行类指令执行更快，而go客户端在环境类指令更快。</p></li>
+</ul>
 
     </div>
 
@@ -335,20 +303,20 @@ website</a></li>
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Ethereum/" rel="tag"># Ethereum</a>
-              <a href="/tags/Keccak-256/" rel="tag"># Keccak-256</a>
+              <a href="/tags/TestBench/" rel="tag"># TestBench</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html" rel="prev" title="《Mastering Ethereum》读书笔记">
-                  <i class="fa fa-chevron-left"></i> 《Mastering Ethereum》读书笔记
+                <a href="/posts/e29e40ff.html" rel="prev" title="《Vivado数字设计》读书笔记">
+                  <i class="fa fa-chevron-left"></i> 《Vivado数字设计》读书笔记
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/%E3%80%8AVivado%E6%95%B0%E5%AD%97%E8%AE%BE%E8%AE%A1%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html" rel="next" title="《Vivado数字设计》读书笔记">
-                  《Vivado数字设计》读书笔记 <i class="fa fa-chevron-right"></i>
+                <a href="/posts/d7cefcc1.html" rel="next" title="ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling">
+                  ghOSt Fast & Flexible User-Space Delegation of Linux Scheduling <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>

@@ -25,28 +25,28 @@
     <meta name="description" content="根据领域的需求买了一本《精通以太坊》，看的过程中顺便整理一下之前不知道的知识。 以太坊背后的密码学 私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更依赖于密码学安全的伪随机数生成器（如CSPRNG），在以太坊中私钥可以是\([1, n-1]\)中的任何数字，其中\(n\)代表了以太坊使用的椭圆曲线的阶，为\(1.158 * 10^{7">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《Mastering Ethereum》读书笔记">
-<meta property="og:url" content="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html">
+<meta property="og:url" content="https://sunzhibo.github.io/posts/10fe4eb6.html">
 <meta property="og:site_name" content="Hexo Blog">
 <meta property="og:description" content="根据领域的需求买了一本《精通以太坊》，看的过程中顺便整理一下之前不知道的知识。 以太坊背后的密码学 私钥是用户于本地随机生成的256位随机数字，私钥对应着以太坊账户的控制权和所有权，因此需要严格保密。私钥的生成更依赖于密码学安全的伪随机数生成器（如CSPRNG），在以太坊中私钥可以是\([1, n-1]\)中的任何数字，其中\(n\)代表了以太坊使用的椭圆曲线的阶，为\(1.158 * 10^{7">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/BIP-32.png">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Private.png">
-<meta property="og:image" content="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Public.png">
+<meta property="og:image" content="https://sunzhibo.github.io/posts/10fe4eb6/BIP-32.png">
+<meta property="og:image" content="https://sunzhibo.github.io/posts/10fe4eb6/derive-Private.png">
+<meta property="og:image" content="https://sunzhibo.github.io/posts/10fe4eb6/derive-Public.png">
 <meta property="article:published_time" content="2022-08-31T06:37:01.000Z">
-<meta property="article:modified_time" content="2024-06-15T07:23:37.518Z">
+<meta property="article:modified_time" content="2025-03-20T08:37:47.838Z">
 <meta property="article:author" content="SunZhibo">
 <meta property="article:tag" content="Ethereum">
 <meta property="article:tag" content="Crypto">
 <meta property="article:tag" content="Security">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/BIP-32.png">
+<meta name="twitter:image" content="https://sunzhibo.github.io/posts/10fe4eb6/BIP-32.png">
 
 
-<link rel="canonical" href="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html">
+<link rel="canonical" href="https://sunzhibo.github.io/posts/10fe4eb6.html">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html","path":"posts/《Mastering-Ethereum》读书笔记.html","title":"《Mastering Ethereum》读书笔记"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://sunzhibo.github.io/posts/10fe4eb6.html","path":"posts/10fe4eb6.html","title":"《Mastering Ethereum》读书笔记"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>《Mastering Ethereum》读书笔记 | Hexo Blog</title>
@@ -83,7 +83,7 @@
       <p class="site-title">Hexo Blog</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">record</p>
+      <p class="site-subtitle" itemprop="description">record myself</p>
   </div>
 
   <div class="site-nav-right">
@@ -160,7 +160,7 @@
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">SunZhibo</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">personal blog of computer science</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
@@ -210,7 +210,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0.html">
+    <link itemprop="mainEntityOfPage" href="https://sunzhibo.github.io/posts/10fe4eb6.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -219,7 +219,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Hexo Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="personal blog of computer science">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -246,7 +246,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-15 15:23:37" itemprop="dateModified" datetime="2024-06-15T15:23:37+08:00">2024-06-15</time>
+      <time title="修改时间：2025-03-20 16:37:47" itemprop="dateModified" datetime="2025-03-20T16:37:47+08:00">2025-03-20</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -341,15 +341,15 @@ class="math inline">\(S\)</span>的末尾，按照11比特一组分为<span
 class="math inline">\(3S/32\)</span>组，在预先选取出的2048个简单英文单词中进行映射，形成助记词组。若用户忘记了钱包的密码，可以通过助记词可以恢复出钱包生成的随机数。分层确定性钱包（HD）由一个512比特的种子密钥开始生成，使用助记词组作为第一个参数，可选的盐（默认为"mnemonic"，可以在后附加用户指定的密码）作为第二个参数，使用密钥扩展算法PBKDF2进行2048轮HMAC-SHA512哈希运算得到。<strong>需要特别注意的是</strong>此处的密码与设立钱包时要求用户填写的密码不同，若设立时的密码丢失，可以通过助记词进行恢复，这也说明了这个密码仅作钱包的登录使用，并不参与到后续种子密钥的生成过程。</p>
 <p>有了钱包的种子密钥后就可以根据曾几时确定性钱包标准（BIP-32）进行密钥的派生了，其中种子的左256位为根私钥，右256位为根链码，扩展派生出的密钥形成树形结构，根据扩展时使用的索引进行编码，不同的层级间用<code>/</code>隔开，如下图所示。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/BIP-32.png" class="" title="BIP-32 Standard">
+<img src="/posts/10fe4eb6/BIP-32.png" class="" title="BIP-32 Standard">
 </div>
 <p>比较直观的派生过程如下图所示，将父公钥，父链码和索引作为哈希函数的输入，得到的512位哈希输出分为左右两部分，分别记为<code>l, r</code>，<code>l</code>与父私钥<code>p</code>相加得到子私钥<code>c=l+p</code>，<code>r</code>作为子链码用于下一级密钥的派生。为了方便钱包间的导入导出，将密钥与对应的链码结合起来称为扩展密钥，使用Base58Check进行编码，其中扩展私钥以<code>xpriv</code>开头，扩展公钥以<code>xpub</code>开头。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Private.png" class="" title="Parent Private Key">
+<img src="/posts/10fe4eb6/derive-Private.png" class="" title="Parent Private Key">
 </div>
 <p>为了在不可信赖环境下进行部署，利用椭圆曲线运算上的结合律，可以不经过父私钥，只通过父扩展公钥生成子公钥。因为生成方法为<code>c=l+p</code>，根据公钥生成方式有<code>C=G*c, P=G*p</code>，因此有<code>C=G*(l+p)=G(l)+P</code>，将生成点与哈希结果的左半部分相乘，再加上父公钥即可得到派生出的子公钥，这样就避免了私钥的部署。</p>
 <div style="width:70%;margin:auto">
-<img src="/posts/%E3%80%8AMastering-Ethereum%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/derive-Public.png" class="" title="Parent Public Key">
+<img src="/posts/10fe4eb6/derive-Public.png" class="" title="Parent Public Key">
 </div>
 <p>考虑如果某一个子私钥发生了泄露，在父扩展公钥暴露的情况下，可以对索引进行暴力破解，从而根据<code>c=l+p</code>的逆运算得到父私钥，使得由该父节点派生的所有密钥发生泄漏。为此引入了增强派生算法，由父私钥，父链码和索引生成子一级的私钥和链码，由于私钥不会被部署也就隔断了子一级向上推断的可能，当然缺点是私钥无法像公钥一样部署在服务器上，因此通常在最根一级使用增强派生算法，或在需要隔绝父子间推导关系的场景使用，以增强钱包的安全性。</p>
 <p>为了区别两种派生方法，规定索引最高位为0代表普通派生方法，为1代表增强派生算法，特别地在表示时，<code>m/x/y</code>为密钥<code>m</code>派生的第<code>x</code>个子密钥的第<code>y</code>个子密钥，<code>m/x'/y</code>表示密钥<code>m</code>派生的第<code>x+0x80000000</code>个增强密钥的第<code>y</code>个子密钥。</p>
@@ -413,7 +413,7 @@ class="math inline">\(K=r^{-1}(sQ - Keccak(m) * G)\)</span>。</p>
             <div class="post-nav-item">
             </div>
             <div class="post-nav-item">
-                <a href="/posts/Keccak-256%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3.html" rel="next" title="Keccak-256算法详解">
+                <a href="/posts/1b64dd1.html" rel="next" title="Keccak-256算法详解">
                   Keccak-256算法详解 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
