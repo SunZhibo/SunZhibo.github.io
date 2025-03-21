@@ -122,9 +122,9 @@ hiding，当指令陷入停滞时允许后续的指令以乱序发射，继续�
     
     <category term="Ethereum" scheme="https://sunzhibo.github.io/tags/Ethereum/"/>
     
-    <category term="Zero Knowledge Proof" scheme="https://sunzhibo.github.io/tags/Zero-Knowledge-Proof/"/>
-    
     <category term="Crypto" scheme="https://sunzhibo.github.io/tags/Crypto/"/>
+    
+    <category term="Zero Knowledge Proof" scheme="https://sunzhibo.github.io/tags/Zero-Knowledge-Proof/"/>
     
     <category term="Study" scheme="https://sunzhibo.github.io/tags/Study/"/>
     
