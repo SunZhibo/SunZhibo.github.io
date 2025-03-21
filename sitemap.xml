@@ -110,7 +110,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/categories/index.html</loc>
+    <loc>https://sunzhibo.github.io/tags/index.html</loc>
     
     <lastmod>2024-06-15</lastmod>
     
@@ -119,7 +119,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/tags/index.html</loc>
+    <loc>https://sunzhibo.github.io/categories/index.html</loc>
     
     <lastmod>2024-06-15</lastmod>
     
@@ -160,21 +160,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/tags/Algorithm/</loc>
-    <lastmod>2025-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://sunzhibo.github.io/tags/Ethereum/</loc>
-    <lastmod>2025-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sunzhibo.github.io/tags/Keccak-256/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -188,21 +174,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/tags/Crypto/</loc>
-    <lastmod>2025-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sunzhibo.github.io/tags/Zero-knowledge-proof/</loc>
-    <lastmod>2025-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://sunzhibo.github.io/tags/Virtual-machine/</loc>
+    <loc>https://sunzhibo.github.io/tags/Keccak-256/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -223,6 +195,13 @@
   </url>
   
   <url>
+    <loc>https://sunzhibo.github.io/tags/Algorithm/</loc>
+    <lastmod>2025-03-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://sunzhibo.github.io/tags/SGX/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
@@ -231,6 +210,13 @@
   
   <url>
     <loc>https://sunzhibo.github.io/tags/Zero-Knowledge-Proof/</loc>
+    <lastmod>2025-03-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sunzhibo.github.io/tags/Crypto/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -252,6 +238,20 @@
   
   <url>
     <loc>https://sunzhibo.github.io/tags/Scheduler/</loc>
+    <lastmod>2025-03-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sunzhibo.github.io/tags/Zero-knowledge-proof/</loc>
+    <lastmod>2025-03-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sunzhibo.github.io/tags/Virtual-machine/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -288,7 +288,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/categories/Codeforces/</loc>
+    <loc>https://sunzhibo.github.io/categories/Study/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -302,7 +302,7 @@
   </url>
   
   <url>
-    <loc>https://sunzhibo.github.io/categories/Study/</loc>
+    <loc>https://sunzhibo.github.io/categories/Codeforces/</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
